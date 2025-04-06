@@ -1,0 +1,21 @@
+# Ignore media files
+server/media/
+
+# Python/Django
+*.pyc
+__pycache__/
+*.sqlite3
+db.sqlite3
+.env
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Node modules (if any frontend is included)
+node_modules/
+
+# VS Code & Mac system files
+.vscode/
+.DS_Store
