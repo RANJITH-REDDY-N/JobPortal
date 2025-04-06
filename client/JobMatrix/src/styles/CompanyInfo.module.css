@@ -1,0 +1,234 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.logoContainer {
+    flex: 0 0 150px;
+}
+
+.companyLogo {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+.headerInfo {
+    flex: 1;
+    min-width: 300px;
+}
+
+.companyName {
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+    color: #2e3a4d;
+}
+
+.industry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+}
+
+.metaInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.websiteLink {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #4e73df;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.websiteLink:hover {
+    text-decoration: underline;
+}
+
+.icon {
+    font-size: 1.1rem !important;
+    color: #6c757d;
+}
+
+.editButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    margin-left: auto;
+}
+
+.editButton:hover {
+    background-color: #3a5ab3;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.section {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+}
+
+.sectionTitle {
+    margin: 0 0 25px 0;
+    color: #2e3a4d;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.sectionContent {
+    color: #495057;
+    line-height: 1.7;
+}
+
+.description {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+.paragraphGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.paragraphGroup p {
+    margin: 0;
+}
+
+.credentialsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.credentialItem {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.credentialTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 15px 0;
+    color: #2e3a4d;
+    font-size: 1.1rem;
+}
+
+.credentialIcon {
+    color: #4e73df !important;
+}
+
+.secretKeyContainer {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    max-width: 500px;
+}
+
+.secretKeyInput {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: monospace;
+    background-color: #f1f3f5;
+}
+
+.copyButton {
+    padding: 0 15px;
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.copyButton:hover {
+    background-color: #3a5ab3;
+}
+
+.secretKeyNote {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+.companyId {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2e3a4d;
+    padding: 10px 0;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+    }
+    
+    .editButton {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .logoContainer {
+        align-self: center;
+    }
+    
+    .section {
+        padding: 20px;
+    }
+}

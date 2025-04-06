@@ -1,0 +1,199 @@
+.container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .header h2 {
+    font-size: 1.5rem;
+    color: #2d3748;
+    margin: 0;
+  }
+  
+  /* Timeline styles */
+  .timeline {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+  }
+  
+  .timelineItem {
+    position: relative;
+    padding-bottom: 2rem;
+  }
+  
+  .timelineDot {
+    position: absolute;
+    left: -1.5rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4299e1;
+    border: 3px solid #ebf8ff;
+  }
+  
+  .timelineContent {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .timelineHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+  
+  .companyName {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .jobTitle {
+    font-size: 1rem;
+    color: #4a5568;
+    margin: 0.25rem 0;
+  }
+  
+  .companyLink {
+    color: #718096;
+    transition: color 0.2s;
+  }
+  
+  .companyLink:hover {
+    color: #4299e1;
+  }
+  
+  .timelineActions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .details {
+    display: flex;
+    gap: 1.5rem;
+    color: #718096;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  
+  .dateRange {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .dateIcon {
+    font-size: 0.875rem;
+  }
+  
+  .summary {
+    color: #4a5568;
+    margin: 1rem 0;
+    line-height: 1.6;
+  }
+  
+  .bulletPoints {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+    color: #4a5568;
+  }
+  
+  .bulletPoints li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  
+  /* Form styles */
+  .dialogContent {
+    padding: 1rem 1.5rem;
+  }
+  
+  .formRow {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .formRow > * {
+    flex: 1;
+  }
+  
+  .bulletPointsContainer {
+    margin-top: 1rem;
+  }
+  
+  .bulletPointsContainer h4 {
+    margin: 1rem 0 0.5rem;
+    color: #4a5568;
+  }
+  
+  .bulletPointInput {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .bulletPointInput > div {
+    flex: 1;
+  }
+  
+  /* Empty state */
+  .emptyState {
+    text-align: center;
+    padding: 3rem;
+    color: #718096;
+  }
+  
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: #718096;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+    
+    .formRow {
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .details {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .bulletPointInput {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }

@@ -1,0 +1,128 @@
+/* Full screen layout */
+.container {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 2vh 2vw;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Left Section */
+.left {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.image {
+    width: 25vw; 
+    height: auto;
+}
+
+.caption {
+    margin-top: 7vh;
+    font-style: regular;
+    font-size: clamp(1rem, 1.2vw, 1.4rem);
+    font-weight: 500;
+    color: var(--english-violet);
+    text-align: center;
+}
+
+/* Divider */
+.divider {
+    width: 0.2vw;
+    height: 60vh;
+    background-color: var(--steel-blue);
+    transition: height 0.3s ease-in-out;
+}
+
+/* Right Section */
+.right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* LOGO */
+.logo {
+    width:20vw;
+    height: auto;
+    padding-right: 3vw;
+}
+
+/* Title */
+.title {
+    font-size: 1rem;
+    color: var(--steel-blue);
+    text-align: center;
+    margin-bottom: 4vh;
+}
+
+/* Buttons Container */
+.buttons {
+    display: flex;
+    gap: 2vw;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ✨ Responsive Design for Button Size Only ✨ */
+
+@media (max-width: 1080px) {
+    .button {
+        font-size: 0.9rem;
+        padding: 1vh 1.8vw;
+    }
+    .logo {
+        width:25vw;
+        height: auto;
+        padding-right: 3vw;
+    }
+    .image {
+        width: 35vw;
+    }
+}
+
+@media (max-width: 720px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        padding: 15vh 2vw;
+    }
+
+    .divider {
+        display: none;
+    }
+
+    .image {
+        width: 40vw;
+        height: auto;
+    }
+
+    .logo {
+        width: 40vw;
+    }
+
+    .title {
+        font-size: 0.8rem;
+    }
+    .caption{
+        font-size: 0.8rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .button {
+        width: 35vw;
+        padding: 1.2vh 4vw;
+        font-size: 1rem;
+    }
+}
