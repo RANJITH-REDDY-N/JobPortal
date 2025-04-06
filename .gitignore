@@ -19,3 +19,6 @@ node_modules/
 # VS Code & Mac system files
 .vscode/
 .DS_Store
+
+# Ignore all assets
+client/JobMatrix/src/assets/
