@@ -1,19 +1,72 @@
 .container {
-    padding: 2rem 3rem;
-    background-color: var(--aqua);
-    min-height: 100vh;
-    box-sizing: border-box;
-  }
-  
-  .heading {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--english-violet);
-    margin-bottom: 1rem;
-  }
-  
-  .subtext {
-    font-size: 1rem;
-    color: var(--light-blue);
-  }
-  
+  padding: 2rem 3rem;
+  background-color: var(--aqua);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--english-violet);
+  margin-bottom: 2rem;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  display: flex;
+  background-color: var(--white);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.logo {
+  width: 6rem;
+  height: 6rem;
+  object-fit: contain;
+  border-radius: 10px;
+  background-color: var(--aqua);
+}
+
+.details {
+  flex: 1;
+}
+
+.details h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--steel-blue);
+}
+
+.industry {
+  font-size: 0.9rem;
+  color: var(--light-blue);
+  margin: 0.25rem 0;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  color: var(--steel-blue);
+  cursor: pointer;
+}
+
+.actions svg:hover {
+  color: var(--blue);
+}

@@ -45,7 +45,7 @@ const fetchAPI = async (
 // Example API functions
 export const userAuth = (data) => fetchAPI(`/login/`, "POST", data);
 export const registerUser = (formData) => fetchAPI(`/users/create/`, "POST", formData, false, 'multipart/form-data', true);
-export const getCompanies = () => fetchAPI(`/companies`, "GET");
+export const getCompanies = () => fetchAPI(`/companies/`, "GET");
 export const userDetails = (email) => fetchAPI(`/users/get/?user_email=${email}`, "GET", null, true);
 export const patchUserDetails = (userId, formData) => fetchAPI(`/users/patch/${userId}/`, "PATCH", formData, true, 'multipart/form-data', true);
 export const patchResume = (formData) => fetchAPI(`/users/resume-update/`, "PATCH", formData, true, 'multipart/form-data', true);
@@ -118,6 +118,12 @@ export const deleteWorkExperience = (educationId) => fetchAPI(`/profile/work-exp
 export const getJobsListByACompany = () => fetchAPI(`/company-jobs/`,"GET",null,true,'application/json',false);
 export const getApplicantsForJob = (jobId) => fetchAPI(`/job/applicants/${jobId}`,"GET",null,true,'application/json',false);
 export const updateApplicationStatus = (applicationId, data) => fetchAPI(`/job/recruiter/applications/${applicationId}`, "PATCH", data,'application/json',false )
+
+
+/** ADMIN */
+export const getAllUsers = () => fetchAPI(`/users/all/`,"GET",null,true,'application/json',false);
+
+
 
 
 export default fetchAPI;

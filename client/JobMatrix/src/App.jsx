@@ -41,7 +41,7 @@ function App() {
         {/* Applicant and Recruiter Routes */}
         <Route path="/applicant/*" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["APPLICANT"]}>
               <ApplicantDashboard />
             </ProtectedRoute> 
           } 
@@ -57,19 +57,19 @@ function App() {
         
         {/* Admin Routes */}
         <Route path="/admin/*" 
-  element={
-    <ProtectedRoute allowedRoles={["ADMIN"]}>
-      <AdminLayout />
-    </ProtectedRoute>
-  }
->
-  <Route index element={<Navigate to="dashboard" replace />} />
-  <Route path="dashboard" element={<AdminDashboard />} />
-  <Route path="users" element={<AdminUsers />} />
-  <Route path="companies" element={<AdminCompanies />} />
-  <Route path="jobs" element={<AdminJobs />} />
-  <Route path="settings" element={<AdminSettings />} />
-</Route>
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="companies" element={<AdminCompanies />} />
+            <Route path="jobs" element={<AdminJobs />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
 
       </Routes>
     </Router>
