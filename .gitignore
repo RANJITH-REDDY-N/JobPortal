@@ -22,3 +22,4 @@ node_modules/
 
 # Ignore all assets
 client/JobMatrix/src/assets/
+client/JobMatrix/public
