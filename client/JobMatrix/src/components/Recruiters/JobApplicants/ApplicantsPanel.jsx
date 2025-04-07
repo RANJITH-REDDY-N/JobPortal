@@ -13,8 +13,10 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
   const [totalPages, setTotalPages] = useState(applications.total_pages)
   const applicantsPerPage = applications.results.length; 
 
+  console.log("applicantsss ",applications)
   const handleStatusChange = (applicationId, newStatus) => {
     console.log(`Changing status of application ${applicationId} to ${newStatus}`);
+
     // Implement actual status change API call here
   };
 

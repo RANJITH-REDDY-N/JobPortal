@@ -1,68 +1,113 @@
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { FiUsers, FiBriefcase, FiHome } from "react-icons/fi";
-import { MdBusiness } from "react-icons/md";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 
-import styles from "../../styles/AdminLayout.module.css";
-import defaultProfilePhoto from "../../assets/noprofilephoto.png";
+import styles from "../../styles/SidenavBar.module.css";
 import logo from "../../assets/logo.svg";
-
-const adminNavLinks = [
-  { to: "/admin/dashboard", label: "Dashboard", icon: <FiHome /> },
-  { to: "/admin/users", label: "Users", icon: <FiUsers /> },
-  { to: "/admin/companies", label: "Companies", icon: <MdBusiness /> },
-  { to: "/admin/jobs", label: "Jobs", icon: <FiBriefcase /> },
-  { to: "/admin/settings", label: "Profile", icon: <FiUsers /> },
-];
+import logoMini from "../../assets/logo-icon.svg";
+import logoutIcon from "../../assets/SideNavIcon-Images/logout-inactive.svg";
+import dashboardActive from "../../assets/SideNavIcon-Images/dashboard-active.svg";
+import dashboardInactive from "../../assets/SideNavIcon-Images/dashboard-inactive.svg";
+import usersActive from "../../assets/SideNavIcon-Images/users-active.svg";
+import usersInactive from "../../assets/SideNavIcon-Images/users-inactive.svg";
+import companiesActive from "../../assets/SideNavIcon-Images/companies-active.svg";
+import companiesInactive from "../../assets/SideNavIcon-Images/companies-inactive.svg";
+import jobsActive from "../../assets/SideNavIcon-Images/basil_bag-solid-active.svg";
+import jobsInactive from "../../assets/SideNavIcon-Images/basil_bag-solid-inactive.svg";
+import defaultUser from "../../assets/noprofilephoto.png";
+import { fetchUserData } from "../../Redux/userSlice";
 
 const AdminLayout = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const user = useSelector(state => state.user.user);
-  const fullName = user ? `${user.user_first_name || ""} ${user.user_last_name || ""}` : "Admin";
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.user.user);
 
-  const activeIndex = adminNavLinks.findIndex(link =>
-    location.pathname.startsWith(link.to)
-  );
+  useEffect(() => {
+    dispatch(fetchUserData(localStorage.getItem("userEmail")));
+  }, [dispatch]);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
+  const getIndicatorPosition = () => {
+    if (location.pathname.includes("/dashboard")) return "0rem";
+    if (location.pathname.includes("/users")) return "4.3rem";
+    if (location.pathname.includes("/companies")) return "8.6rem";
+    if (location.pathname.includes("/jobs")) return "12.9rem";
+    if (location.pathname.includes("/settings")) return "17.2rem";
+    return "0rem";
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <div className={styles.topSection}>
-          <img src={logo} alt="JobMatrix Logo" className={styles.logo} />
+          <img src={logo} alt="JobMatrix Logo" className={`${styles.logo} ${styles.fullLogo}`} />
+          <img src={logoMini} alt="Mini Logo" className={styles.logoMini} />
 
-          <div className={styles.profileRow}>
-            <img
-              src={user?.user_profile_photo || defaultProfilePhoto}
-              alt="Admin"
-              className={styles.profilePic}
-            />
-            <span className={styles.profileName}>{fullName}</span>
-          </div>
+          <nav className={styles.navLinks}>
+            <div className={styles.indicator} style={{ top: getIndicatorPosition() }} />
 
-          <div className={styles.navLinks}>
-            {adminNavLinks.map((link, index) => (
-              <NavLink key={link.to} to={link.to} className={styles.navItem}>
-                {activeIndex === index && (
-                  <div className={styles.indicator} style={{ top: `${index * 3.6}rem` }} />
-                )}
-                <div className={styles.icon}>{link.icon}</div>
-                <span className={activeIndex === index ? styles.activeText : styles.inactiveText}>
-                  {link.label}
-                </span>
-              </NavLink>
-            ))}
-          </div>
+            <NavLink to="/admin/dashboard" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}>
+              {({ isActive }) => (
+                <>
+                  <img src={isActive ? dashboardActive : dashboardInactive} alt="Dashboard" className={styles.icon} />
+                  <span className={isActive ? styles.activeText : styles.inactiveText}>Dashboard</span>
+                </>
+              )}
+            </NavLink>
+
+            <NavLink to="/admin/users" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}>
+              {({ isActive }) => (
+                <>
+                  <img src={isActive ? usersActive : usersInactive} alt="Users" className={styles.icon} />
+                  <span className={isActive ? styles.activeText : styles.inactiveText}>Users</span>
+                </>
+              )}
+            </NavLink>
+
+            <NavLink to="/admin/companies" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}>
+              {({ isActive }) => (
+                <>
+                  <img src={isActive ? companiesActive : companiesInactive} alt="Companies" className={styles.icon} />
+                  <span className={isActive ? styles.activeText : styles.inactiveText}>Companies</span>
+                </>
+              )}
+            </NavLink>
+
+            <NavLink to="/admin/jobs" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}>
+              {({ isActive }) => (
+                <>
+                  <img src={isActive ? jobsActive : jobsInactive} alt="Jobs" className={styles.icon} />
+                  <span className={isActive ? styles.activeText : styles.inactiveText}>Jobs</span>
+                </>
+              )}
+            </NavLink>
+
+            <NavLink to="/admin/settings" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}>
+              {({ isActive }) => (
+                <>
+                  <img
+                    src={userData?.user_profile_photo || defaultUser}
+                    alt="Profile"
+                    className={styles.profilePic}
+                  />
+                  <span className={isActive ? styles.activeText : styles.inactiveText}>
+                    {userData?.user_first_name + " " + userData?.user_last_name || "Profile"}
+                  </span>
+                </>
+              )}
+            </NavLink>
+          </nav>
         </div>
 
-        <div className={styles.logoutLink} onClick={handleLogout}>
+        <span className={styles.logoutLink} onClick={handleLogout}>
+          <img src={logoutIcon} alt="Logout" className={styles.icon} />
           <span>Logout</span>
-        </div>
+        </span>
       </div>
 
       <div className={styles.content}>

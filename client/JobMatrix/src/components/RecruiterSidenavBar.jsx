@@ -5,6 +5,8 @@ import logoMini from "../assets/logo-icon.svg";
 import logoutIcon from "../assets/SideNavIcon-Images/logout-inactive.svg";
 import bagActive from "../assets/SideNavIcon-Images/basil_bag-solid-active.svg";
 import bagInactive from "../assets/SideNavIcon-Images/basil_bag-solid-inactive.svg";
+import companiesActive from "../assets/SideNavIcon-Images/companies-active.svg";
+import companiesInactive from "../assets/SideNavIcon-Images/companies-inactive.svg";
 import defaultUser from "../assets/noprofilephoto.png";
 import { fetchUserData } from '../Redux/userSlice';
 import { useDispatch, useSelector } from "react-redux";
@@ -63,7 +65,7 @@ const RecruiterSidenavBar = () => {
                 {({ isActive }) => (
                   <>
                     <img
-                      src={isActive ? bagActive : bagInactive}
+                      src={isActive ? companiesActive : companiesInactive}
                       alt="CompanyInfo"
                       className={styles.icon}
                     />
