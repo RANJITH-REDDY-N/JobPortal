@@ -23,7 +23,7 @@ const RecruiterSidenavBar = () => {
   const getIndicatorPosition = () => {
     if (location.pathname.includes("/jobs")) return "0rem";
     if (location.pathname.includes("/company-info")) return "4.2rem";
-    if (location.pathname.includes("/profile")) return "4.2rem";
+    if (location.pathname.includes("/profile")) return "8.4rem";
     return "0rem";
   };
 

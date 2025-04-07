@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import styles from "../../styles/ApplicantDashboard.module.css";
 import RecruiterSidenavBar from "../RecruiterSidenavBar";
 import JobsList from "./Jobs/JobsList"
-import RecruiterProfileInfoTab from "./Profile/RecruiterPersonalInfoTab"
+import PersonalInfoTab from "../Applicants/Profile/PersonalInfoTab"
 import RecruiterProfilePage from "./Profile/RecruiterProfilePage"
 import CompanyInfo from "./Company/CompanyInfo"
 
@@ -18,7 +18,7 @@ const RecruiterDashboard = () => {
             <Route path="company-info" element={<CompanyInfo />} />
             <Route path="profile"  element={<RecruiterProfilePage />}> 
                 <Route index element={<Navigate to="personal-info" replace />} />
-                <Route path="personal-info" element={<RecruiterProfileInfoTab />} />
+                <Route path="personal-info" element={<PersonalInfoTab />} />
             </Route>
             </Routes>
         </div>

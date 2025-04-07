@@ -5,7 +5,7 @@ import { getJobsListByACompany, getApplicantsForJob } from "../../../services/ap
 import ApplicantsPanel from '../JobApplicants/ApplicantsPanel';
 
 const JobsList = () => {
-  const jobsPerPage = 5;
+  const [jobsPerPage, setJobsPerPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [allJobs, setAllJobs] = useState([]);
@@ -14,6 +14,7 @@ const JobsList = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [applications, setApplications] = useState(null);
   const [isLoadingApplicants, setIsLoadingApplicants] = useState(false);
+  const [totalPages, setTotalPages] = useState(0)
 
   useEffect(() => {
     const fetchJobsList = async () => {
@@ -22,6 +23,9 @@ const JobsList = () => {
         const response = await getJobsListByACompany();
         if (response && response.results) {
           setAllJobs(response.results);
+          setCurrentPage(response.current_page)
+          setTotalPages(response.total_pages);
+          setJobsPerPage(response.results.length)
         } else {
           setAllJobs([]);
         }
@@ -67,13 +71,11 @@ const JobsList = () => {
 
   const handleStatusChange = async (applicationId, newStatus, comment = null) => {
     try {
-      // Call your API to update status and/or comment
       const response = await updateApplicationStatus(applicationId, {
         "application_status": newStatus,
         "application_recruiter_comment": comment
       });
       
-      // Update local state
       setApplications(prev => ({
         ...prev,
         results: prev.results.map(app => 
@@ -99,11 +101,10 @@ const JobsList = () => {
     );
   }, [searchQuery, allJobs]);
 
-  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
-  console.log("get the current jobsss",currentJobs)
 
   if (isLoading) {
     return <div className={styles.container}>Loading jobs...</div>;

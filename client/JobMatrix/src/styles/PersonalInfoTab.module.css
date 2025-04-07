@@ -26,12 +26,14 @@
 
 /* Left Profile Section */
 .leftSection {
-  width: 260px;
+  /* changed */
+  /* width: 260px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; */
   padding: 1rem 1rem;
-  margin-right: 2rem;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .imageWrapper {
@@ -46,22 +48,16 @@
 
 /* Right Form Section - Overflow Protected */
 .rightSection {
-  flex: 1;
-  background-color: var(--aqua);
-  padding: 2.5rem 3rem;
-  border-radius: 16px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-  width: auto;
-  justify-items: center;
+  margin: 0px auto;
 }
 
 /* Form Structure */
 .form {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  /* height: 100%;
   width: 100%;
-  min-width: fit-content;
+  min-width: fit-content; */
 }
 
 .form h2 {
@@ -192,15 +188,10 @@
   }
   
   .leftSection {
-    width: 100%;
-    margin-right: 0;
+    margin-right: auto;
+    margin-left: auto;
     margin-bottom: 1.5rem;
     padding: 1rem 0;
-  }
-  
-  .rightSection {
-    width: 100%;
-    padding: 2rem;
   }
   
   .imageWrapper {

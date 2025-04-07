@@ -7,10 +7,11 @@ import {
   } from '@mui/icons-material';
 
 const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(applications.current_page);
   const [editingComment, setEditingComment] = useState(null);
   const [commentText, setCommentText] = useState('');
-  const applicantsPerPage = 4; // Matches your screenshot showing 4 applicants
+  const [totalPages, setTotalPages] = useState(applications.total_pages)
+  const applicantsPerPage = applications.results.length; 
 
   const handleStatusChange = (applicationId, newStatus) => {
     console.log(`Changing status of application ${applicationId} to ${newStatus}`);
@@ -36,7 +37,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil(applications.results.length / applicantsPerPage);
+  // const totalPages = Math.ceil(applications.results.length / applicantsPerPage);
   const indexOfLastApplicant = currentPage * applicantsPerPage;
   const indexOfFirstApplicant = indexOfLastApplicant - applicantsPerPage;
   const currentApplicants = applications.results.slice(indexOfFirstApplicant, indexOfLastApplicant);
@@ -106,7 +107,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
         </div>
 
         <div className={styles.applicantsList}>
-          {currentApplicants.map(application => (
+          {currentApplicants.length > 0 ? currentApplicants.map(application => (
             <div key={application.application_id} className={styles.applicantCard}>
               {/* Applicant Header */}
               <div className={styles.applicantHeader}>
@@ -127,7 +128,6 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
                 </div>
               </div>
 
-              {/* Comment Section */}
               {(application.application_recruiter_comment || editingComment === application.application_id) && (
                 <div className={styles.commentSection}>
                   <div className={styles.commentHeader}>
@@ -194,7 +194,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
             :
             (
                 <div>
-                    
+                    No Applicants for this
                 </div>
             )
         
@@ -225,7 +225,16 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          :
+          (
+                <div>
+                    No Applicants for this Job
+                </div>
+            
+          )
+          
+          }
         </div>
 
         {/* Pagination */}

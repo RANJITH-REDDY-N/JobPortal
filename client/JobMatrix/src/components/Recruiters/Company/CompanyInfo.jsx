@@ -5,14 +5,7 @@ import defaultCompanyImage from '../../../assets/noprofilephoto.png';
 
 const CompanyInfo = () => {
     const userData = useSelector((state) => state.user?.user);
-    const companyDetails = {
-        "company_id": 6,
-        "company_name": "FoodiesHub",
-        "company_industry": "Food & Beverage",
-        "company_description": "Revolutionizing food delivery with innovative technology and exceptional customer service. We connect hungry customers with the best local restaurants through our platform. Founded in 2018, we've grown to serve over 1 million customers across North America.",
-        "company_image": null,
-        "company_secret_key": "secret_key6"
-    };
+    const companyDetails = userData.company
 
     return (
         <div className={styles.container}>
@@ -44,7 +37,7 @@ const CompanyInfo = () => {
                             {companyDetails.company_description}
                         </p>
                         <div className={styles.paragraphGroup}>
-                            <p>
+                            {/* <p>
                                 Contrary to popular belief, FoodiesHub is not just another food delivery service. 
                                 We have revolutionized the industry with our proprietary matching algorithm that 
                                 connects customers with restaurants based on their unique preferences and dietary needs.
@@ -53,7 +46,7 @@ const CompanyInfo = () => {
                                 Our technology platform handles over 50,000 orders daily with 99.9% reliability. 
                                 We partner with over 5,000 restaurants nationwide to bring you the best dining 
                                 experience right to your doorstep.
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                 </div>
