@@ -15,37 +15,50 @@ const JobsList = () => {
   const [applications, setApplications] = useState(null);
   const [isLoadingApplicants, setIsLoadingApplicants] = useState(false);
   const [totalPages, setTotalPages] = useState(0)
+  const [applicantsListCurrentPage, setApplicantsListCurrentPage] = useState(1);
+  const [applicantsListTotalPages, setApplicantsListTotalPages] = useState(1)
+  const [jobId, setJobId] = useState(null)
 
-  useEffect(() => {
-    const fetchJobsList = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getJobsListByACompany();
-        if (response && response.results) {
-          setAllJobs(response.results);
-          setCurrentPage(response.current_page)
-          setTotalPages(response.total_pages);
-          setJobsPerPage(response.results.length)
-        } else {
-          setAllJobs([]);
-        }
-      } catch (err) {
-        console.error(`Error in fetching Job List: ${err}`);
-        setError(err.message || "Failed to fetch jobs");
+  const fetchJobsList = async (page) => {
+    setIsLoading(true);
+    try {
+      const response = await getJobsListByACompany(page);
+      if (response && response.results) {
+        setAllJobs(response.results);
+        setCurrentPage(response.current_page)
+        setTotalPages(response.total_pages);
+        setJobsPerPage(response.results.length)
+      } else {
         setAllJobs([]);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    fetchJobsList();
+    } catch (err) {
+      console.error(`Error in fetching Job List: ${err}`);
+      setError(err.message || "Failed to fetch jobs");
+      setAllJobs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchJobsList(currentPage);
   }, []);
 
+  useEffect(()=> {
+    handleViewApplicants(selectedJob)
+  },[applicantsListCurrentPage])
+
+
   const handleViewApplicants = async (job) => {
+    setJobId(job.job_id)
     setIsLoadingApplicants(true);
+    const data = {
+      job_Id : job.job_id,
+      page : applicantsListCurrentPage
+    }
     try {
-      const apps = await getApplicantsForJob(job.job_id);
+      const apps = await getApplicantsForJob(data);
       setApplications(apps);
+      setApplicantsListTotalPages(apps.total_pages)
       setSelectedJob(job);
     } catch (error) {
       console.error("Error fetching applicants:", error);
@@ -62,6 +75,8 @@ const JobsList = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    fetchJobsList(page);
+
   };
 
   const handleSearch = (value) => {
@@ -181,6 +196,9 @@ const JobsList = () => {
           onClose={handleClosePanel}
           applications={applications}
           onStatusChange={handleStatusChange}
+          applicantsListCurrentPage =  {applicantsListCurrentPage}
+          setApplicantsListCurrentPage = {setApplicantsListCurrentPage}
+          applicantsListTotalPages = {applicantsListTotalPages}
         />
       </>
     )}

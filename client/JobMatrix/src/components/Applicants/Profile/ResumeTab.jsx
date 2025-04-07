@@ -18,6 +18,7 @@ const ResumeTab = () => {
   const userData = useSelector(state=>state.user?.user);
   const [resumeUrl, setResumeUrl] = useState(userData?.applicant_resume);
   const [isLoading, setIsLoading] = useState(false);
+  const [responseOk, setResponseOk] = useState(false);
   const [toastQueue, setToastQueue] = useState([]);
   const [resumeName, setResumeName] = useState(userData?.applicant_resume?.split('/').pop().split('.')[0].split('_').slice(0, -1).join('_'));
   const [initialLoading, setInitialLoading] = useState(true); 
@@ -39,11 +40,15 @@ const ResumeTab = () => {
       const response = await userDetails(email);
       if (response.ok  && response?.applicant_resume) {
         setResumeUrl(response.applicant_resume);
+        setResponseOk(true);
         const pdfName = response.applicant_resume.split('/').pop();
         const nameWithoutExt = pdfName.split('.')[0]; 
         const cleanName = nameWithoutExt.split('_').slice(0, -1).join('_'); // "My_Resume"
         setResumeName(cleanName);
         dispatch(setUser(response));
+      }
+      else if(response.notfound){
+        showToast("Resume is missing", "error");
       }
     } catch (error) {
       showToast("Failed to fetch resume", "error");
@@ -90,6 +95,7 @@ const ResumeTab = () => {
       const nameWithoutExt = pdfName.split('.')[0]; // "My_Resume_xXCKC6L"
       const cleanName = nameWithoutExt.split('_').slice(0, -1).join('_'); // "My_Resume"
       setResumeName(cleanName);
+      setResponseOk(true);
       dispatch(setResume(result.applicant_resume))
       showToast("Resume uploaded successfully");
     } catch (error) {
@@ -121,11 +127,13 @@ const ResumeTab = () => {
             aria-disabled={isLoading}
           >
             <FileUploadOutlined /> 
-            {isLoading ? "Processing..." : resumeUrl ? "Replace Resume" : "Upload Resume"}
+            {isLoading ? "Processing..." : resumeUrl && responseOk ? "Replace Resume" : "Upload Resume"}
             
           </label>
         </span>
-        <span className={styles.resumeName}>{resumeName}</span>
+        <span className={styles.resumeName}>
+        {responseOk ? resumeName:""}
+          </span>
       </div>
   
       {/* Toast Notifications */}
@@ -147,7 +155,7 @@ const ResumeTab = () => {
         <div className={styles.loading}>Loading your resume...</div>
       ) : isLoading ? (
         <div className={styles.loading}>Processing your resume...</div>
-      ) : resumeUrl ? (
+      ) : resumeUrl && responseOk ? (
         <div className={styles.resumeViewerContainer}>
           <iframe
             src={`${resumeUrl}#toolbar=1&navpanes=0&scrollbar=1&view=fitH`}

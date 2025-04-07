@@ -115,8 +115,16 @@ export const editWorkExperience = (educationId, data) => fetchAPI(`/profile/work
 export const deleteWorkExperience = (educationId) => fetchAPI(`/profile/work-experience/delete/${educationId}/`,"DELETE",null,true,'application/json',false);
 
 // -------- Recruiter ----------
-export const getJobsListByACompany = () => fetchAPI(`/company-jobs/`,"GET",null,true,'application/json',false);
-export const getApplicantsForJob = (jobId) => fetchAPI(`/job/applicants/${jobId}`,"GET",null,true,'application/json',false);
+export const getJobsListByACompany = (params = {}) => {
+  const queryString = new URLSearchParams();
+  if(params.page) queryString.append('page',params.page);
+  return fetchAPI(`/company-jobs/?${queryString.toString()}`,"GET",null,true,'application/json',false);
+}
+export const getApplicantsForJob = (data) => {
+  const queryString = new URLSearchParams();
+  if(data.page) queryString.append('page',data.page);
+  return fetchAPI(`/job/applicants/${data.job_Id}/?${queryString.toString()}`,"GET",null,true,'application/json',false);
+}
 export const updateApplicationStatus = (applicationId, data) => fetchAPI(`/job/recruiter/applications/${applicationId}`, "PATCH", data,'application/json',false )
 
 

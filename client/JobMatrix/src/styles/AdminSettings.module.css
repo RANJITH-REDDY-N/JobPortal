@@ -41,6 +41,7 @@
     box-sizing: border-box;
     background-color: var(--white);
     border-radius: 16px;
+    margin-left:200px;
   }
   
   /* Left Profile Section */

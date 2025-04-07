@@ -6,18 +6,14 @@ import {
     ChevronRight, Edit, Save, Visibility
   } from '@mui/icons-material';
 
-const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
-  const [currentPage, setCurrentPage] = useState(applications.current_page);
+const ApplicantsPanel = ({ job, onClose, applications, onStatusChange, applicantsListCurrentPage, setApplicantsListCurrentPage, applicantsListTotalPages }) => {
+  
   const [editingComment, setEditingComment] = useState(null);
   const [commentText, setCommentText] = useState('');
-  const [totalPages, setTotalPages] = useState(applications.total_pages)
   const applicantsPerPage = applications.results.length; 
 
-  console.log("applicantsss ",applications)
   const handleStatusChange = (applicationId, newStatus) => {
     console.log(`Changing status of application ${applicationId} to ${newStatus}`);
-
-    // Implement actual status change API call here
   };
 
   const handleViewResume = (resumeUrl) => {
@@ -38,13 +34,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
     setEditingComment(null);
   };
 
-  // Calculate pagination
-  // const totalPages = Math.ceil(applications.results.length / applicantsPerPage);
-  const indexOfLastApplicant = currentPage * applicantsPerPage;
-  const indexOfFirstApplicant = indexOfLastApplicant - applicantsPerPage;
-  const currentApplicants = applications.results.slice(indexOfFirstApplicant, indexOfLastApplicant);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setApplicantsListCurrentPage(pageNumber);
 
   // Helper function to get initials
   const getInitials = (name) => {
@@ -109,7 +99,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
         </div>
 
         <div className={styles.applicantsList}>
-          {currentApplicants.length > 0 ? currentApplicants.map(application => (
+          {applications.results.length > 0 ? applications.results.map(application => (
             <div key={application.application_id} className={styles.applicantCard}>
               {/* Applicant Header */}
               <div className={styles.applicantHeader}>
@@ -240,29 +230,29 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange }) => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {applicantsListTotalPages > 1 && (
           <div className={styles.pagination}>
             <button 
-              onClick={() => paginate(currentPage - 1)} 
-              disabled={currentPage === 1}
+              onClick={() => paginate(applicantsListCurrentPage - 1)} 
+              disabled={applicantsListCurrentPage === 1}
               className={styles.paginationButton}
             >
               <ChevronLeft />
             </button>
             
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+            {Array.from({ length: applicantsListTotalPages }, (_, i) => i + 1).map(number => (
               <button
                 key={number}
                 onClick={() => paginate(number)}
-                className={`${styles.paginationButton} ${currentPage === number ? styles.activePage : ''}`}
+                className={`${styles.paginationButton} ${applicantsListCurrentPage === number ? styles.activePage : ''}`}
               >
                 {number}
               </button>
             ))}
             
             <button 
-              onClick={() => paginate(currentPage + 1)} 
-              disabled={currentPage === totalPages}
+              onClick={() => paginate(applicantsListCurrentPage + 1)} 
+              disabled={applicantsListCurrentPage === applicantsListTotalPages}
               className={styles.paginationButton}
             >
               <ChevronRight />

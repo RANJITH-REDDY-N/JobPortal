@@ -3,6 +3,7 @@
   background-color: var(--aqua);
   min-height: 100vh;
   box-sizing: border-box;
+  margin-left: 220px;
 }
 
 .heading {

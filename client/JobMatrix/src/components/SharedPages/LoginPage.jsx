@@ -11,7 +11,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
-    email: "deepikap2@recruiter.com",
+    email: "ranjithrn@applicant.com",
     password: "Aa@12345",
   });
   const [error, setError] = useState("");
@@ -81,10 +81,10 @@ const LoginPage = () => {
         else if(response.user_role === 'ADMIN') navigate('/admin/dashboard');
 
       } else {
-        setError(response.error || "Invalid email or password!");
+        setError(response.message || "Invalid email or password!", response);
       }
     } catch (err) {
-      setError(err?.error || "Something went wrong. Please try again.");
+      setError(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
