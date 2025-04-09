@@ -86,6 +86,38 @@ const RegisterCompanyPage = () => {
         throw new Error(result.error);
       }
 
+      /**
+       *  REDIRECT TO RECRUITER DASHBOARD.
+       */ 
+        const loginData = {
+          user_email: formData.email,
+          user_password: formData.password
+        };
+      
+        try {
+          const loginRes = await userAuth(loginData);
+          if (loginRes && loginRes.token) {
+            
+            // Save Basic User Details to localStorage for immediate access
+            localStorage.setItem('userEmail',response.user_email);
+            localStorage.setItem("jwtToken", response.token);
+            localStorage.setItem("userRole", response.user_role);
+            localStorage.setItem("userId",response.user_id);
+      
+            // fetch user details
+            const userData = await userDetails(loginRes.user_email);
+            dispatch(setUser(userData));
+      
+            nav("/recruiter/jobs");
+          } else {
+            console.error("Login failed after registration", loginRes.error);
+            nav("/login"); // fallback
+          }
+        } catch (loginErr) {
+          console.error("Login error after registration", loginErr);
+          nav("/login"); // fallback
+        }
+
     } catch (err) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');

@@ -8,6 +8,7 @@ import { registerUser, userAuth, userDetails } from "../../services/api";
 import defaultProfilePhoto from '../../assets/noprofilephoto.png';
 import { useDispatch } from "react-redux";
 import { setUser } from "../../Redux/userSlice";
+import { BiLogoPinterestAlt } from "react-icons/bi";
 
 const SignupPage = () => {
   const nav = useNavigate();
@@ -148,8 +149,12 @@ const SignupPage = () => {
           try {
             const loginRes = await userAuth(loginData);
             if (loginRes && loginRes.token) {
-              localStorage.setItem("jwtToken", loginRes.token);
-              localStorage.setItem("userEmail", loginRes.user_email);
+            
+              // Save Basic User Details to localStorage for immediate access
+              localStorage.setItem('userEmail',response.user_email);
+              localStorage.setItem("jwtToken", response.token);
+              localStorage.setItem("userRole", response.user_role);
+              localStorage.setItem("userId",response.user_id);
         
               // fetch user details
               const userData = await userDetails(loginRes.user_email);
@@ -174,8 +179,12 @@ const SignupPage = () => {
           try {
             const loginRes = await userAuth(loginData);
             if (loginRes && loginRes.token) {
-              localStorage.setItem("jwtToken", loginRes.token);
-              localStorage.setItem("userEmail", loginRes.user_email);
+              
+              // Save Basic User Details to localStorage for immediate access
+              localStorage.setItem('userEmail',response.user_email);
+              localStorage.setItem("jwtToken", response.token);
+              localStorage.setItem("userRole", response.user_role);
+              localStorage.setItem("userId",response.user_id);
         
               // fetch user details
               const userData = await userDetails(loginRes.user_email);
@@ -193,9 +202,6 @@ const SignupPage = () => {
         } else {
           nav("/login");
         }
-
-
-        
       } catch (error) {
         console.error('Registration failed:', error);
         // setRegistrationError('Registration failed. Please try again.');

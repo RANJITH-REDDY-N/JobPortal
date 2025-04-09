@@ -63,7 +63,6 @@ const LoginPage = () => {
       };
       const response = await userAuth(data);
       if (response && response.token) {
-        localStorage.setItem("jwtToken", response.token);
         const userData = await userDetails(response.user_email);
         
         // Dispatch user data to Redux
@@ -73,8 +72,11 @@ const LoginPage = () => {
           console.error("Dispatch error:", error);
         }
 
-        // Save userEmail localStorage for immediate access
+        // Save Basic User Details to localStorage for immediate access
         localStorage.setItem('userEmail',response.user_email);
+        localStorage.setItem("jwtToken", response.token);
+        localStorage.setItem("userRole", response.user_role);
+        localStorage.setItem("userId",response.user_id);
 
         if(response.user_role === 'APPLICANT') navigate("/applicant/explore-jobs");
         else if(response.user_role === 'RECRUITER') navigate('/recruiter/jobs');

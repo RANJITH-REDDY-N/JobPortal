@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../../styles/EducationTab.module.css";
 import { getEducation, postEducation, editEducation, deleteEducation } from "../../../services/api"; 
-import { IconButton, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox, Divider } from "@mui/material";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { IconButton, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox } from "@mui/material";
+import noResultsImage from "../../../assets/NoApplicationsYet.png";
+import { MdDelete } from "react-icons/md";
+import { FiEdit3, FiExternalLink } from "react-icons/fi";
 import { BsCalendar2Date } from "react-icons/bs";
-import { IoIosAddCircleOutline } from "react-icons/io";
-import { FiExternalLink } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../../Redux/userSlice";
+import { FaGraduationCap } from "react-icons/fa6";
+import { LuFileBadge } from "react-icons/lu";
 import ToastNotification from "../../../components/ToastNotification";
 
-const EducationTab = ({ }) => {
-  const user = useSelector(state => state.user.user);
+const EducationTab = () => {
+  const userId = localStorage.getItem("userId");
   const [educationData, setEducationData] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -43,18 +43,40 @@ const EducationTab = ({ }) => {
   const fetchEducationData = async () => {
     try {
       setLoading(true);
-
-      const res = await getEducation(user.user_id);
+      const res = await getEducation(userId);
+      
       if (res?.status === "success") {
         setEducationData(res.data);
-      } else {
-        showToast("Failed to load education data", "error");
+        if (res.data.length === 0) {
+          setEducationData([]);
+        }
+      } else if (res?.error) {
+        setEducationData([]);
+        console.log(res.error.message, res.error.message);
       }
     } catch (error) {
-      showToast("Error loading education data", "error");
+      console.error("Error loading education data", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return "Present";
+    
+    const date = new Date(dateString);
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = date.getDate();
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day} ${month} ${year}`;
+  };
+
+  const formatDialogDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
   };
 
   const handleOpenDialog = (item = null) => {
@@ -62,8 +84,8 @@ const EducationTab = ({ }) => {
       setEditingItem(item);
       setFormData({
         ...item,
-        education_start_date: format(new Date(item.education_start_date), "yyyy-MM-dd"),
-        education_end_date: item.education_end_date ? format(new Date(item.education_end_date), "yyyy-MM-dd") : ""
+        education_start_date: formatDialogDate(item.education_start_date),
+        education_end_date: item.education_end_date ? formatDialogDate(item.education_end_date) : ""
       });
     } else {
       setEditingItem(null);
@@ -98,9 +120,9 @@ const EducationTab = ({ }) => {
       setLoading(true);
       const payload = { 
         ...formData, 
-        applicant_id: applicantId,
-        education_start_date: new Date(formData.education_start_date).toISOString(),
-        education_end_date: formData.education_end_date ? new Date(formData.education_end_date).toISOString() : null
+        applicant_id: userId,
+        education_start_date: formData.education_start_date,
+        education_end_date: formData.education_end_date ? formData.education_end_date:null
       };
       
       if (editingItem) {
@@ -111,7 +133,7 @@ const EducationTab = ({ }) => {
         showToast("Education added successfully");
       }
       handleCloseDialog();
-      fetchEducationData();
+      await fetchEducationData();
     } catch (error) {
       showToast(error.message || "Failed to save education", "error");
     } finally {
@@ -124,7 +146,7 @@ const EducationTab = ({ }) => {
       setLoading(true);
       await deleteEducation(id);
       showToast("Education deleted successfully");
-      fetchEducationData();
+      await fetchEducationData();
     } catch (error) {
       showToast("Failed to delete education", "error");
     } finally {
@@ -132,42 +154,42 @@ const EducationTab = ({ }) => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Present";
-    
-    const date = new Date(dateString);
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    
-    return `${month} ${year}`;
-  };
-  
-  // Usage in the component:
-  // {formatDate(edu.education_start_date)} - {formatDate(edu.education_end_date)}
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Education History</h2>
-        <Button 
-          variant="contained" 
-          startIcon={<IoIosAddCircleOutline size={20} />}
+        <button
+          type="button"
+          className={styles.addButton}
           onClick={() => handleOpenDialog()}
         >
-          Add Education
-        </Button>
+          <FaGraduationCap className={styles.buttonIcon} />
+          <span>Add Education</span>
+        </button>
       </div>
 
       {loading && !educationData.length ? (
-        <div className={styles.loading}>Loading education history...</div>
+        <div className={styles.loading}>Loading education...</div>
       ) : educationData.length === 0 ? (
-        <div className={styles.emptyState}>
-          <p>No education history added yet</p>
+
+
+
+        <div className={styles.noResultsContainer}>
+                      <img
+                        src={noResultsImage}
+                        alt="No applications found"
+                        className={styles.noResultsImage}
+                      />
+                      <p>No education history added yet</p>
         </div>
+
+
       ) : (
         <div className={styles.timeline}>
-          {educationData.map((edu) => (
+          {educationData
+          .slice()
+          .sort((a, b) => new Date(b.education_start_date) - new Date(a.education_start_date))
+          .map((edu) => (
             <div key={edu.education_id} className={styles.timelineItem}>
               <div className={styles.timelineDot} />
               <div className={styles.timelineContent}>
@@ -189,34 +211,35 @@ const EducationTab = ({ }) => {
                       onClick={() => handleOpenDialog(edu)}
                       aria-label="Edit education"
                     >
-                      <MdEdit />
+                      <FiEdit3 className={styles.buttonIcons}/>
                     </IconButton>
                     <IconButton 
                       size="small" 
                       onClick={() => handleDelete(edu.education_id)}
                       aria-label="Delete education"
                     >
-                      <MdDelete />
+                      <MdDelete className={styles.buttonIcons}/>
                     </IconButton>
                   </div>
                 </div>
                 
                 <div className={styles.degreeInfo}>
                   <span className={styles.degreeType}>{edu.education_degree_type}</span>
-                  {edu.education_major && <span className={styles.major}>in {edu.education_major}</span>}
+                  {edu.education_major && <span className={styles.major}>{edu.education_major}</span>}
                 </div>
                 
                 <div className={styles.details}>
                   <div className={styles.dateRange}>
                     <BsCalendar2Date className={styles.dateIcon} />
-                    {formatDate(edu.education_start_date)} - {formatDate(edu.education_end_date)}
+                    {formatDisplayDate(edu.education_start_date)} - {formatDisplayDate(edu.education_end_date)}
                   </div>
-                  {edu.education_gpa && (
-                    <div className={styles.gpa}>
-                      GPA: {edu.education_gpa}
+                </div>
+                {edu.education_gpa && (
+                    <div className={styles.dateRange}>
+                      <LuFileBadge className={styles.dateIcon}/>
+                      Grade<span style={{color:'var(--steel-blue)'}}>{edu.education_gpa}</span>
                     </div>
                   )}
-                </div>
               </div>
             </div>
           ))}
@@ -267,7 +290,7 @@ const EducationTab = ({ }) => {
               value={formData.education_gpa} 
               onChange={handleChange} 
               type="number"
-              inputProps={{ step: "0.01", min: "0", max: "4.0" }}
+              inputProps={{ step: "0.05", min: "0", max: "4.0" }}
             />
           </div>
           
@@ -322,14 +345,16 @@ const EducationTab = ({ }) => {
         </DialogActions>
       </Dialog>
 
-      {toastQueue.slice(0, 3).map((toast) => (
-        <ToastNotification
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
-        />
-      ))}
+      <div className={styles.toastWrapper}>
+        {toastQueue.slice(0, 3).map((toast) => (
+          <ToastNotification
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
+          />
+        ))}
+      </div>
     </div>
   );
 };

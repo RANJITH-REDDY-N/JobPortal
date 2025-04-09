@@ -3,9 +3,9 @@ import styles from "../../../styles/ProfilePage.module.css";
 
 const tabs = [
   { path: "personal-info", label: "Personal Info" },
+  { path: "work-experience", label: "Work Experience" },
   { path: "education", label: "Education" },
   { path: "skills", label: "Skills" },
-  { path: "work-experience", label: "Work Experience" },
   { path: "resume", label: "Resume" },
 ];
 

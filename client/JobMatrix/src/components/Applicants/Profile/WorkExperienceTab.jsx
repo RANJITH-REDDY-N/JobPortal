@@ -17,15 +17,14 @@ import {
   FormControlLabel, 
   Checkbox 
 } from "@mui/material";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { MdDelete, MdEdit, MdWork } from "react-icons/md";
 import { BsCalendar2Date } from "react-icons/bs";
-import { IoIosAddCircleOutline } from "react-icons/io";
 import { FiExternalLink } from "react-icons/fi";
-import { useSelector } from "react-redux";
+import noResultsImage from "../../../assets/NoApplicationsYet.png";
 import ToastNotification from "../../../components/ToastNotification";
 
 const WorkExperienceTab = () => {
-  const user = useSelector(state => state.user.user);
+  const userId = localStorage.getItem("userId");
   const [workData, setWorkData] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -57,7 +56,7 @@ const WorkExperienceTab = () => {
   const fetchWorkData = async () => {
     try {
       setLoading(true);
-      const res = await getWorkExperience(user.user_id);
+      const res = await getWorkExperience(userId);
       if (res?.status === "success") {
         setWorkData(res.data);
       } else {
@@ -70,15 +69,31 @@ const WorkExperienceTab = () => {
     }
   };
 
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return "Present";
+    
+    const date = new Date(dateString);
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = date.getDate();
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day} ${month} ${year}`;
+  };
+
+  const formatDialogDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
   const handleOpenDialog = (item = null) => {
     if (item) {
       setEditingItem(item);
       setFormData({
         ...item,
-        work_experience_start_date: item.work_experience_start_date ? 
-          new Date(item.work_experience_start_date).toISOString().split('T')[0] : "",
-        work_experience_end_date: item.work_experience_end_date ? 
-          new Date(item.work_experience_end_date).toISOString().split('T')[0] : "",
+        work_experience_start_date: formatDialogDate(item.work_experience_start_date),
+        work_experience_end_date: item.work_experience_end_date ? formatDialogDate(item.work_experience_end_date) : "",
         work_experience_bullet_points: item.work_experience_bullet_points || [""]
       });
     } else {
@@ -139,9 +154,8 @@ const WorkExperienceTab = () => {
       setLoading(true);
       const payload = { 
         ...formData,
-        applicant_id: user.user_id,
-        // Format dates as YYYY-MM-DD strings
-        work_experience_start_date: formData.work_experience_start_date, // Already in YYYY-MM-DD from date input
+        applicant_id: userId,
+        work_experience_start_date: formData.work_experience_start_date,
         work_experience_end_date: formData.work_experience_is_currently_working 
           ? null 
           : formData.work_experience_end_date
@@ -155,7 +169,7 @@ const WorkExperienceTab = () => {
         showToast("Work experience added successfully");
       }
       handleCloseDialog();
-      fetchWorkData();
+      await fetchWorkData();
     } catch (error) {
       showToast(error.message || "Failed to save work experience", "error");
     } finally {
@@ -168,7 +182,7 @@ const WorkExperienceTab = () => {
       setLoading(true);
       await deleteWorkExperience(id);
       showToast("Work experience deleted successfully");
-      fetchWorkData();
+      await fetchWorkData();
     } catch (error) {
       showToast("Failed to delete work experience", "error");
     } finally {
@@ -176,44 +190,41 @@ const WorkExperienceTab = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Present";
-    
-    const date = new Date(dateString);
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    
-    return `${month} ${year}`;
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Work Experience</h2>
-        <Button 
-          variant="contained" 
-          startIcon={<IoIosAddCircleOutline size={20} />}
+        <button
+          type="button"
+          className={styles.addButton}
           onClick={() => handleOpenDialog()}
         >
-          Add Experience
-        </Button>
+          <MdWork className={styles.buttonIcon} />
+          <span>Add Experience</span>
+        </button>
       </div>
 
       {loading && !workData.length ? (
         <div className={styles.loading}>Loading work experience...</div>
       ) : workData.length === 0 ? (
-        <div className={styles.emptyState}>
+        <div className={styles.noResultsContainer}>
+          <img
+            src={noResultsImage}
+            alt="No work experience found"
+            className={styles.noResultsImage}
+          />
           <p>No work experience added yet</p>
         </div>
       ) : (
         <div className={styles.timeline}>
-          {workData.map((work) => (
-            <div key={work.work_experience_id} className={styles.timelineItem}>
-              <div className={styles.timelineDot} />
-              <div className={styles.timelineContent}>
-                <div className={styles.timelineHeader}>
-                  <div>
+          {workData
+            .slice()
+            .sort((a, b) => new Date(b.work_experience_start_date) - new Date(a.work_experience_start_date))
+            .map((work) => (
+              <div key={work.work_experience_id} className={styles.timelineItem}>
+                <div className={styles.timelineDot} />
+                <div className={styles.timelineContent}>
+                  <div className={styles.timelineHeader}>
                     <h3 className={styles.companyName}>
                       {work.work_experience_company}
                       <a 
@@ -225,47 +236,47 @@ const WorkExperienceTab = () => {
                         <FiExternalLink size={14} />
                       </a>
                     </h3>
-                    <div className={styles.jobTitle}>{work.work_experience_job_title}</div>
+                    <div className={styles.timelineActions}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleOpenDialog(work)}
+                        aria-label="Edit work experience"
+                      >
+                        <MdEdit className={styles.buttonIcons}/>
+                      </IconButton>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleDelete(work.work_experience_id)}
+                        aria-label="Delete work experience"
+                      >
+                        <MdDelete className={styles.buttonIcons}/>
+                      </IconButton>
+                    </div>
                   </div>
-                  <div className={styles.timelineActions}>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => handleOpenDialog(work)}
-                      aria-label="Edit work experience"
-                    >
-                      <MdEdit />
-                    </IconButton>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => handleDelete(work.work_experience_id)}
-                      aria-label="Delete work experience"
-                    >
-                      <MdDelete />
-                    </IconButton>
+                  
+                  <div className={styles.jobTitle}>{work.work_experience_job_title}</div>
+                  
+                  <div className={styles.details}>
+                    <div className={styles.dateRange}>
+                      <BsCalendar2Date className={styles.dateIcon} />
+                      {formatDisplayDate(work.work_experience_start_date)} - {formatDisplayDate(work.work_experience_end_date)}
+                    </div>
                   </div>
+                  
+                  {work.work_experience_summary && (
+                    <p className={styles.summary}>{work.work_experience_summary}</p>
+                  )}
+                  
+                  {work.work_experience_bullet_points && work.work_experience_bullet_points.length > 0 && (
+                    <ul className={styles.bulletPoints}>
+                      {work.work_experience_bullet_points.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                
-                <div className={styles.details}>
-                  <div className={styles.dateRange}>
-                    <BsCalendar2Date className={styles.dateIcon} />
-                    {formatDate(work.work_experience_start_date)} - {formatDate(work.work_experience_end_date)}
-                  </div>
-                </div>
-                
-                {work.work_experience_summary && (
-                  <p className={styles.summary}>{work.work_experience_summary}</p>
-                )}
-                
-                {work.work_experience_bullet_points && work.work_experience_bullet_points.length > 0 && (
-                  <ul className={styles.bulletPoints}>
-                    {work.work_experience_bullet_points.map((point, index) => (
-                      <li key={index}>{point}</li>
-                    ))}
-                  </ul>
-                )}
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
@@ -370,7 +381,7 @@ const WorkExperienceTab = () => {
             <Button 
               onClick={addBulletPoint}
               variant="outlined"
-              startIcon={<IoIosAddCircleOutline />}
+              startIcon={<MdWork />}
             >
               Add Bullet Point
             </Button>
@@ -391,14 +402,16 @@ const WorkExperienceTab = () => {
         </DialogActions>
       </Dialog>
 
-      {toastQueue.slice(0, 3).map((toast) => (
-        <ToastNotification
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
-        />
-      ))}
+      <div className={styles.toastWrapper}>
+        {toastQueue.slice(0, 3).map((toast) => (
+          <ToastNotification
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
+          />
+        ))}
+      </div>
     </div>
   );
 };

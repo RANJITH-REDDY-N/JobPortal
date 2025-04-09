@@ -6,17 +6,6 @@
   height:92vh;
 }
 
-.loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-  color: var(--steel-blue);
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .resumeViewerContainer {
   width: 70%;
   max-width: 70%;
@@ -116,11 +105,13 @@
   gap: 10px;
 }
 
+
 .loading {
   text-align: center;
   padding: 2rem;
-  font-size: 1.1rem;
+  font-size: 2rem;
   color: var(--steel-blue);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -16,8 +16,8 @@ import AdminJobs from "./components/Admins/AdminJobs";
 import AdminSettings from "./components/Admins/AdminSettings";
 
 import './App.css';
-
 function App() {
+
   const [formData, setFormData] = useState({
     user_first_name: "",
     user_last_name: "",

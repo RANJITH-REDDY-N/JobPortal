@@ -38,7 +38,8 @@ const ResumeTab = () => {
       if (!email) return;
 
       const response = await userDetails(email);
-      if (response.ok  && response?.applicant_resume) {
+      console.log(response);
+      if (response?.applicant_resume) {
         setResumeUrl(response.applicant_resume);
         setResponseOk(true);
         const pdfName = response.applicant_resume.split('/').pop();
