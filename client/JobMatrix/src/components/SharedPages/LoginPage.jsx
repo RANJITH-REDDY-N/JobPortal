@@ -148,7 +148,12 @@ const LoginPage = () => {
             className={`${styles.button} button`}
             disabled={loading}
           >
-            {loading ? "Logging in..." : "CONTINUE"}
+            {loading ? (
+                  <span className={styles.loadingIcon}>
+                    <span>Logging in</span>
+                    <div className={styles.loader}></div>
+                  </span>
+              ) : ("CONTINUE")}
           </button>
         </form>
 

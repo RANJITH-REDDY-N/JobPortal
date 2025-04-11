@@ -17,15 +17,18 @@ import {
   FormControlLabel, 
   Checkbox 
 } from "@mui/material";
-import { MdDelete, MdEdit, MdWork } from "react-icons/md";
+import { MdDelete, MdWork, MdWorkspacePremium } from "react-icons/md";
 import { BsCalendar2Date } from "react-icons/bs";
 import { FiExternalLink } from "react-icons/fi";
+import { HiPencil } from "react-icons/hi2";
 import noResultsImage from "../../../assets/NoApplicationsYet.png";
 import ToastNotification from "../../../components/ToastNotification";
 
 const WorkExperienceTab = () => {
   const userId = localStorage.getItem("userId");
   const [workData, setWorkData] = useState([]);
+  const [resOk, setResOk] = useState(false);
+  const [totalExperience, setTotalExperience] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,7 +41,6 @@ const WorkExperienceTab = () => {
     work_experience_start_date: "",
     work_experience_end_date: "",
     work_experience_is_currently_working: false,
-    work_experience_bullet_points: [""]
   });
 
   const showToast = (message, type = "success") => {
@@ -59,6 +61,8 @@ const WorkExperienceTab = () => {
       const res = await getWorkExperience(userId);
       if (res?.status === "success") {
         setWorkData(res.data);
+        setResOk(true);
+        setTotalExperience(res.total_experience);
       } else {
         showToast("Failed to load work experience", "error");
       }
@@ -94,7 +98,6 @@ const WorkExperienceTab = () => {
         ...item,
         work_experience_start_date: formatDialogDate(item.work_experience_start_date),
         work_experience_end_date: item.work_experience_end_date ? formatDialogDate(item.work_experience_end_date) : "",
-        work_experience_bullet_points: item.work_experience_bullet_points || [""]
       });
     } else {
       setEditingItem(null);
@@ -105,7 +108,6 @@ const WorkExperienceTab = () => {
         work_experience_start_date: "",
         work_experience_end_date: "",
         work_experience_is_currently_working: false,
-        work_experience_bullet_points: [""]
       });
     }
     setOpenDialog(true);
@@ -121,31 +123,6 @@ const WorkExperienceTab = () => {
     setFormData(prev => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleBulletPointChange = (index, value) => {
-    const newBulletPoints = [...formData.work_experience_bullet_points];
-    newBulletPoints[index] = value;
-    setFormData(prev => ({
-      ...prev,
-      work_experience_bullet_points: newBulletPoints
-    }));
-  };
-
-  const addBulletPoint = () => {
-    setFormData(prev => ({
-      ...prev,
-      work_experience_bullet_points: [...prev.work_experience_bullet_points, ""]
-    }));
-  };
-
-  const removeBulletPoint = (index) => {
-    const newBulletPoints = [...formData.work_experience_bullet_points];
-    newBulletPoints.splice(index, 1);
-    setFormData(prev => ({
-      ...prev,
-      work_experience_bullet_points: newBulletPoints
     }));
   };
 
@@ -190,10 +167,38 @@ const WorkExperienceTab = () => {
     }
   };
 
+  function formatDuration(durationString) {
+    // Extract years, months, days (all optional)
+    const matches = durationString.match(
+      /(?:(\d+)\s*years?)?(?:\s*,\s*(\d+)\s*months?)?(?:\s*,\s*(\d+)\s*days?)?/i
+    );
+  
+    // Get captured groups (index 1=year, 2=month, 3=day)
+    const years = matches[1] ? parseInt(matches[1]) : 0;
+    const months = matches[2] ? parseInt(matches[2]) : 0;
+  
+    // Build parts array
+    const parts = [];
+    
+    if (years > 0) {
+      parts.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+    }
+    
+    if (months > 0) {
+      parts.push(`${months} ${months === 1 ? 'month' : 'months'}`);
+    }
+  
+    // Return joined parts (or "0 days" if empty)
+    return parts.length > 0 ? parts.join(' ') : '0 days';
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Work Experience</h2>
+        <h2>Professional Experience</h2><span className={styles.totalExperience}>
+          <MdWorkspacePremium className={styles.buttonIcon}/>
+          <span>{resOk ? formatDuration(totalExperience):""}</span>
+        </span>
         <button
           type="button"
           className={styles.addButton}
@@ -242,7 +247,7 @@ const WorkExperienceTab = () => {
                         onClick={() => handleOpenDialog(work)}
                         aria-label="Edit work experience"
                       >
-                        <MdEdit className={styles.buttonIcons}/>
+                        <HiPencil className={styles.buttonIcons}/>
                       </IconButton>
                       <IconButton 
                         size="small" 
@@ -355,37 +360,7 @@ const WorkExperienceTab = () => {
             rows={3}
           />
           
-          <div className={styles.bulletPointsContainer}>
-            <h4>Key Responsibilities & Achievements</h4>
-            {formData.work_experience_bullet_points.map((point, index) => (
-              <div key={index} className={styles.bulletPointInput}>
-                <TextField
-                  fullWidth
-                  margin="normal"
-                  value={point}
-                  onChange={(e) => handleBulletPointChange(index, e.target.value)}
-                  multiline
-                  rows={2}
-                />
-                {index > 0 && (
-                  <Button 
-                    onClick={() => removeBulletPoint(index)}
-                    color="error"
-                    size="small"
-                  >
-                    Remove
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button 
-              onClick={addBulletPoint}
-              variant="outlined"
-              startIcon={<MdWork />}
-            >
-              Add Bullet Point
-            </Button>
-          </div>
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>

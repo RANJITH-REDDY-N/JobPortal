@@ -1,102 +1,220 @@
-import { useSelector } from "react-redux";
+import { useState, useRef, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import styles from "../../../styles/CompanyInfo.module.css";
-import { Apartment, Store, Key, Edit, Business, LocationOn, Link } from '@mui/icons-material';
+import {  Key, Edit, Business, Save, Close, CloudUpload } from '@mui/icons-material';
 import defaultCompanyImage from '../../../assets/noprofilephoto.png';
+import defaultBackground from '../../../assets/nocompanyimage2.jpg'; 
+import {updateCompanyDetails} from '../../../services/api';
+import { FiEdit3, FiSave } from "react-icons/fi";
+import { LuEraser } from "react-icons/lu";
+import CropImageUploader from "../../CropImageUploader";
+import ToastNotification from "../../ToastNotification";
 
 const CompanyInfo = () => {
     const userData = useSelector((state) => state.user?.user);
-    const companyDetails = userData.company
+    const companyDetails = userData.company;
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedDetails, setEditedDetails] = useState({
+        ...companyDetails
+    });
+    const [toastQueue, setToastQueue] = useState([]);
+    const [companyImageFile, setCompanyImageFile] = useState(null);
 
-    return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <div className={styles.logoContainer}>
+
+    const showToast = (message, type = "success") => {
+        const newToast = { message, type, id: Date.now() };
+        setToastQueue(prev => [...prev, newToast]);
+        
+        setTimeout(() => {
+            setToastQueue(prev => prev.filter(t => t.id !== newToast.id));
+        }, 3000);
+    };
+
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+        if (!isEditing) {
+            setCompanyImageFile(null);
+        }
+    };
+
+    const handleCompanyImageChange = (file) => {
+        setCompanyImageFile(file);
+    };
+    
+
+    const handleSaveChanges = async () => {
+        try {
+            const formData = new FormData();
+            
+            // Append all non-file fields
+            Object.keys(editedDetails).forEach(key => {
+                if (key !== 'company_image') {
+                    formData.append(key, editedDetails[key]);
+                }
+            });
+            
+            // Append the image file if it exists
+            if (companyImageFile) {
+                formData.append('company_image', companyImageFile);
+            } else if (editedDetails.company_image === null) {
+                formData.append('company_image', '');
+            }
+            
+            const response = await updateCompanyDetails(formData);
+            if(response.status != 'success'){
+                console.log("Company details updated:", response);
+                showToast(response.message);
+                setIsEditing(false);
+            }
+            
+            
+        } catch (error) {
+            console.error("Error updating company:", error);
+            showToast(response.error);
+        }
+    };
+
+    const handleCancel = () => {
+        setEditedDetails({ ...companyDetails });
+        setCompanyImageFile(null);
+        setIsEditing(false);
+        showToast("Changes discarded", "info");
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditedDetails(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+        return (
+            <div className={styles.wrapper}>
+                {/* Toast Notifications */}
+                <div className={styles.toastContainer}>
+                    {toastQueue.map((toast) => (
+                        <ToastNotification
+                            key={toast.id}
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
+                        />
+                    ))}
+                </div>
+        
+                {/* Background Banner */}
+                <div className={styles.banner}>
                     <img 
-                        src={companyDetails.company_image || defaultCompanyImage} 
-                        alt={companyDetails.company_name}
-                        className={styles.companyLogo}
+                        src={defaultBackground} 
+                        alt="Company background" 
+                        className={styles.bannerImage}
                     />
                 </div>
-                <div className={styles.headerInfo}>
-                    <h1 className={styles.companyName}>{companyDetails.company_name}</h1>
-                    <p className={styles.industry}>
-                        <Store className={styles.icon} />
-                        {companyDetails.company_industry}
-                    </p>
-                </div>
-                <button className={styles.editButton}>
-                    <Edit /> Edit Company
-                </button>
-            </div>
-
-            <div className={styles.content}>
-                <div className={styles.section}>
-                    <h2 className={styles.sectionTitle}>About Our Company</h2>
-                    <div className={styles.sectionContent}>
-                        <p className={styles.description}>
-                            {companyDetails.company_description}
-                        </p>
-                        <div className={styles.paragraphGroup}>
-                            {/* <p>
-                                Contrary to popular belief, FoodiesHub is not just another food delivery service. 
-                                We have revolutionized the industry with our proprietary matching algorithm that 
-                                connects customers with restaurants based on their unique preferences and dietary needs.
-                            </p>
-                            <p>
-                                Our technology platform handles over 50,000 orders daily with 99.9% reliability. 
-                                We partner with over 5,000 restaurants nationwide to bring you the best dining 
-                                experience right to your doorstep.
-                            </p> */}
+        
+                {/* Main Content Container */}
+                <div className={styles.container}>
+                    {/* Header with Logo and Basic Info */}
+                    <div className={styles.header}>
+                        <div className={styles.logoContainer}>
+                            <CropImageUploader
+                                name="company_image"
+                                onFileChange={handleCompanyImageChange}
+                                defaultImage={defaultCompanyImage}
+                                currentImage={editedDetails.company_image}
+                                checkPage='company-info'
+                                isEditing={isEditing}
+                            />
                         </div>
-                    </div>
-                </div>
-
-                <div className={styles.section}>
-                    <h2 className={styles.sectionTitle}>Company Credentials</h2>
-                    <div className={styles.sectionContent}>
-                        <div className={styles.credentialsGrid}>
-                            <div className={styles.credentialItem}>
-                                <h3 className={styles.credentialTitle}>
-                                    <Key className={styles.credentialIcon} />
-                                    Secret Key
-                                </h3>
-                                <div className={styles.secretKeyContainer}>
+                        
+                        <div className={styles.headerInfo}>
+                            <h1 className={styles.companyName}>
+                                {isEditing ? (
                                     <input
-                                        type="password"
-                                        value={companyDetails.company_secret_key}
-                                        readOnly
-                                        className={styles.secretKeyInput}
+                                        type="text"
+                                        name="company_name"
+                                        value={editedDetails.company_name}
+                                        onChange={handleInputChange}
+                                        className={styles.editInput}
                                     />
-                                    <button 
-                                        className={styles.copyButton}
-                                        onClick={() => {
-                                            navigator.clipboard.writeText(companyDetails.company_secret_key);
-                                            alert('Secret key copied to clipboard!');
-                                        }}
-                                    >
-                                        Copy
-                                    </button>
-                                </div>
-                                <p className={styles.secretKeyNote}>
-                                    This key is used to verify company ownership. Keep it secure and don't share it publicly.
-                                </p>
-                            </div>
+                                ) : (
+                                    editedDetails.company_name
+                                )}
+                            </h1>
                             
-                            <div className={styles.credentialItem}>
-                                <h3 className={styles.credentialTitle}>
-                                    <Business className={styles.credentialIcon} />
-                                    Company ID
-                                </h3>
-                                <div className={styles.companyId}>
-                                    {companyDetails.company_id}
-                                </div>
+                            <p className={styles.tagline}>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        name="company_tagline"
+                                        value={editedDetails.company_tagline || ''}
+                                        onChange={handleInputChange}
+                                        className={styles.editInput}
+                                        placeholder="Add a company tagline..."
+                                    />
+                                ) : (
+                                    editedDetails.company_tagline || "The best architecture speaks the language of what it is designed for ••••"
+                                )}
+                            </p>
+                        </div>
+                    </div>
+        
+                    {/* Company Content Sections */}
+                    <div className={styles.content}>
+                        {/* About Section */}
+                        <div className={styles.section}>
+                            <h2 className={styles.sectionTitle}>Who are we</h2>
+                            <div className={styles.sectionContent}>
+                                {isEditing ? (
+                                    <textarea
+                                        name="company_description"
+                                        value={editedDetails.company_description}
+                                        onChange={handleInputChange}
+                                        className={styles.editTextarea}
+                                        rows={5}
+                                    />
+                                ) : (
+                                    <p className={styles.description}>
+                                        {editedDetails.company_description || 
+                                        "RR Architects is an architecture company that help communities find their soul by unlocking stories within their landscape, culture, and character."}
+                                    </p>
+                                )}
                             </div>
                         </div>
+        
+                    </div>
+        
+                    {/* Action Buttons */}
+                    <div className={styles.buttonGroup}>
+                        {!isEditing ? (
+                            <button 
+                                className={styles.editButton}
+                                onClick={handleEditToggle}
+                            >
+                                <FiEdit3 /> Edit Company
+                            </button>
+                        ) : (
+                            <>
+                                
+                                <button 
+                                    className={styles.cancelButton}
+                                    onClick={handleCancel}
+                                >
+                                    <LuEraser /> Cancel
+                                </button>
+                                <button 
+                                    className={styles.saveButton}
+                                    onClick={handleSaveChanges}
+                                >
+                                    <FiSave /> Save
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    
 };
 
 export default CompanyInfo;

@@ -4,7 +4,8 @@ import { getEducation, postEducation, editEducation, deleteEducation } from "../
 import { IconButton, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox } from "@mui/material";
 import noResultsImage from "../../../assets/NoApplicationsYet.png";
 import { MdDelete } from "react-icons/md";
-import { FiEdit3, FiExternalLink } from "react-icons/fi";
+import { FiExternalLink } from "react-icons/fi";
+import { HiPencil } from "react-icons/hi2";
 import { BsCalendar2Date } from "react-icons/bs";
 import { FaGraduationCap } from "react-icons/fa6";
 import { LuFileBadge } from "react-icons/lu";
@@ -211,7 +212,7 @@ const EducationTab = () => {
                       onClick={() => handleOpenDialog(edu)}
                       aria-label="Edit education"
                     >
-                      <FiEdit3 className={styles.buttonIcons}/>
+                      <HiPencil className={styles.buttonIcons}/>
                     </IconButton>
                     <IconButton 
                       size="small" 

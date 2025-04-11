@@ -1,6 +1,6 @@
 .container {
   padding: 2rem;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -153,17 +153,6 @@
   line-height: 1.6;
 }
 
-.bulletPoints {
-  padding-left: 1.5rem;
-  margin: 1rem 0;
-  color: var(--english-violet);
-}
-
-.bulletPoints li {
-  margin-bottom: 0.5rem;
-  line-height: 1.6;
-}
-
 /* Form styles */
 .dialogContent {
   padding: 1rem 1.5rem;
@@ -178,25 +167,6 @@
   flex: 1;
 }
 
-.bulletPointsContainer {
-  margin-top: 1rem;
-}
-
-.bulletPointsContainer h4 {
-  margin: 1rem 0 0.5rem;
-  color: var(--english-violet);
-}
-
-.bulletPointInput {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.bulletPointInput > div {
-  flex: 1;
-}
 
 /* Empty state */
 .emptyState {
@@ -267,6 +237,18 @@
   gap: 1rem;
 }
 
+.totalExperience {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  margin-right: 35%;
+  background-color: var(--aqua);
+  padding: 0.35rem 0.5rem 0.5rem 0.5rem;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .container {
@@ -280,12 +262,6 @@
   
   .details {
     flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .bulletPointInput {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 0.5rem;
   }
 }

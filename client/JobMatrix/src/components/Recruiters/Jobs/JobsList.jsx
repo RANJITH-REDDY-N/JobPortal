@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import RecruiterCommonTopBar from '../RecruiterCommonTopBar';
 import styles from "../../../styles/JobsList.module.css";
-import { getJobsListByACompany, getApplicantsForJob } from "../../../services/api";
+import { getJobsListByACompany, getApplicantsForJob, updateApplicationStatus } from "../../../services/api";
 import ApplicantsPanel from '../JobApplicants/ApplicantsPanel';
 
 const JobsList = () => {
@@ -17,56 +17,83 @@ const JobsList = () => {
   const [totalPages, setTotalPages] = useState(0)
   const [applicantsListCurrentPage, setApplicantsListCurrentPage] = useState(1);
   const [applicantsListTotalPages, setApplicantsListTotalPages] = useState(1)
-  const [jobId, setJobId] = useState(null)
+  const [selectedStatus, setSelectedStatus] = useState('All');
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
-  const fetchJobsList = async (page) => {
-    setIsLoading(true);
-    try {
-      const response = await getJobsListByACompany(page);
-      if (response && response.results) {
-        setAllJobs(response.results);
-        setCurrentPage(response.current_page)
-        setTotalPages(response.total_pages);
-        setJobsPerPage(response.results.length)
-      } else {
-        setAllJobs([]);
-      }
-    } catch (err) {
-      console.error(`Error in fetching Job List: ${err}`);
-      setError(err.message || "Failed to fetch jobs");
-      setAllJobs([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   useEffect(() => {
-    fetchJobsList(currentPage);
-  }, []);
+    const controller = new AbortController();
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getJobsListByACompany(currentPage, { signal: controller.signal });
+        
+        if (response?.results) {
+          setAllJobs(response.results);
+          setTotalPages(response.total_pages);
+          setJobsPerPage(response.results.length);
+        } else {
+          setAllJobs([]);
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(`Error in fetching Job List: ${err}`);
+          setError(err.message || "Failed to fetch jobs");
+          setAllJobs([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    };
+  
+    fetchData();
+    
+    return () => controller.abort(); // Cleanup on unmount
+  }, [currentPage]);
 
-  useEffect(()=> {
-    handleViewApplicants(selectedJob)
-  },[applicantsListCurrentPage])
-
-
-  const handleViewApplicants = async (job) => {
-    setJobId(job.job_id)
-    setIsLoadingApplicants(true);
-    const data = {
-      job_Id : job.job_id,
-      page : applicantsListCurrentPage
+  // Replace the problematic useEffect with this:
+  useEffect(() => {
+    if (selectedJob != null) {
+      const fetchApplicants = async () => {
+        await handleViewApplicants(selectedJob);
+      };
+      fetchApplicants();
     }
-    try {
-      const apps = await getApplicantsForJob(data);
-      setApplications(apps);
-      setApplicantsListTotalPages(apps.total_pages)
-      setSelectedJob(job);
-    } catch (error) {
-      console.error("Error fetching applicants:", error);
-      setError("Failed to load applicants");
-    } finally {
-      setIsLoadingApplicants(false);
+  }, [applicantsListCurrentPage, selectedJob]); // Add selectedJob to dependencies
+
+  useEffect(() => {
+  // Reset to page 1 only when search query changes
+  setCurrentPage(1);
+}, [searchQuery]);
+
+
+const handleViewApplicants = useCallback(async (job, status = '') => {
+  setIsLoadingApplicants(true);
+  const data = {
+    job_Id: job.job_id,
+    page: applicantsListCurrentPage
+  }
+  try {
+    const apps = await getApplicantsForJob(data, status);
+    
+    setApplications(apps);
+    setApplicantsListTotalPages(apps.total_pages);
+    if(status == ''){
+      setSelectedStatus('All');
     }
-  };
+    else{
+      setSelectedStatus(status);
+    }
+    
+    setSelectedJob(job);
+  } catch (error) {
+    console.error("Error fetching applicants:", error);
+    setError("Failed to load applicants");
+  } finally {
+    setIsLoadingApplicants(false);
+  }
+}, [applicantsListCurrentPage]);
 
   const handleClosePanel = () => {
     setSelectedJob(null);
@@ -74,37 +101,50 @@ const JobsList = () => {
   };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
-    fetchJobsList(page);
-
+    setCurrentPage(page);  // Update the page state first
+    // fetchJobsList(page);   // Then fetch data for that page
   };
 
   const handleSearch = (value) => {
     setSearchQuery(value);
-    setCurrentPage(1);
+    // setCurrentPage(1);
   };
 
   const handleStatusChange = async (applicationId, newStatus, comment = null) => {
+    console.log("Updating status:", applicationId, newStatus, comment);
+    setUpdatingStatus(applicationId);
+
     try {
       const response = await updateApplicationStatus(applicationId, {
         "application_status": newStatus,
         "application_recruiter_comment": comment
       });
-      
-      setApplications(prev => ({
-        ...prev,
-        results: prev.results.map(app => 
-          app.application_id === applicationId 
-            ? { 
-                ...app, 
-                application_status: newStatus,
-                application_recruiter_comment: comment || app.application_recruiter_comment
-              } 
-            : app
-        )
-      }));
+      console.log("responseee ",response)
+      if (response && !response.error) {
+        setApplications(prev => {
+          if (!prev || !prev.results) return prev;
+          
+          return {
+            ...prev,
+            results: prev.results.map(app => 
+              app.application_id === applicationId 
+                ? { 
+                    ...app, 
+                    application_status: newStatus,
+                    application_recruiter_comment: comment || app.application_recruiter_comment
+                  } 
+                : app
+            )
+          };
+        });
+      } else {
+        console.error("API response indicates failure:", response);
+        throw new Error("Failed to update status");
+      }
     } catch (error) {
       console.error("Error updating application:", error);
+      setUpdatingStatus(null);
+      
     }
   };
 
@@ -117,9 +157,7 @@ const JobsList = () => {
   }, [searchQuery, allJobs]);
 
   
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = filteredJobs
 
   if (isLoading) {
     return <div className={styles.container}>Loading jobs...</div>;
@@ -199,6 +237,8 @@ const JobsList = () => {
           applicantsListCurrentPage =  {applicantsListCurrentPage}
           setApplicantsListCurrentPage = {setApplicantsListCurrentPage}
           applicantsListTotalPages = {applicantsListTotalPages}
+          handleViewApplicants = {handleViewApplicants}
+          selectedStatus = {selectedStatus}
         />
       </>
     )}

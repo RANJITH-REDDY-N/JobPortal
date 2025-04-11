@@ -1,19 +1,9 @@
 const API_BASE_URL = import.meta.env.VITE_JOB_MATRIX_API_BASE_URL;
 
-const fetchAPI = async (
-  URL, 
-  method = "GET", 
-  data = null, 
-  is_auth = false, 
-  content_type = 'application/json',
-  isMultipart = false
-) => {
+const fetchAPI = async (URL, method = "GET", data = null, is_auth = false, content_type = 'application/json', isMultipart = false) => {
   try {
     const token = localStorage.getItem("jwtToken");
-    const options = {
-      method,
-      headers: {}
-    };
+    const options = {method, headers: {}};
 
     // Only set Content-Type if not multipart
     if (!isMultipart) {
@@ -42,14 +32,17 @@ const fetchAPI = async (
   }
 };
 
-// Example API functions
-export const userAuth = (data) => fetchAPI(`/login/`, "POST", data);
+/** OPEN API - NO AUTH */
 export const registerUser = (formData) => fetchAPI(`/users/create/`, "POST", formData, false, 'multipart/form-data', true);
 export const getCompanies = () => fetchAPI(`/companies/`, "GET");
+
+/** Users */
+export const userAuth = (data) => fetchAPI(`/login/`, "POST", data);
 export const userDetails = (email) => fetchAPI(`/users/get/?user_email=${email}`, "GET", null, true);
 export const patchUserDetails = (userId, formData) => fetchAPI(`/users/patch/${userId}/`, "PATCH", formData, true, 'multipart/form-data', true);
 export const patchResume = (formData) => fetchAPI(`/users/resume-update/`, "PATCH", formData, true, 'multipart/form-data', true);
 
+/** JOBS WITH FILTER AND PAGINATION */
 export const getAllJobs = (params = {}) => {
   const queryString = new URLSearchParams();
   
@@ -65,7 +58,7 @@ export const getAllJobs = (params = {}) => {
 };
 
 
-
+/** BOOKMARK JOBS*/
 export const getBookmarks = (params = {}) =>{
   const queryString = new URLSearchParams();
   
@@ -82,6 +75,7 @@ export const getBookmarks = (params = {}) =>{
 export const addBookmark = (data) => fetchAPI('/job/bookmarks/', "POST", data, true, 'application/json', false);
 export const deleteBookmark = (bookmarkId) => fetchAPI(`/job/bookmarks/${bookmarkId}/`, "DELETE", null, true, 'application/json', false);
 
+/** APPLIED JOBS */
 export const getAppliedJobs = (params = {}) => {
   const queryString = new URLSearchParams();
 
@@ -114,24 +108,17 @@ export const postWorkExperience = (data) => fetchAPI(`/profile/work-experience/c
 export const editWorkExperience = (educationId, data) => fetchAPI(`/profile/work-experience/update/${educationId}/`,"PATCH",data,true,'application/json',false);
 export const deleteWorkExperience = (educationId) => fetchAPI(`/profile/work-experience/delete/${educationId}/`,"DELETE",null,true,'application/json',false);
 
-// -------- Recruiter ----------
-export const getJobsListByACompany = (params = {}) => {
-  const queryString = new URLSearchParams();
-  if(params.page) queryString.append('page',params.page);
-  return fetchAPI(`/company-jobs/?${queryString.toString()}`,"GET",null,true,'application/json',false);
-}
-export const getApplicantsForJob = (data) => {
+/** RECRUITER */
+export const getApplicantsForJob = (data, status) => {
   const queryString = new URLSearchParams();
   if(data.page) queryString.append('page',data.page);
-  return fetchAPI(`/job/applicants/${data.job_Id}/?${queryString.toString()}`,"GET",null,true,'application/json',false);
+  return fetchAPI(`/job/applicants/${data.job_Id}/?${queryString.toString()}&application_status=${status}`,"GET",null,true,'application/json',false);
 }
-export const updateApplicationStatus = (applicationId, data) => fetchAPI(`/job/recruiter/applications/${applicationId}`, "PATCH", data,'application/json',false )
-
+export const getJobsListByACompany = (page) => fetchAPI(`/company-jobs/?page=${page}`, "GET", null, true,'application/json',false )
+export const updateApplicationStatus = (applicationId, data) => fetchAPI(`/job/recruiter/applications/${applicationId}/`, "PATCH", data, true,'application/json',false)
+export const updateCompanyDetails = (data) => fetchAPI(`/company/update/`, "PATCH", data, true,'multipart/form-data',true )
 
 /** ADMIN */
 export const getAllUsers = () => fetchAPI(`/users/all/`,"GET",null,true,'application/json',false);
-
-
-
 
 export default fetchAPI;

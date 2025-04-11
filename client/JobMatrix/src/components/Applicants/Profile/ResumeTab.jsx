@@ -38,7 +38,6 @@ const ResumeTab = () => {
       if (!email) return;
 
       const response = await userDetails(email);
-      console.log(response);
       if (response?.applicant_resume) {
         setResumeUrl(response.applicant_resume);
         setResponseOk(true);

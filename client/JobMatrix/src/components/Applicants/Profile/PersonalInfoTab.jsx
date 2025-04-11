@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiEdit3 } from "react-icons/fi";
-import { LuEraser, LuCheck } from "react-icons/lu";
+import { LuEraser, LuSave } from "react-icons/lu";
 import { userDetails, patchUserDetails } from "../../../services/api";
 import styles from "../../../styles/PersonalInfoTab.module.css";
 import CropImageUploader from "../../CropImageUploader";
@@ -162,7 +162,7 @@ const PersonalInfoTab = () => {
         // Ensure we preserve the resume data in the update
         const updatedUser = {
           ...response,
-          applicant_resume: user.applicant_resume // Keep existing resume
+          applicant_resume: user.applicant_resume
         };
         dispatch(setUser(updatedUser));
         setOriginalData(formData);
@@ -254,7 +254,7 @@ const PersonalInfoTab = () => {
                 </button>
                 <button type="submit" className={styles.saveButton}>
                   <span className={styles.buttonRow}>
-                    <span>Save</span> <LuCheck className={styles.editIcon}/>
+                    <span>Save</span> <LuSave className={styles.editIcon}/>
                   </span>
                 </button>
               </>
