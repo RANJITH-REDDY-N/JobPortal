@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import styles from "../../styles/SignupPage.module.css";
 import { VisibilityOffOutlined, VisibilityOutlined, FileUploadOutlined } from "@mui/icons-material";
 import CropImageUploader from "../CropImageUploader";
 import logo from "../../assets/logo.svg";
-import { registerUser, userAuth, userDetails } from "../../services/api";
+import { registerUser, userAuth, userDetails, getCompanies } from "../../services/api";
 import defaultProfilePhoto from '../../assets/noprofilephoto.png';
 import { useDispatch } from "react-redux";
 import { setUser } from "../../Redux/userSlice";
-import { BiLogoPinterestAlt } from "react-icons/bi";
 
 const SignupPage = () => {
   const nav = useNavigate();
@@ -28,6 +27,7 @@ const SignupPage = () => {
     resume: null,
     recruiterStartDate: "",
     createNewCompany: false,
+    companyId:"",
     companyName: "", 
     companySecretKey: "",
     companyIndustry: "",
@@ -39,7 +39,14 @@ const SignupPage = () => {
   const [ssnVisible, setSsnVisible] = useState(false);
   const [companySecretVisible, setCompanySecretVisible] = useState(false);
   const [adminSecretVisible, setAdminSecretVisible] = useState(false);
-  
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [companySearch, setCompanySearch] = useState({
+    input: "",
+    filteredResults: [],
+    showDropdown: false
+  });
 
   const calculateStrength = (password) => {
     if (!password || password.length < 8) return { level: 0, label: "Weak", color: "#FF3E36" };
@@ -127,6 +134,12 @@ const SignupPage = () => {
         if (formData.role === "APPLICANT" && formData.resume) {
           apiFormData.append('applicant_resume', formData.resume);
         }
+
+        if(formData.role === "RECRUITER"){
+          apiFormData.append('company_id', formData.companyId);
+          apiFormData.append('company_secret_key', formData.companySecretKey);
+          apiFormData.append('recruiter_start_date',formData.recruiterStartDate);
+        }
   
         // Call the registration API
         const result = await registerUser(apiFormData);
@@ -151,10 +164,10 @@ const SignupPage = () => {
             if (loginRes && loginRes.token) {
             
               // Save Basic User Details to localStorage for immediate access
-              localStorage.setItem('userEmail',response.user_email);
-              localStorage.setItem("jwtToken", response.token);
-              localStorage.setItem("userRole", response.user_role);
-              localStorage.setItem("userId",response.user_id);
+              localStorage.setItem('userEmail',loginRes.user_email);
+              localStorage.setItem("jwtToken", loginRes.token);
+              localStorage.setItem("userRole", loginRes.user_role);
+              localStorage.setItem("userId",loginRes.user_id);
         
               // fetch user details
               const userData = await userDetails(loginRes.user_email);
@@ -181,10 +194,10 @@ const SignupPage = () => {
             if (loginRes && loginRes.token) {
               
               // Save Basic User Details to localStorage for immediate access
-              localStorage.setItem('userEmail',response.user_email);
-              localStorage.setItem("jwtToken", response.token);
-              localStorage.setItem("userRole", response.user_role);
-              localStorage.setItem("userId",response.user_id);
+              localStorage.setItem('userEmail',loginRes.user_email);
+              localStorage.setItem("jwtToken", loginRes.token);
+              localStorage.setItem("userRole", loginRes.user_role);
+              localStorage.setItem("userId",loginRes.user_id);
         
               // fetch user details
               const userData = await userDetails(loginRes.user_email);
@@ -199,7 +212,38 @@ const SignupPage = () => {
             console.error("Login error after registration", loginErr);
             nav("/login"); // fallback
           }
-        } else {
+        } else if (formData.role === "RECRUITER") {
+          console.log("Recruiter Registration Successful");
+          const loginData = {
+            user_email: formData.email,
+            user_password: formData.password
+          };
+        
+          try {
+            const loginRes = await userAuth(loginData);
+            if (loginRes && loginRes.token) {
+              
+              // Save Basic User Details to localStorage for immediate access
+              localStorage.setItem('userEmail',loginRes.user_email);
+              localStorage.setItem("jwtToken", loginRes.token);
+              localStorage.setItem("userRole", loginRes.user_role);
+              localStorage.setItem("userId",loginRes.user_id);
+        
+              // fetch user details
+              const userData = await userDetails(loginRes.user_email);
+              dispatch(setUser(userData));
+        
+              nav('/recruiter/');
+            } else {
+              console.error("Login failed after registration", loginRes.error);
+              nav("/login"); // fallback
+            }
+          } catch (loginErr) {
+            console.error("Login error after registration", loginErr);
+            nav("/login"); // fallback
+          }
+        }
+        else {
           nav("/login");
         }
       } catch (error) {
@@ -208,6 +252,44 @@ const SignupPage = () => {
       }
     }
   };
+
+  const handleCompanySearch = (input) => {
+    const filtered = allCompanies.filter(company =>
+      company.company_name.toLowerCase().includes(input.toLowerCase())
+    );
+    
+    setCompanySearch({
+      input,
+      filteredResults: filtered,
+      showDropdown: input.length >= 1 && filtered.length > 0
+    });
+  };
+
+  /**
+   * HOOK TO FETCH COMPANIES IF THE ROLE IS RECRUITER
+   */
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        setLoadingCompanies(true);
+        const response = await getCompanies();
+        if (response) {
+          setAllCompanies(response);
+        }
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+      }
+      finally {
+        setLoadingCompanies(false);
+      }
+    };
+  
+    if (formData.role === "RECRUITER") {
+      fetchCompanies();
+    }
+  }, [formData.role]);
+
+  
 
   return (
     <div className={styles.container}>
@@ -412,7 +494,7 @@ const SignupPage = () => {
                 />
                 <label htmlFor="create-company">Create New Company</label>
               </div>
-              
+              {/** RECRUITER FROM EXISITING COMPANY */}
               {!formData.createNewCompany && (
                 <>
                   <div className={styles.inputGroup}>
@@ -420,11 +502,87 @@ const SignupPage = () => {
                       type="text"
                       name="companyName"
                       value={formData.companyName}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e);
+                        handleCompanySearch(e.target.value);
+                        setHighlightedIndex(-1);
+                      }}
+                      onKeyDown={(e) => {  
+                        if (companySearch.showDropdown) {
+                          if (e.key === "ArrowDown") {
+                            e.preventDefault();
+                            setHighlightedIndex(prev => 
+                              Math.min(prev + 1, companySearch.filteredResults.length - 1)
+                            );
+                          } else if (e.key === "ArrowUp") {
+                            e.preventDefault();
+                            setHighlightedIndex(prev => Math.max(prev - 1, -1));
+                          } else if (e.key === "Enter" && highlightedIndex >= 0) {
+                            e.preventDefault();
+                            const company = companySearch.filteredResults[highlightedIndex];
+                            setFormData(prev => ({
+                              ...prev,
+                              companyName: company.company_name,
+                              companyId: company.company_id
+                            }));
+                            setCompanySearch(prev => ({
+                              ...prev,
+                              input: company.company_name,
+                              showDropdown: false
+                            }));
+                            setHighlightedIndex(-1);
+                          }
+                        }
+                      }}
+                      onFocus={() => {
+                        if (formData.companyName.length >= 3) {
+                          handleCompanySearch(formData.companyName);
+                        }
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => {
+                          setCompanySearch(prev => ({ ...prev, showDropdown: false }));
+                        }, 200);
+                      }}
                       required
                       placeholder=" "
+                      autoComplete="off"
                     />
                     <label className={styles.floatingLabel}>Company Name*</label>
+
+
+
+                    {loadingCompanies ? (
+                      <div className={styles.dropdownItem}>Loading companies...</div>
+                    ) : companySearch.showDropdown && (
+                        <div className={styles.dropdown}>
+                          {companySearch.filteredResults.map((company,index) => (
+                            <div
+                              key={company.company_id}  // Changed from id to company_id
+                              className={`${styles.dropdownItem} ${
+                                index === highlightedIndex ? styles.highlighted : ''
+                              }`}
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  companyName: company.company_name,
+                                  companyId: company.company_id
+                                }));
+                                setCompanySearch(prev => ({
+                                  ...prev,
+                                  input: company.company_name,  // Changed from name to company_name
+                                  showDropdown: false
+                                }));
+                              }}
+                            >
+                              {company.company_name}  {/* Changed from name to company_name */}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+
+
                   </div>
                   <div className={styles.inputGroup}>
                     <input

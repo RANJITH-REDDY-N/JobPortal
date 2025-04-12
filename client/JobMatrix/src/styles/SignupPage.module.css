@@ -288,6 +288,37 @@
   opacity: 0.3;
 }
 
+.dropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  margin-top: 4px;
+}
+
+.dropdownItem {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: #f8f9ff;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.highlighted {
+  background-color: #f0f2f5;
+}
+
 /* Responsive Design */
 @media (max-width: 1080px) {
   .signupText {

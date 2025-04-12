@@ -37,7 +37,7 @@ export const registerUser = (formData) => fetchAPI(`/users/create/`, "POST", for
 export const getCompanies = () => fetchAPI(`/companies/`, "GET");
 
 /** Users */
-export const userAuth = (data) => fetchAPI(`/login/`, "POST", data);
+export const userAuth = (data) => fetchAPI(`/login/`, "POST", data, false, 'application/json', false);
 export const userDetails = (email) => fetchAPI(`/users/get/?user_email=${email}`, "GET", null, true);
 export const patchUserDetails = (userId, formData) => fetchAPI(`/users/patch/${userId}/`, "PATCH", formData, true, 'multipart/form-data', true);
 export const patchResume = (formData) => fetchAPI(`/users/resume-update/`, "PATCH", formData, true, 'multipart/form-data', true);

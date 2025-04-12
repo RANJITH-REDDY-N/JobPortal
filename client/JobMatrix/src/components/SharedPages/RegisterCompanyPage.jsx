@@ -99,10 +99,10 @@ const RegisterCompanyPage = () => {
           if (loginRes && loginRes.token) {
             
             // Save Basic User Details to localStorage for immediate access
-            localStorage.setItem('userEmail',response.user_email);
-            localStorage.setItem("jwtToken", response.token);
-            localStorage.setItem("userRole", response.user_role);
-            localStorage.setItem("userId",response.user_id);
+            localStorage.setItem('userEmail',loginRes.user_email);
+            localStorage.setItem("jwtToken", loginRes.token);
+            localStorage.setItem("userRole", loginRes.user_role);
+            localStorage.setItem("userId",loginRes.user_id);
       
             // fetch user details
             const userData = await userDetails(loginRes.user_email);
