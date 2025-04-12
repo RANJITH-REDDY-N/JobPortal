@@ -8,7 +8,7 @@ import { FiExternalLink } from "react-icons/fi";
 import { HiPencil } from "react-icons/hi2";
 import { BsCalendar2Date } from "react-icons/bs";
 import { FaGraduationCap } from "react-icons/fa6";
-import { LuFileBadge } from "react-icons/lu";
+import { LuFileBadge, LuEraser, LuSave } from "react-icons/lu";
 import ToastNotification from "../../../components/ToastNotification";
 
 const EducationTab = () => {
@@ -291,7 +291,7 @@ const EducationTab = () => {
               value={formData.education_gpa} 
               onChange={handleChange} 
               type="number"
-              inputProps={{ step: "0.05", min: "0", max: "4.0" }}
+              slotProps={{ htmlInput: { step: "0.05", min: "0", max: "4.0"}}}
             />
           </div>
           
@@ -335,13 +335,21 @@ const EducationTab = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
+
+          <Button 
+            variant="text" 
+            onClick={handleCloseDialog} 
+            className={styles.cancelButton}
+          >
+            <LuEraser className={styles.saveIcon}/>Cancel
+          </Button>
           <Button 
             onClick={handleSave} 
             variant="contained" 
+            className={styles.saveButton}
             disabled={loading || !formData.education_school_name || !formData.education_degree_type || !formData.education_start_date}
           >
-            {loading ? "Saving..." : "Save"}
+            <LuSave className={styles.saveIcon}/> {loading ? "Saving..." : "Save"}
           </Button>
         </DialogActions>
       </Dialog>

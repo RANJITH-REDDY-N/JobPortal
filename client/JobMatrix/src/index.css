@@ -50,7 +50,6 @@ body {
 
 /* Job Matrix Font */
 .job-matrix {
-  font-family: "Playfair Display", "Garamond", serif;
   font-size: 4vw;
   font-weight: bold;
   color: var(--english-violet);

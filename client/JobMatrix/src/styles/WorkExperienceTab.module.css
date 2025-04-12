@@ -101,9 +101,9 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background-color: var(--aqua);
-  color: var(--english-violet);
-  border: 1px solid var(--aqua);
+  background-color: var(--soft-blue);
+  color: var(--aqua);
+  border: 1px solid var(--soft-blue);
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
@@ -112,9 +112,9 @@
 }
 
 .addButton:hover {
-  background-color: var(--light-blue);
+  background-color: #4338ca;
   color: var(--aqua);
-  border: 1px solid var(--light-blue);
+  border: 1px solid #4338ca;
 }
 
 .buttonIcon {
@@ -247,6 +247,48 @@
   border-radius: 7px;
   font-size: 1rem;
   font-weight: 500;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  min-width: 40px;
+  background-color: var(--english-violet);
+  color: var(--aqua) !important;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.saveButton:hover {
+  background-color: var(--light-blue) !important;
+  color: var(--aqua) !important;
+}
+
+.cancelButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  min-width: 40px;
+  background-color: var(--aqua) !important;
+  color: var(--english-violet) !important;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.cancelButton:hover {
+  background-color: var(--light-blue) !important;
+  color: var(--aqua) !important;
+}
+
+.saveIcon {
+  margin-right: 0.3rem;
 }
 
 /* Responsive adjustments */

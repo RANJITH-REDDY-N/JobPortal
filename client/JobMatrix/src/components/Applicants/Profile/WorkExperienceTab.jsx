@@ -23,6 +23,7 @@ import { FiExternalLink } from "react-icons/fi";
 import { HiPencil } from "react-icons/hi2";
 import noResultsImage from "../../../assets/NoApplicationsYet.png";
 import ToastNotification from "../../../components/ToastNotification";
+import { LuEraser, LuSave } from "react-icons/lu";
 
 const WorkExperienceTab = () => {
   const userId = localStorage.getItem("userId");
@@ -363,17 +364,24 @@ const WorkExperienceTab = () => {
 
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button 
-            onClick={handleSave} 
-            variant="contained" 
-            disabled={loading || 
-              !formData.work_experience_company || 
-              !formData.work_experience_job_title || 
-              !formData.work_experience_start_date}
-          >
-            {loading ? "Saving..." : "Save"}
-          </Button>
+        <Button 
+          onClick={handleCloseDialog} 
+          className={styles.cancelButton}
+          variant="text"
+        >
+          <LuEraser className={styles.saveIcon}/>Cancel
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          className={styles.saveButton}
+          variant="contained"
+          disabled={loading || 
+            !formData.work_experience_company || 
+            !formData.work_experience_job_title || 
+            !formData.work_experience_start_date}
+        >
+          <LuSave className={styles.saveIcon}/>{loading ? "Saving..." : "Save"}
+        </Button>
         </DialogActions>
       </Dialog>
 

@@ -2,8 +2,8 @@
   /* padding: 1rem; */
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  height:92vh;
+  /* gap: 1.5rem; */
+  height: 90vh;
 }
 
 .resumeViewerContainer {
@@ -69,8 +69,8 @@
 }
 
 .uploadButton {
-  background-color: var(--english-violet);
-  color: white;
+  background-color: var(--soft-blue);
+  color: var(--aqua);
   border: none;
   cursor: pointer;
   padding: 0.85rem 2rem;
@@ -81,8 +81,7 @@
 }
 
 .uploadButton:hover {
-  background-color: var(--steel-blue);
-  transform: translateY(-1px);
+  background-color: #4338ca;
 }
 
 .uploadButton:disabled {

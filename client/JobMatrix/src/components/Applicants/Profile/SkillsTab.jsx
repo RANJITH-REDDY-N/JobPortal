@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { getSkills, postSkill, editSkill, deleteSkill } from "../../../services/api";
-import { MdEdit, MdDelete, MdAdd, MdClose, MdCheck } from "react-icons/md";
-import styles from "../../../styles/SkillsTab.module.css";
+import { FiEdit2, FiSave, FiEdit3 } from "react-icons/fi";
+import { MdDoneAll, MdDelete } from "react-icons/md";
+import { LuEraser } from "react-icons/lu";
+import { motion, AnimatePresence } from "framer-motion";
 import ToastNotification from "../../../components/ToastNotification";
+import styles from "../../../styles/SkillsTab.module.css";
 
 const SkillsTab = () => {
-  const user = useSelector(state => state.user.user);
+  const applicantId = localStorage.getItem("userId");
   const [skills, setSkills] = useState([]);
-  const [newSkill, setNewSkill] = useState("");
-  const [yearsExp, setYearsExp] = useState("");
-  const [editingMode, setEditingMode] = useState(false);
-  const [editingSkill, setEditingSkill] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [newSkill, setNewSkill] = useState({ name: "", years: "" });
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -21,8 +22,7 @@ const SkillsTab = () => {
 
   const fetchSkills = async () => {
     try {
-      setLoading(true);
-      const res = await getSkills(user.user_id);
+      const res = await getSkills(applicantId);
       if (res?.status === "success") {
         setSkills(res.data);
       } else {
@@ -37,29 +37,31 @@ const SkillsTab = () => {
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => {
-      setToast(null);
-    }, 3000);
+    setTimeout(() => setToast(null), 3000);
   };
 
   const handleAddSkill = async () => {
-    if (!newSkill.trim() || !yearsExp) {
+    if (!newSkill.name.trim() || !newSkill.years) {
       showToast("Please enter both skill name and years of experience", "error");
       return;
     }
-    
+
+    if (skills.some(s => s.skill_name.toLowerCase() === newSkill.name.trim().toLowerCase())) {
+      showToast("This skill already exists", "error");
+      return;
+    }
+
     try {
       setLoading(true);
       const res = await postSkill({
-        applicant_id: user.user_id,
-        skill_name: newSkill,
-        skill_years_of_experience: parseInt(yearsExp)
+        applicant_id: applicantId,
+        skill_name: newSkill.name,
+        skill_years_of_experience: parseInt(newSkill.years)
       });
       
       if (res?.status === "success") {
         setSkills(prev => [...prev, res.data]);
-        setNewSkill("");
-        setYearsExp("");
+        setNewSkill({ name: "", years: "" });
         showToast("Skill added successfully");
       } else {
         showToast(res?.message || "Failed to add skill", "error");
@@ -97,10 +99,8 @@ const SkillsTab = () => {
       });
       
       if (res?.status === "success") {
-        setSkills(prev => prev.map(s => 
-          s.skill_id === skill.skill_id ? res.data : s
-        ));
-        setEditingSkill(null);
+        setSkills(prev => prev.map(s => s.skill_id === skill.skill_id ? res.data : s));
+        setEditingId(null);
         showToast("Skill updated successfully");
       } else {
         showToast(res?.message || "Failed to update skill", "error");
@@ -112,124 +112,166 @@ const SkillsTab = () => {
     }
   };
 
-  const toggleEditMode = () => {
-    setEditingMode(!editingMode);
-    if (editingMode) {
-      setEditingSkill(null);
-    }
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Skills</h2>
+        <h2>Technical Competencies</h2>
         <button 
-          className={styles.editButton}
-          onClick={toggleEditMode}
+          className={`${styles.primaryButton} ${isAdding ? styles.cancelButton : ''}`}
+          onClick={() => {
+            setIsAdding(!isAdding);
+            setEditingId(null);
+          }}
+          disabled={loading}
         >
-          {editingMode ? (
+          {isAdding ? (
             <>
-              <MdCheck size={20} /> Done
+              <MdDoneAll size={18} /> Done
             </>
           ) : (
             <>
-              <MdEdit size={20} /> Edit
+              <FiEdit3 size={18} /> Skills
             </>
           )}
         </button>
       </div>
 
-      <div className={styles.skillsGrid}>
-        {skills.map(skill => (
-          <div key={skill.skill_id} className={styles.skillChip}>
-            {editingMode && editingSkill?.skill_id === skill.skill_id ? (
-              <div className={styles.editContainer}>
-                <input
-                  type="text"
-                  value={editingSkill.skill_name}
-                  onChange={(e) => setEditingSkill({
-                    ...editingSkill,
-                    skill_name: e.target.value
-                  })}
-                  className={styles.editInput}
-                />
-                <input
-                  type="number"
-                  min="0"
-                  value={editingSkill.skill_years_of_experience}
-                  onChange={(e) => setEditingSkill({
-                    ...editingSkill,
-                    skill_years_of_experience: e.target.value
-                  })}
-                  className={styles.yearsInput}
-                  placeholder="Yrs"
-                />
-                <div className={styles.editActions}>
-                  <button 
-                    onClick={() => handleUpdateSkill(editingSkill)}
-                    className={styles.saveButton}
-                  >
-                    <MdCheck size={16} />
-                  </button>
-                  <button 
-                    onClick={() => setEditingSkill(null)}
-                    className={styles.cancelButton}
-                  >
-                    <MdClose size={16} />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <span className={styles.skillText}>
-                  {skill.skill_name} ({skill.skill_years_of_experience} yrs)
-                </span>
-                {editingMode && (
-                  <div className={styles.chipActions}>
-                    <button 
-                      onClick={() => setEditingSkill(skill)}
-                      className={styles.editAction}
-                    >
-                      <MdEdit size={16} />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteSkill(skill.skill_id)}
-                      className={styles.deleteAction}
-                    >
-                      <MdDelete size={16} />
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+      <AnimatePresence>
+        {isAdding && (
+          <motion.div 
+            className={styles.addForm}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className={styles.inputGroup}>
+              <input
+                type="text"
+                value={newSkill.name}
+                onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
+                placeholder="Skill name"
+                className={styles.input}
+              />
+              <input
+                type="number"
+                min="0"
+                value={newSkill.years}
+                onChange={(e) => setNewSkill({...newSkill, years: e.target.value})}
+                placeholder="Years of experience"
+                className={styles.inputYoe}
+              />
+              <div className={styles.formActions}>
+              <button 
+                onClick={handleAddSkill}
+                disabled={!newSkill.name.trim() || !newSkill.years || loading}
+                className={styles.primaryButton}
+              >
+                <FiSave size={16} /> Save
+              </button>
+              
+            </div>
+            </div>
+            
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className={styles.addSkillContainer}>
-        <input
-          type="text"
-          value={newSkill}
-          onChange={(e) => setNewSkill(e.target.value)}
-          placeholder="Skill name"
-          className={styles.skillInput}
-        />
-        <input
-          type="number"
-          min="0"
-          value={yearsExp}
-          onChange={(e) => setYearsExp(e.target.value)}
-          placeholder="Years"
-          className={styles.yearsInput}
-        />
-        <button 
-          onClick={handleAddSkill}
-          disabled={!newSkill.trim() || !yearsExp || loading}
-          className={styles.addButton}
-        >
-          <MdAdd size={20} /> Add
-        </button>
-      </div>
+      {loading && skills.length === 0 ? (
+        <div className={styles.loadingState}>
+          <div className={styles.skeletonChip} />
+          <div className={styles.skeletonChip} />
+          <div className={styles.skeletonChip} />
+        </div>
+      ) : (
+        <div className={styles.skillsGrid}>
+          <AnimatePresence>
+            {skills
+            .slice()
+            .sort((a,b) => b.skill_years_of_experience - a.skill_years_of_experience)
+            .map(skill => (
+              <motion.div
+                key={skill.skill_id}
+                className={styles.skillCard}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                {editingId === skill.skill_id ? (
+                  <div className={styles.editForm}>
+                    <input
+                      type="text"
+                      value={skill.skill_name}
+                      onChange={(e) => setSkills(prev => 
+                        prev.map(s => 
+                          s.skill_id === skill.skill_id 
+                            ? {...s, skill_name: e.target.value} 
+                            : s
+                        )
+                      )}
+                      className={styles.input}
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      value={skill.skill_years_of_experience}
+                      onChange={(e) => setSkills(prev => 
+                        prev.map(s => 
+                          s.skill_id === skill.skill_id 
+                            ? {...s, skill_years_of_experience: e.target.value} 
+                            : s
+                        )
+                      )}
+                      className={styles.inputYoe}
+                    />
+                    <div className={styles.editActions}>
+                      <button 
+                        onClick={() => handleUpdateSkill(skill)}
+                        className={styles.primaryButton}
+                      >
+                        <FiSave size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setEditingId(null)}
+                        className={styles.secondaryButton}
+                      >
+                        <LuEraser size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.skillInfo}>
+                      <span><h3>{skill.skill_name}</h3></span>
+                      <span>{skill.skill_years_of_experience}{skill.skill_years_of_experience === 1 ? " Year":" Years"}</span>
+                    </div>
+                    {isAdding && (
+                      <div className={styles.actions}>
+                      <button 
+                        onClick={() => setEditingId(skill.skill_id)}
+                        className={styles.iconButton}
+                        aria-label="Edit skill"
+                      >
+                        <FiEdit2 size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteSkill(skill.skill_id)}
+                        className={styles.iconButton}
+                        aria-label="Delete skill"
+                      >
+                        <MdDelete size={16} />
+                      </button>
+                    </div>
+                    )}
+                  </>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
 
       {toast && (
         <ToastNotification
