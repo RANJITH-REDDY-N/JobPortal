@@ -3,9 +3,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("api/", include("JobMatrix.urls")),
-    path('api/profile/', include('Profile.urls')),
-    path('api/job/',include('Job.urls'))
+    path("jobmatrix/", include("JobMatrix.urls")),
+    path('jobmatrix/profile/', include('Profile.urls')),
+    path('jobmatrix/job/',include('Job.urls'))
 ]
 
 if settings.DEBUG:

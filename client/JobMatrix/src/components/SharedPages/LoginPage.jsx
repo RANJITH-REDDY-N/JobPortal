@@ -11,7 +11,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
-    email: "ranjithrn@applicant.com",
+    email: "ranjith@jobmatrix.com",
     password: "Aa@12345",
   });
   const [error, setError] = useState("");

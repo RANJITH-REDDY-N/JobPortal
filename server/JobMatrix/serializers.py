@@ -159,3 +159,22 @@ class JobListSerializer(serializers.ModelSerializer):
             user = obj.recruiter_id.recruiter_id
             return f"{user.user_first_name} {user.user_last_name}" if user.user_first_name else user.user_last_name
         return "Unknown recruiter"
+
+
+class CompanyUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating company details
+    """
+    class Meta:
+        model = Company
+        fields = [
+            'company_name',
+            'company_industry',
+            'company_description',
+            'company_image',
+            'company_secret_key'
+        ]
+        # Add extra validation if needed
+        extra_kwargs = {
+            'company_secret_key': {'required': False}  # Make secret key optional for updates
+        }

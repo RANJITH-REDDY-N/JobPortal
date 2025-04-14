@@ -10,7 +10,8 @@
           "scrollbar-width",
           "scrollbar-width: none",
           "overscroll-behavior",
-          "overscroll-behavior: none"
+          "overscroll-behavior: none",
+          "min-width: fit-content"
         ]
       }
     ]

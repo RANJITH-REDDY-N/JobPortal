@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiEdit3 } from "react-icons/fi";
-import { LuEraser, LuCheck } from "react-icons/lu";
+import { LuEraser, LuSave } from "react-icons/lu";
 import { userDetails, patchUserDetails } from "../../services/api";
 import styles from "../../styles/PersonalInfoTab.module.css";
 import CropImageUploader from "../CropImageUploader";
@@ -256,7 +256,7 @@ const AdminSettings = () => {
                 </button>
                 <button type="submit" className={styles.saveButton}>
                   <span className={styles.buttonRow}>
-                    <span>Save</span> <LuCheck className={styles.editIcon}/>
+                    <span>Save</span> <LuSave className={styles.editIcon}/>
                   </span>
                 </button>
               </>

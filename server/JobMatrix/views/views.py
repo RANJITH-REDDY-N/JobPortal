@@ -6,19 +6,20 @@ from django.shortcuts import get_object_or_404
 from pymysql import DatabaseError
 from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.hashers import check_password
 from decouple import config
-from .serializers import *
+from JobMatrix.serializers import *
 from JobMatrix.auth_backend import JWTAuthentication
 from JobMatrix.permissions import *
-from .models import *
+from JobMatrix.models import *
 from Profile.serializers import *
 from Job.serializers import *
 
 class CustomPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 5
     page_size_query_param = 'page_size'
     max_page_size = 100
 
@@ -536,20 +537,113 @@ class CompanyJobsListView(generics.ListAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+class CompanyUpdateView(generics.UpdateAPIView):
+    """
+    API view for updating company details
 
+    Handles PUT/PATCH requests to update company information
+    - PUT: Complete update (all fields required except image and secret_key)
+    - PATCH: Partial update (only include fields you want to change)
+    """
+    serializer_class = CompanyUpdateSerializer
+    permission_classes = [IsRecruiter]
+    authentication_classes = [JWTAuthentication]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def get_object(self):
+        """
+        Get the company associated with the logged-in recruiter
+        """
+        try:
+            # Get the recruiter associated with the current user
+            recruiter = Recruiter.objects.get(recruiter_id=self.request.user)
+            # Return the company associated with this recruiter
+            return recruiter.company_id
+        except Recruiter.DoesNotExist:
+            return None
 
+    def update(self, request, *args, **kwargs):
+        """
+        Handle company update requests (PUT or PATCH)
+        """
+        instance = self.get_object()
+        if not instance:
+            return Response(
+                {
+                    "message": "You do not have access to a company.",
+                    "error": "403 Forbidden"
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
 
+        # Use partial=True for PATCH requests
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
+        if serializer.is_valid():
+            try:
+                # Special handling for the image field
+                if 'company_image' in request.FILES:
+                    # If a new image is uploaded, delete the old one first (optional)
+                    if instance.company_image:
+                        # Store the old image path
+                        old_image = instance.company_image.path
+                        # Only attempt to delete if the file exists
+                        import os
+                        if os.path.isfile(old_image):
+                            os.remove(old_image)
 
+                # Save the updated company details
+                self.perform_update(serializer)
 
+                # Prepare image URL if available
+                image_url = None
+                if instance.company_image:
+                    try:
+                        image_url = request.build_absolute_uri(instance.company_image.url)
+                    except:
+                        # Fallback if there's an issue with the URL
+                        image_url = instance.company_image.name if instance.company_image else None
 
+                # Prepare company data for response
+                company_data = {
+                    "company_id": instance.company_id,
+                    "company_name": instance.company_name,
+                    "company_industry": instance.company_industry,
+                    "company_description": instance.company_description,
+                    "company_image": image_url
+                }
 
+                # Return success response with new structure
+                return Response({
+                    "message": "Company updated successfully",
+                    "data": company_data
+                }, status=status.HTTP_200_OK)
 
+            except Exception as e:
+                # Handle unexpected errors during update
+                return Response({
+                    "message": "Failed to update company details",
+                    "error": f"500 Internal Server Error: {str(e)}"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        # Return validation errors with the new format
+        error_message = "Validation error"
+        # Get the first error message if available
+        if serializer.errors:
+            for field, errors in serializer.errors.items():
+                if errors and isinstance(errors, list) and len(errors) > 0:
+                    error_message = errors[0]
+                    break
 
+        return Response({
+            "message": error_message,
+            "error": "400 Bad Request"
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Handle PATCH requests
+        """
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)

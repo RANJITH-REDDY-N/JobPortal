@@ -1049,40 +1049,39 @@ class RecruiterApplicationListView(generics.ListAPIView):
             company_jobs = Job.objects.filter(recruiter_id__company_id=company)
 
             # Get all applications for jobs in this company
-            return Application.objects.filter(job_id__in=company_jobs)
+            queryset = Application.objects.filter(job_id__in=company_jobs)
 
-        except AttributeError:
+            # Print for debugging - before any filtering
+            print(f"Initial queryset count: {queryset.count()}")
+            print(f"Initial statuses: {list(queryset.values_list('application_status', flat=True).distinct())}")
+
+            # Apply application status filter only if provided in query parameters
+            application_status = self.request.query_params.get('application_status', None)
+            print(f"Requested status filter: {application_status}")
+
+            # IMPORTANT: Force queryset to include ALL statuses if no filter is requested
+            if application_status:
+                valid_statuses = ['Pending', 'Approved', 'Rejected']
+                if application_status in valid_statuses:
+                    queryset = queryset.filter(application_status=application_status)
+                    print(f"Filtered queryset by status: {application_status}")
+            else:
+                # Explicitly make sure we're not filtering by status
+                # This is redundant but ensures we're getting all statuses
+                print("No status filter applied - including ALL applications")
+
+            queryset = queryset.order_by('-id')
+
+            # Final check
+            print(f"Final queryset count: {queryset.count()}")
+            print(f"Final SQL query: {queryset.query}")
+
+            return queryset
+
+        except AttributeError as e:
+            print(f"AttributeError: {e}")
             # User is not a recruiter
             return Application.objects.none()
-
-    def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        if isinstance(response.data, dict) and 'results' in response.data:
-            count = response.data.get('count', 0)
-            next_link = response.data.get('next', None)
-            previous_link = response.data.get('previous', None)
-            page_size = self.paginator.page_size
-            current_page = request.query_params.get(self.paginator.page_query_param, 1)
-            try:
-                current_page = int(current_page)
-            except (ValueError, TypeError):
-                current_page = 1
-
-            total_pages = (count + page_size - 1) // page_size if page_size > 0 else 0
-
-            # Create a new response structure
-            new_data = {
-                'total_count': count,
-                'next': next_link,
-                'previous': previous_link,
-                'current_page': current_page,
-                'total_pages': total_pages,
-                'results': response.data.get('results', [])
-            }
-
-            response.data = new_data
-        return response
-
 
 class RecruiterApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Application.objects.all()
