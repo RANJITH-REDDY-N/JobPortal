@@ -386,18 +386,6 @@ class RecruiterDetailsUpdateView(generics.UpdateAPIView):
         self.perform_update(serializer)
         return Response(serializer.data)
 
-
-class UserListView(generics.ListAPIView):
-    """
-    API for retrieving a list of all users.
-    - Requires authentication.
-    - Only accessible by admins.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdmin]
-
 class CompanyListView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializerForResponse
@@ -647,3 +635,35 @@ class CompanyUpdateView(generics.UpdateAPIView):
         """
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
+
+
+from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+class UserListView(generics.ListAPIView):
+    """
+    API for retrieving a list of all users with pagination and filtering.
+    - Requires authentication.
+    - Only accessible by admins.
+    - Supports filtering by user_role (APPLICANT, RECRUITER, ADMIN)
+    - Supports search by name and email
+    """
+    queryset = User.objects.all().order_by('-user_created_date')
+    serializer_class = AdminUserListSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdmin]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['user_role']
+    search_fields = ['user_first_name', 'user_last_name', 'user_email']
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context

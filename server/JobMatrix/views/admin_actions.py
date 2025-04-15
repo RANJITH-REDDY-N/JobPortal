@@ -8,6 +8,7 @@ from JobMatrix.models import User, Company, Job, Applicant, Recruiter, Applicati
 from JobMatrix.auth_backend import JWTAuthentication
 from JobMatrix.permissions import IsAdmin
 
+
 class AdminUserDeleteView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdmin]
@@ -16,10 +17,11 @@ class AdminUserDeleteView(APIView):
         try:
             user = get_object_or_404(User, user_id=user_id)
 
-            # Delete related data if user is an applicant
+            # Only allow deletion of applicants (as per requirements)
             if user.user_role == 'APPLICANT':
                 applicant = Applicant.objects.filter(applicant_id=user.user_id).first()
                 if applicant:
+                    # Delete all related data
                     Skill.objects.filter(applicant_id=applicant).delete()
                     Education.objects.filter(applicant_id=applicant).delete()
                     WorkExperience.objects.filter(applicant_id=applicant).delete()
@@ -27,13 +29,18 @@ class AdminUserDeleteView(APIView):
                     Application.objects.filter(applicant_id=applicant).delete()
                     applicant.delete()
 
-            # Delete user record
-            user.delete()
+                # Delete user record
+                user.delete()
 
-            return Response({
-                "message": "User and all related data deleted successfully",
-                "data": []
-            }, status=status.HTTP_200_OK)
+                return Response({
+                    "message": "Applicant and all related data deleted successfully",
+                    "data": []
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "message": "Only applicants can be deleted. Recruiters and admins cannot be deleted.",
+                    "data": []
+                }, status=status.HTTP_403_FORBIDDEN)
 
         except Exception as e:
             return Response({

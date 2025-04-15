@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiEdit3 } from "react-icons/fi";
 import { LuEraser, LuSave } from "react-icons/lu";
+import { VisibilityOutlined, VisibilityOffOutlined } from "@mui/icons-material";
 import { userDetails, patchUserDetails } from "../../services/api";
 import styles from "../../styles/PersonalInfoTab.module.css";
 import CropImageUploader from "../CropImageUploader";
@@ -10,8 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../Redux/userSlice";
 
 const AdminSettings = () => {
-  // Get user data from Redux store
   const user = useSelector(state => state.user.user);
+  const [ssnVisible, setSsnVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,6 +22,7 @@ const AdminSettings = () => {
     city: "",
     state: "",
     postalCode: "",
+    ssn: "",
   });
   const [originalData, setOriginalData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -29,6 +31,7 @@ const AdminSettings = () => {
   const [toastQueue, setToastQueue] = useState([]);
 
   const dispatch = useDispatch();
+  
   const showToast = (message, type = "success") => {
     const newToast = { message, type, id: Date.now() };
     setToastQueue(prev => [...prev, newToast]);
@@ -38,7 +41,17 @@ const AdminSettings = () => {
     }, 3000);
   };
 
-  // Initialize form data from Redux store
+  const toggleSsnVisibility = () => {
+    setSsnVisible(!ssnVisible);
+  };
+
+  const formatSSN = (ssn) => {
+    if (!ssn) return "";
+    if (ssnVisible) return ssn;
+    if (ssn.length <= 4) return "•••-••-" + ssn;
+    return "•••-••-" + ssn.slice(-4);
+  };
+
   useEffect(() => {
     if (user) {
       const formattedData = {
@@ -50,13 +63,13 @@ const AdminSettings = () => {
         city: user.user_city || "",
         state: user.user_state || "",
         postalCode: user.user_zip_code || "",
+        ssn: user.admin_ssn || "",
         profilePhoto: user.user_profile_photo || null
       };
       setFormData(formattedData);
       setOriginalData(formattedData);
       setProfilePhoto(user.user_profile_photo || null);
     } else {
-      // Fallback to API if Redux doesn't have data
       const loadUserData = async () => {
         try {
           const response = await userDetails(localStorage.getItem('userEmail'));
@@ -92,7 +105,6 @@ const AdminSettings = () => {
   };
 
   const handleCancel = () => {
-    // Reset to original data from Redux
     if (originalData) {
       setFormData(originalData);
     }
@@ -159,12 +171,7 @@ const AdminSettings = () => {
       );
   
       if (response && !response.error) {
-        // Ensure we preserve the resume data in the update
-        const updatedUser = {
-          ...response,
-          applicant_resume: user.applicant_resume // Keep existing resume
-        };
-        dispatch(setUser(updatedUser));
+        dispatch(setUser(response));
         setOriginalData(formData);
         setProfilePhotoFile(null);
         setIsEditing(false);
@@ -180,92 +187,121 @@ const AdminSettings = () => {
 
   return (
     <div className={styles.wrapper}>
-          <div className={styles.card}>
-      <div className={styles.container}>
-      <div className={styles.toastContainer}>
-        {toastQueue.map((toast) => (
-          <ToastNotification
-            key={toast.id}
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
-          />
-        ))}
-      </div>
-
-      <div className={styles.leftSection}>
-        <div className={styles.imageWrapper}>
-          <CropImageUploader
-            name="profilePhoto"
-            onFileChange={handleProfilePhotoChange}
-            defaultImage={defaultProfilePhoto}
-            currentImage={profilePhoto}
-            checkPage='personal-info'
-            isEditing={isEditing}
-          />
-        </div>
-      </div>
-
-      <div className={styles.rightSection}>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.grid}>
-            {[
-              { name: "firstName", label: "First Name" },
-              { name: "lastName", label: "Last Name" },
-              { name: "email", label: "Email", disabled: true },
-              { name: "phone", label: "Phone" },
-              { name: "street", label: "Street no" },
-              { name: "city", label: "City" },
-              { name: "state", label: "State" },
-              { name: "postalCode", label: "Postal Code" },
-            ].map((field) => (
-              <div key={field.name} className={styles.inputGroup}>
-                <input
-                  type="text"
-                  name={field.name}
-                  className={styles.input}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  disabled={field.disabled || !isEditing}
-                  placeholder=" "
-                />
-                <label className={styles.floatingLabel}>{field.label}</label>
-              </div>
+      <div className={styles.card}>
+        <div className={styles.container}>
+          <div className={styles.toastContainer}>
+            {toastQueue.map((toast) => (
+              <ToastNotification
+                key={toast.id}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
+              />
             ))}
           </div>
 
-          <div className={styles.actions}>
-            {!isEditing ? (
-              <button
-                type="button"
-                className={styles.editButton}
-                onClick={handleEdit}
-              >
-                Edit Profile <FiEdit3 className={styles.editIcon} />
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className={styles.cancelButton}
-                  onClick={handleCancel}
-                >
-                  <span className={styles.buttonRow}>
-                    <span>Cancel</span> <LuEraser className={styles.editIcon}/>
-                  </span>
-                </button>
-                <button type="submit" className={styles.saveButton}>
-                  <span className={styles.buttonRow}>
-                    <span>Save</span> <LuSave className={styles.editIcon}/>
-                  </span>
-                </button>
-              </>
-            )}
+          <div className={styles.leftSection}>
+            <div className={styles.imageWrapper}>
+              <CropImageUploader
+                name="profilePhoto"
+                onFileChange={handleProfilePhotoChange}
+                defaultImage={defaultProfilePhoto}
+                currentImage={profilePhoto}
+                checkPage='personal-info'
+                isEditing={isEditing}
+              />
+            </div>
           </div>
-        </form>
+
+          <div className={styles.rightSection}>
+            <form className={styles.form} onSubmit={handleSubmit}>
+              <div className={styles.grid}>
+                {[
+                  { name: "firstName", label: "First Name" },
+                  { name: "lastName", label: "Last Name" },
+                  { name: "email", label: "Email", disabled: true },
+                  { name: "phone", label: "Phone" },
+                  { name: "street", label: "Street no" },
+                  { name: "city", label: "City" },
+                  { name: "state", label: "State" },
+                  { name: "postalCode", label: "Postal Code" },
+                  { name: "ssn", label: "Social Security Number", disabled: true },
+                ].map((field) => (
+                  <div key={field.name} className={styles.inputGroup}>
+                    <input
+                      type={field.name === "ssn" && !ssnVisible ? "password" : "text"}
+                      name={field.name}
+                      className={styles.input}
+                      style={ field.disabled ? {backgroundColor:'var(--aqua)'} : {}}
+                      value={field.name === "ssn" ? formatSSN(formData[field.name]) : formData[field.name]}
+                      onChange={handleChange}
+                      disabled={field.disabled || !isEditing}
+                      placeholder=" "
+                    />
+                    <label className={styles.floatingLabel}>{field.label}</label>
+                    {field.name === "ssn" && (
+                      <button
+                        type="button"
+                        title={ssnVisible ? "Hide SSN" : "Show SSN"}
+                        style={{
+                          position: 'absolute',
+                          right: '1rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          cursor: 'pointer',
+                          color: '#666',
+                          zIndex: 2,
+                          background: 'transparent',
+                          border: 'none',
+                          padding: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '24px',
+                          height: '24px',
+                        }}
+                        onClick={toggleSsnVisibility}
+                        // disabled={field.disabled || !isEditing}
+                      >
+                        {ssnVisible ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles.actions}>
+                {!isEditing ? (
+                  <button
+                    type="button"
+                    className={styles.editButton}
+                    onClick={handleEdit}
+                  >
+                    Edit Profile <FiEdit3 className={styles.editIcon} />
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.cancelButton}
+                      onClick={handleCancel}
+                    >
+                      <span className={styles.buttonRow}>
+                        <span>Cancel</span> <LuEraser className={styles.editIcon}/>
+                      </span>
+                    </button>
+                    <button type="submit" className={styles.saveButton}>
+                      <span className={styles.buttonRow}>
+                        <span>Save</span> <LuSave className={styles.editIcon}/>
+                      </span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 };

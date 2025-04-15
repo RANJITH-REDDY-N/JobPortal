@@ -20,7 +20,7 @@
   gap: 12px;
   padding: 16px 24px;
   color: var(--aqua);
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-size: 0.95rem;
   font-weight: 500;
@@ -41,7 +41,7 @@
 }
 
 .info {
-  background: #2196F3; /* Blue */
+  background: var(--soft-blue);
 }
 
 .icon {

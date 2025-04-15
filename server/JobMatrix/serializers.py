@@ -178,3 +178,88 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'company_secret_key': {'required': False}  # Make secret key optional for updates
         }
+
+from rest_framework import serializers
+from JobMatrix.models import User, Applicant, Recruiter, Admin, Skill, WorkExperience, Education, Company
+from JobMatrix.serializers import (
+    RecruiterSerializer,
+    CompanySerializerForResponse
+)
+from Profile.serializers import (
+    SkillSerializer,
+    WorkExperienceSerializer,
+    EducationSerializer,
+)
+
+class AdminUserListSerializer(serializers.ModelSerializer):
+    skills = serializers.SerializerMethodField()
+    work_experience = serializers.SerializerMethodField()
+    education = serializers.SerializerMethodField()
+    applicant_resume = serializers.SerializerMethodField()
+    recruiter = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+    admin_ssn = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'user_id', 'user_first_name', 'user_last_name', 'user_email',
+            'user_phone', 'user_street_no', 'user_city', 'user_state',
+            'user_zip_code', 'user_role', 'user_profile_photo',
+            'user_created_date', 'skills', 'work_experience', 'education',
+            'applicant_resume', 'recruiter', 'company', 'admin_ssn'
+        ]
+
+    def get_skills(self, obj):
+        if obj.user_role == 'APPLICANT':
+            applicant = Applicant.objects.filter(applicant_id=obj.user_id).first()
+            if applicant:
+                skills = Skill.objects.filter(applicant_id=applicant)
+                return SkillSerializer(skills, many=True).data
+        return None
+
+    def get_work_experience(self, obj):
+        if obj.user_role == 'APPLICANT':
+            applicant = Applicant.objects.filter(applicant_id=obj.user_id).first()
+            if applicant:
+                work_experience = WorkExperience.objects.filter(applicant_id=applicant)
+                return WorkExperienceSerializer(work_experience, many=True).data
+        return None
+
+    def get_education(self, obj):
+        if obj.user_role == 'APPLICANT':
+            applicant = Applicant.objects.filter(applicant_id=obj.user_id).first()
+            if applicant:
+                education = Education.objects.filter(applicant_id=applicant)
+                return EducationSerializer(education, many=True).data
+        return None
+
+    def get_applicant_resume(self, obj):
+        if obj.user_role == 'APPLICANT':
+            applicant = Applicant.objects.filter(applicant_id=obj.user_id).first()
+            if applicant and applicant.applicant_resume:
+                request = self.context.get('request')
+                return request.build_absolute_uri(applicant.applicant_resume.url)
+        return None
+
+    def get_recruiter(self, obj):
+        if obj.user_role == 'RECRUITER':
+            recruiter = Recruiter.objects.filter(recruiter_id=obj.user_id).first()
+            if recruiter:
+                return RecruiterSerializer(recruiter).data
+        return None
+
+    def get_company(self, obj):
+        if obj.user_role == 'RECRUITER':
+            recruiter = Recruiter.objects.filter(recruiter_id=obj.user_id).first()
+            if recruiter and recruiter.company_id:
+                request = self.context.get('request')
+                return CompanySerializerForResponse(recruiter.company_id, context={'request': request}).data
+        return None
+
+    def get_admin_ssn(self, obj):
+        if obj.user_role == 'ADMIN':
+            admin = Admin.objects.filter(admin_id=obj.user_id).first()
+            if admin:
+                return admin.admin_ssn
+        return None

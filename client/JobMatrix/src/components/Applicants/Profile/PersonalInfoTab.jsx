@@ -222,6 +222,7 @@ const PersonalInfoTab = () => {
                   type="text"
                   name={field.name}
                   className={styles.input}
+                  style={field.disabled ? {backgroundColor:'var(--aqua)'}:{}}
                   value={formData[field.name]}
                   onChange={handleChange}
                   disabled={field.disabled || !isEditing}

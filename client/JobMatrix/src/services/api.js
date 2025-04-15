@@ -119,7 +119,14 @@ export const updateApplicationStatus = (applicationId, data) => fetchAPI(`job/re
 export const updateCompanyDetails = (data) => fetchAPI(`company/update/`, "PATCH", data, true,'multipart/form-data',true);
 
 /** ADMIN */
-export const getAllUsers = () => fetchAPI(`users/all/`,"GET",null,true,'application/json',false);
+export const getAllUsers = (page = 1, search = "", role = "") => {
+  let url = `admin/users/all/?page=${page}`;
+  if (search) url += `&search=${search}`;
+  if (role) url += `&user_role=${role}`;
+  return fetchAPI(url, "GET", null, true);
+};
 export const getDashboardInsights = () => fetchAPI('admin/dashboard-insights/', "GET", null, true,'application/json',false);
+
+export const deleteUserApplicant = (applicantId) => fetchAPI(`admin/users/${applicantId}/delete/`,"DELETE",null,true,'application/json',false);
 
 export default fetchAPI;

@@ -284,7 +284,7 @@
 .distributionBar {
   height: 100%;
   border-radius: 5px;
-  background: linear-gradient(90deg, var(--light-blue), var(--blue));
+  background: linear-gradient(90deg, #a2b7db,var(--light-blue));
 }
 
 /* Activity Section */
