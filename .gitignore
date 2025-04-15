@@ -24,3 +24,5 @@ node_modules/
 client/JobMatrix/src/assets/
 client/JobMatrix/public*.pyc
 __pycache__/
+__pycache__/
+*.pyc
