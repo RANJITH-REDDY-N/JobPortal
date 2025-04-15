@@ -17,7 +17,7 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("users/create/", UserCreateView.as_view(), name="create-user"),
     path("users/get/", UserRetrieveView.as_view(), name="get-users"),
-    path("admin/users/all/", UserListView.as_view(), name="get-all-users-for-adminå"),
+    path("admin/users/all/", UserListView.as_view(), name="get-all-users-for-admin"),
     path("users/update/<int:pk>/", UserUpdateView.as_view(), name="update-user"),
     path("users/patch/<int:pk>/", UserPartialUpdateView.as_view(), name="patch-user"),
     path("users/resume-update/", ApplicantResumeUpdateView.as_view(), name="update-applicant-resume"),
@@ -33,7 +33,7 @@ urlpatterns = [
     path('admin/dashboard-insights/', AdminDashboardCountsView.as_view(), name='admin-dashboard-insights'),
 
     # Admin User Management
-    # path('admin/users/', AdminUserListView.as_view(), name='admin-users'),  # Uncomment when implemented
+    # path('admin/users/', AdminUserListView.as_view(), name='admin-users'),
     path('admin/users/<int:user_id>/delete/', AdminUserDeleteView.as_view(), name='admin-user-delete'),
 
     # Admin Company Management
