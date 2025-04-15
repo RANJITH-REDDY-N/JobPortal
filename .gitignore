@@ -22,4 +22,5 @@ node_modules/
 
 # Ignore all assets
 client/JobMatrix/src/assets/
-client/JobMatrix/public
+client/JobMatrix/public*.pyc
+__pycache__/
