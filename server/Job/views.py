@@ -989,14 +989,29 @@ class JobApplicantsListView(generics.ListAPIView):
         # Filter applications by the specified job_id
         queryset = Application.objects.filter(job_id=job_id)
 
+        # Apply status filter if provided in query params
+        status = self.request.query_params.get('application_status')
+        if status:
+            queryset = queryset.filter(application_status=status)
+
         # Optimize query performance by prefetching related data
         queryset = queryset.select_related('applicant_id', 'applicant_id__applicant_id')
 
         return queryset
 
     def list(self, request, *args, **kwargs):
+        job_id = self.kwargs.get('job_id')
         response = super().list(request, *args, **kwargs)
+
         if isinstance(response.data, dict) and 'results' in response.data:
+            queryset = Application.objects.filter(job_id=job_id)
+
+            # Get counts for different application statuses
+            # Using the correct field name 'application_status' instead of 'status'
+            pending_count = queryset.filter(application_status='Pending').count()
+            rejected_count = queryset.filter(application_status='Rejected').count()
+            applied_count = queryset.filter(application_status='Applied').count()
+
             count = response.data.get('count', 0)
             next_link = response.data.get('next', None)
             previous_link = response.data.get('previous', None)
@@ -1009,19 +1024,23 @@ class JobApplicantsListView(generics.ListAPIView):
 
             total_pages = (count + page_size - 1) // page_size if page_size > 0 else 0
 
-            # Create a new response structure
+            # Create a new response structure with status counts
             new_data = {
                 'total_count': count,
                 'next': next_link,
                 'previous': previous_link,
                 'current_page': current_page,
                 'total_pages': total_pages,
+                'status_counts': {
+                    'pending': pending_count,
+                    'rejected': rejected_count,
+                    'applied': applied_count,
+                },
                 'results': response.data.get('results', [])
             }
 
             response.data = new_data
         return response
-
 
 
 # --------------- Recruiter Application ------------------- #
@@ -1120,9 +1139,3 @@ class RecruiterApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
         # Serialize and return the updated instance
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
-
-
-
-
-

@@ -37,7 +37,15 @@ const userSlice = createSlice({
         state.error = null;
       }
       return state;
+    },
+    setCompany: (state, action) => {
+      if (state.user) {
+        state.user.company = action.payload;
+        state.status = 'resume uploaded successfully!';
+        state.error = null;
+      }
     }
+
   },
   extraReducers: (builder) => {
     builder
@@ -57,5 +65,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { setUser, setResume } = userSlice.actions;
+export const { setUser, setResume, setCompany } = userSlice.actions;
 export default userSlice.reducer;

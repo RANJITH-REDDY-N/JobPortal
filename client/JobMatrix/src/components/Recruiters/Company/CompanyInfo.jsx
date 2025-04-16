@@ -9,9 +9,12 @@ import { FiEdit3, FiSave } from "react-icons/fi";
 import { LuEraser } from "react-icons/lu";
 import CropImageUploader from "../../CropImageUploader";
 import ToastNotification from "../../ToastNotification";
+import { setCompany } from "../../../Redux/userSlice";
+
 
 const CompanyInfo = () => {
     const userData = useSelector((state) => state.user?.user);
+    const dispatch = useDispatch()
     const companyDetails = userData.company;
     const [isEditing, setIsEditing] = useState(false);
     const [editedDetails, setEditedDetails] = useState({
@@ -45,15 +48,11 @@ const CompanyInfo = () => {
     const handleSaveChanges = async () => {
         try {
             const formData = new FormData();
-            
-            // Append all non-file fields
             Object.keys(editedDetails).forEach(key => {
                 if (key !== 'company_image') {
                     formData.append(key, editedDetails[key]);
                 }
             });
-            
-            // Append the image file if it exists
             if (companyImageFile) {
                 formData.append('company_image', companyImageFile);
             } else if (editedDetails.company_image === null) {
@@ -61,16 +60,29 @@ const CompanyInfo = () => {
             }
             
             const response = await updateCompanyDetails(formData);
-            if(response.status != 'success'){
-                console.log("Company details updated:", response);
-                showToast(response.message);
+            console.log("Company details updated:", response);
+            
+            // Check if response contains error (failed case)
+            if (response.error) {
+                showToast(response.error.message || "Operation failed", "error");
+            } else {
+                // Success case
+                dispatch(setCompany(response.data));
+                showToast(response.message || "Company details updated successfully");
                 setIsEditing(false);
             }
             
-            
         } catch (error) {
             console.error("Error updating company:", error);
-            showToast(response.error);
+            
+            // Handle both axios-style errors and other errors
+            const errorMessage = 
+                error?.response?.data?.error?.message ||  // Nested error message
+                error?.response?.data?.message ||       // Direct message
+                error?.message ||                      // Error object message
+                "Failed to update company details";     // Fallback
+                
+            showToast(errorMessage, "error");
         }
     };
 

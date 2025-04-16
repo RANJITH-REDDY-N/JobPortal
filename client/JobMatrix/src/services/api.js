@@ -114,9 +114,27 @@ export const getApplicantsForJob = (data, status) => {
   if(data.page) queryString.append('page',data.page);
   return fetchAPI(`job/applicants/${data.job_Id}/?${queryString.toString()}&application_status=${status}`,"GET",null,true,'application/json',false);
 }
-export const getJobsListByACompany = (page) => fetchAPI(`company-jobs/?page=${page}`, "GET", null, true,'application/json',false);
-export const updateApplicationStatus = (applicationId, data) => fetchAPI(`job/recruiter/applications/${applicationId}/`, "PATCH", data, true,'application/json',false);
-export const updateCompanyDetails = (data) => fetchAPI(`company/update/`, "PATCH", data, true,'multipart/form-data',true);
+export const getJobsListByACompany = (params = {}) => {
+  console.log("params ",params)
+  const queryString = new URLSearchParams();
+
+  if (params.datePosted && params.datePosted !== "Any time") queryString.append('date_posted', params.datePosted);
+  if (params.page) queryString.append('page', params.page);
+  if (params.locations) params.locations.forEach(location => queryString.append('job_location', location));
+  if (params.jobTitles) params.jobTitles.forEach(title => queryString.append('job_title', title));
+
+  return fetchAPI(`company-jobs/?${queryString.toString()}`, "GET", null, true, 'application/json', false);
+}
+
+export const updateApplicationStatus = (applicationId, data) => fetchAPI(`job/recruiter/applications/${applicationId}/`, "PATCH", data, true,'application/json',false)
+export const updateCompanyDetails = (data) => fetchAPI(`company/update/`, "PATCH", data, true,'multipart/form-data',true )
+
+
+/* JOBS */
+
+export const createJobPosting = (data) => fetchAPI('job/create/',"POST", data, true,'application/json',false);
+export const updateJobPosting = (job_id, data) => fetchAPI(`job/${job_id}/update/`,"PATCH", data, true,'application/json',false)
+export const deleteJobPosting = (job_id) => fetchAPI(`job/${job_id}/delete/`,"DELETE", null, true, 'application/json',false)
 
 /** ADMIN */
 export const getAllUsers = (page = 1, search = "", role = "") => {

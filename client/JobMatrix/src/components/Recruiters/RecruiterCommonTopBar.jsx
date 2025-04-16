@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import styles from "../../styles/RecruiterCommonTopBar.module.css";
-import filterIcon from "../../assets/CommonJobCardIcon-Images/filter-outline.svg";
 import { 
   Tune, ClearAll, Add, Cancel, SearchOutlined, 
-  History, LocationOn, Work, Apartment, People 
+  History, LocationOn, Work, Apartment
 } from '@mui/icons-material';
 
 const RecruiterCommonTopBar = ({
@@ -14,28 +13,26 @@ const RecruiterCommonTopBar = ({
   totalPages,
   onPageChange,
   filtersCleared,
+  filters,
+  onPostJob,
   title = "Posted Jobs"
 }) => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // Filter state and popup
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    minSalary: 0,
-    locations: [],
-    jobTitles: [],
-    statuses: [],
-    datePosted: "Any time"
-  });
-  
   const [tempFilters, setTempFilters] = useState({
-    minSalary: filters.minSalary,
     locations: [...filters.locations],
     jobTitles: [...filters.jobTitles],
-    statuses: [...filters.statuses],
     datePosted: filters.datePosted
   });
+  
+  useEffect(() => {
+    setTempFilters({
+      locations: [...filters.locations],
+      jobTitles: [...filters.jobTitles],
+      datePosted: filters.datePosted
+    });
+  }, [filters]);
   
   const [inputValues, setInputValues] = useState({
     location: "",
@@ -66,6 +63,8 @@ const RecruiterCommonTopBar = ({
       [field]: e.target.value
     });
   };
+
+  
 
   const handleKeyDown = (e, field) => {
     if (e.key === "Enter") {
@@ -107,15 +106,6 @@ const RecruiterCommonTopBar = ({
     }));
   };
 
-  const handleSalaryChange = (value) => {
-    const percentage = (value / 500000) * 100;
-    document.documentElement.style.setProperty('--slider-percentage', `${percentage}%`);
-    setTempFilters(prev => ({
-      ...prev,
-      minSalary: parseInt(value)
-    }));
-  };
-
   const handleDatePostedChange = (value) => {
     setTempFilters(prev => ({
       ...prev,
@@ -123,34 +113,15 @@ const RecruiterCommonTopBar = ({
     }));
   };
 
-  const handleStatusChange = (status) => {
-    setTempFilters(prev => {
-      if (prev.statuses.includes(status)) {
-        return {
-          ...prev,
-          statuses: prev.statuses.filter(s => s !== status)
-        };
-      } else {
-        return {
-          ...prev,
-          statuses: [...prev.statuses, status]
-        };
-      }
-    });
-  };
-
   const handleApplyFilters = () => {
-    setFilters(tempFilters);
-    if(onFilter) onFilter(tempFilters);
+    onFilter(tempFilters); // This will update the filters in JobsList
     setShowFilters(false);
   };
 
   const handleClearFilters = () => {
     const clearedFilters = {
-      minSalary: 0,
       locations: [],
       jobTitles: [],
-      statuses: [],
       datePosted: "Any time"
     };
     setFilters(clearedFilters);
@@ -165,10 +136,8 @@ const RecruiterCommonTopBar = ({
 
   const handleClose = () => {
     setTempFilters({
-      minSalary: filters.minSalary,
       locations: [...filters.locations],
       jobTitles: [...filters.jobTitles],
-      statuses: [...filters.statuses],
       datePosted: filters.datePosted
     });
     setShowFilters(false);
@@ -177,10 +146,7 @@ const RecruiterCommonTopBar = ({
   const handleRemoveFilter = (filterType, value = null) => {
     const newFilters = { ...filters };
     
-    if (filterType === 'minSalary') {
-      newFilters.minSalary = 0;
-      document.documentElement.style.removeProperty('--slider-percentage');
-    } else if (filterType === 'datePosted') {
+    if (filterType === 'datePosted') {
       newFilters.datePosted = "Any time";
     } else if (value) {
       newFilters[filterType] = newFilters[filterType].filter(item => item !== value);
@@ -188,9 +154,7 @@ const RecruiterCommonTopBar = ({
       newFilters[filterType] = [];
     }
   
-    setFilters(newFilters);
-    setTempFilters(newFilters);
-    if (onFilter) onFilter(newFilters);
+    onFilter(newFilters); // This will update the filters in JobsList
   };
 
   const getPagination = (currentPage, totalPages) => {
@@ -234,96 +198,89 @@ const RecruiterCommonTopBar = ({
   return (
     <div className={styles.container}>
       <div className={styles.topSection}>
-        <h2 className={styles.title}>{title}</h2>
+        <div className={styles.titleContainer}>
+          <h1 className={styles.title}>{title}</h1>
+          <p className={styles.subtitle}>Manage your posted jobs and applicants</p>
+        </div>
 
         <div className={styles.searchContainer}>
-          <SearchOutlined className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search jobs or applicants"
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className={styles.searchWrapper}>
+            <SearchOutlined className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search jobs in this page"
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
+
+        <button className={styles.postJobButton} onClick={onPostJob}>
+          <span>+</span> Post New Job
+        </button>
       </div>
 
       <div className={styles.bottomSection}>
         <div className={styles.bottomBar}>
           <div className={styles.filtersContainer}>
-            <div 
-              className={styles.filters} 
+            <button 
+              className={styles.filtersButton}
               onClick={() => setShowFilters(true)}
             >
-              <img src={filterIcon} alt="Filter" className={styles.filterIcon} />
+              <Tune fontSize="small" />
               <span>Filters</span>
-            </div>
-            
+            </button>
             <div className={styles.activeFilters}>
-              {filters.minSalary > 0 && (
-                <span className={styles.filterChip}>
-                  <span style={{ color: 'var(--english-violet)' }}>$</span>
-                  {filters.minSalary.toLocaleString()}/yr
-                  <Cancel 
-                    onClick={() => handleRemoveFilter('minSalary')}
-                    className={styles.removeFilter}
-                  />
-                </span>
-              )}
-              
-              {filters.datePosted && filters.datePosted !== "Any time" && (
-                <span className={styles.filterChip}>
-                  <History style={{ color: 'var(--english-violet)', fontSize: '1.3rem' }}/>
-                  {filters.datePosted}
-                  <Cancel 
-                    onClick={() => handleRemoveFilter('datePosted')}
-                    className={styles.removeFilter}
-                  />
-                </span>
-              )}
-              
-              {filters.locations.map((location, index) => (
-                <span key={`loc-${index}`} className={styles.filterChip}>
-                  <LocationOn style={{ color: 'var(--english-violet)', fontSize: '1.3rem' }}/>
-                  {location}
-                  <Cancel 
-                    onClick={() => handleRemoveFilter('locations', location)}
-                    className={styles.removeFilter}
-                  />
-                </span>
-              ))}
-              
-              {filters.jobTitles.map((title, index) => (
-                <span key={`title-${index}`} className={styles.filterChip}>
-                  <Work style={{ color: 'var(--english-violet)', fontSize: '1.3rem' }}/>
-                  {title}
-                  <Cancel
-                    onClick={() => handleRemoveFilter('jobTitles', title)}
-                    className={styles.removeFilter}
-                  />
-                </span>
-              ))}
-
-              {filters.statuses.map((status, index) => (
-                <span key={`status-${index}`} className={styles.filterChip}>
-                  <People style={{ color: 'var(--english-violet)', fontSize: '1.3rem' }}/>
-                  {status}
-                  <Cancel
-                    onClick={() => handleRemoveFilter('statuses', status)}
-                    className={styles.removeFilter}
-                  />
-                </span>
-              ))}
-            </div>
+  {filters.datePosted && filters.datePosted !== "Any time" && (
+    <span className={styles.filterChip}>
+      <History fontSize="small" />
+      {filters.datePosted}
+      <button 
+        onClick={() => handleRemoveFilter('datePosted')}
+        className={styles.removeFilter}
+      >
+        <Cancel fontSize="small" />
+      </button>
+    </span>
+  )}
+  
+  {filters.locations?.map((location, index) => (
+    <span key={`loc-${index}`} className={styles.filterChip}>
+      <LocationOn fontSize="small" />
+      {location}
+      <button 
+        onClick={() => handleRemoveFilter('locations', location)}
+        className={styles.removeFilter}
+      >
+        <Cancel fontSize="small" />
+      </button>
+    </span>
+  ))}
+  
+  {filters.jobTitles?.map((title, index) => (
+    <span key={`title-${index}`} className={styles.filterChip}>
+      <Work fontSize="small" />
+      {title}
+      <button
+        onClick={() => handleRemoveFilter('jobTitles', title)}
+        className={styles.removeFilter}
+      >
+        <Cancel fontSize="small" />
+      </button>
+    </span>
+  ))}
+</div>
           </div>
 
           <div className={styles.pagination}>
-            <span
+            <button
               onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-              className={currentPage === 1 ? styles.disabledNav : ""}
+              disabled={currentPage === 1}
+              className={styles.paginationButton}
             >
-              ‹ Previous
-            </span>
+              ‹
+            </button>
 
             {getPagination(currentPage, totalPages).map((page, index) => (
               <button
@@ -331,10 +288,10 @@ const RecruiterCommonTopBar = ({
                 disabled={page === "..."}
                 className={
                   currentPage === page
-                    ? styles.activePage
+                    ? `${styles.paginationButton} ${styles.active}`
                     : page === "..."
-                    ? styles.dots
-                    : styles.pageBtn
+                    ? `${styles.paginationButton} ${styles.dots}`
+                    : styles.paginationButton
                 }
                 onClick={() => page !== "..." && onPageChange(page)}
               >
@@ -342,14 +299,13 @@ const RecruiterCommonTopBar = ({
               </button>
             ))}
 
-            <span
-              onClick={() =>
-                currentPage < totalPages && onPageChange(currentPage + 1)
-              }
-              className={currentPage === totalPages ? styles.disabledNav : ""}
+            <button
+              onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={styles.paginationButton}
             >
-              Next ›
-            </span>
+              ›
+            </button>
           </div>
         </div>
       </div>
@@ -361,34 +317,13 @@ const RecruiterCommonTopBar = ({
             <div className={styles.filterHeader}>
               <h3>Filters</h3>
               <button className={styles.closeButton} onClick={handleClose}>
-                ×
+                <Cancel />
               </button>
             </div>
 
             <div className={styles.filterGroup}>
-              <h4>Minimum Annual Salary:</h4>
-              <div className={styles.sliderContainer}>
-                <div className={styles.sliderRangeLabels}>
-                  <span>$0K</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="500000"
-                    step="10000"
-                    value={tempFilters.minSalary}
-                    onChange={(e) => handleSalaryChange(e.target.value)}
-                  />
-                  <span>$500K</span>
-                </div>
-                <div className={styles.sliderValue}>
-                  ${tempFilters.minSalary.toLocaleString()}
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.filterGroup}>
               <h4>
-                <History style={{ fontSize: '1.2rem', marginRight: '8px' }} />
+                <History fontSize="small" />
                 Date Posted
               </h4>
               <div className={styles.datePostedOptions}>
@@ -400,7 +335,7 @@ const RecruiterCommonTopBar = ({
                       checked={tempFilters.datePosted === option}
                       onChange={() => handleDatePostedChange(option)}
                     />
-                    {option}
+                    <span>{option}</span>
                   </label>
                 ))}
               </div>
@@ -408,26 +343,7 @@ const RecruiterCommonTopBar = ({
 
             <div className={styles.filterGroup}>
               <h4>
-                <People style={{ fontSize: '1.2rem', marginRight: '8px' }} />
-                Application Status
-              </h4>
-              <div className={styles.statusOptions}>
-                {["Pending", "Approved", "Rejected"].map((status) => (
-                  <label key={status} className={styles.statusOption}>
-                    <input
-                      type="checkbox"
-                      checked={tempFilters.statuses.includes(status)}
-                      onChange={() => handleStatusChange(status)}
-                    />
-                    {status}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.filterGroup}>
-              <h4>
-                <LocationOn style={{ fontSize: '1.2rem', marginRight: '8px' }} />
+                <LocationOn fontSize="small" />
                 Locations
               </h4>
               <div className={styles.filterInputContainer}>
@@ -444,7 +360,7 @@ const RecruiterCommonTopBar = ({
                   onClick={() => addFilterItem("location")}
                   disabled={tempFilters.locations.length >= 3}
                 >
-                  <Add fontSize="small"/> Add
+                  <Add fontSize="small" /> Add
                 </button>
               </div>
               <div className={styles.filterTags}>
@@ -452,7 +368,7 @@ const RecruiterCommonTopBar = ({
                   <span key={index} className={styles.filterTag}>
                     {location}
                     <button onClick={() => removeFilterItem("locations", location)}>
-                      ×
+                      <Cancel fontSize="small" />
                     </button>
                   </span>
                 ))}
@@ -461,7 +377,7 @@ const RecruiterCommonTopBar = ({
 
             <div className={styles.filterGroup}>
               <h4>
-                <Work style={{ fontSize: '1.2rem', marginRight: '8px' }} />
+                <Work fontSize="small" />
                 Job Titles
               </h4>
               <div className={styles.filterInputContainer}>
@@ -478,7 +394,7 @@ const RecruiterCommonTopBar = ({
                   onClick={() => addFilterItem("jobTitle")}
                   disabled={tempFilters.jobTitles.length >= 3}
                 >
-                  <Add fontSize="small"/> Add
+                  <Add fontSize="small" /> Add
                 </button>
               </div>
               <div className={styles.filterTags}>
@@ -486,7 +402,7 @@ const RecruiterCommonTopBar = ({
                   <span key={index} className={styles.filterTag}>
                     {title}
                     <button onClick={() => removeFilterItem("jobTitles", title)}>
-                      ×
+                      <Cancel fontSize="small" />
                     </button>
                   </span>
                 ))}
@@ -504,7 +420,7 @@ const RecruiterCommonTopBar = ({
                 className={styles.applyButton}
                 onClick={handleApplyFilters}
               >
-                <Tune fontSize="small" /> Apply Filters
+                Apply Filters
               </button>
             </div>
           </div>

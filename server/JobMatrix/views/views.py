@@ -19,7 +19,7 @@ from Profile.serializers import *
 from Job.serializers import *
 
 class CustomPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 9
     page_size_query_param = 'page_size'
     max_page_size = 100
 
