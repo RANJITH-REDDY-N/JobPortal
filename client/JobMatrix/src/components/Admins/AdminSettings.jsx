@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { FiEdit3 } from "react-icons/fi";
+import { FiEdit3, FiLock } from "react-icons/fi";
 import { LuEraser, LuSave } from "react-icons/lu";
-import { VisibilityOutlined, VisibilityOffOutlined } from "@mui/icons-material";
+import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import { userDetails, patchUserDetails } from "../../services/api";
 import styles from "../../styles/PersonalInfoTab.module.css";
 import CropImageUploader from "../CropImageUploader";
@@ -9,9 +9,11 @@ import defaultProfilePhoto from "../../assets/noprofilephoto.png";
 import ToastNotification from "../ToastNotification";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../Redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const AdminSettings = () => {
   const user = useSelector(state => state.user.user);
+  const navigate = useNavigate();
   const [ssnVisible, setSsnVisible] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -185,6 +187,10 @@ const AdminSettings = () => {
     }
   };
 
+  const handleChangePassword = () => {
+    navigate("/change-password");
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.card}>
@@ -232,7 +238,7 @@ const AdminSettings = () => {
                       type={field.name === "ssn" && !ssnVisible ? "password" : "text"}
                       name={field.name}
                       className={styles.input}
-                      style={ field.disabled ? {backgroundColor:'var(--aqua)'} : {}}
+                      style={ !isEditing || field.disabled ? {backgroundColor:'var(--aqua)'} : {}}
                       value={field.name === "ssn" ? formatSSN(formData[field.name]) : formData[field.name]}
                       onChange={handleChange}
                       disabled={field.disabled || !isEditing}
@@ -241,30 +247,24 @@ const AdminSettings = () => {
                     <label className={styles.floatingLabel}>{field.label}</label>
                     {field.name === "ssn" && (
                       <button
-                        type="button"
-                        title={ssnVisible ? "Hide SSN" : "Show SSN"}
-                        style={{
-                          position: 'absolute',
-                          right: '1rem',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          cursor: 'pointer',
-                          color: '#666',
-                          zIndex: 2,
-                          background: 'transparent',
-                          border: 'none',
-                          padding: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '24px',
-                          height: '24px',
-                        }}
-                        onClick={toggleSsnVisibility}
-                        // disabled={field.disabled || !isEditing}
-                      >
-                        {ssnVisible ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
-                      </button>
+                      type="button"
+                      title={ssnVisible ? "Hide SSN" : "Show SSN"}
+                      onClick={toggleSsnVisibility}
+                      style={{
+                        position: 'absolute',
+                        right: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        cursor: 'pointer',
+                        color: 'var(--english-violet)',
+                        zIndex: 2,
+                        background: 'transparent',
+                        border: 'none',
+                        padding: 0
+                      }}
+                    >
+                      {ssnVisible ? <VscEyeClosed /> : <VscEye />}
+                    </button>
                     )}
                   </div>
                 ))}
@@ -272,13 +272,30 @@ const AdminSettings = () => {
 
               <div className={styles.actions}>
                 {!isEditing ? (
-                  <button
-                    type="button"
-                    className={styles.editButton}
-                    onClick={handleEdit}
-                  >
-                    Edit Profile <FiEdit3 className={styles.editIcon} />
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className={styles.editProfileButton}
+                      onClick={handleEdit}
+                    >
+                      <span className={styles.buttonRow}>
+                      <FiEdit3 className={styles.editIcon} /> <span>Edit Profile</span> 
+                      </span>
+                       
+                    </button>
+
+                    {/* Added Change Password Button */}
+                    <button
+                      type="button"
+                      className={styles.changePasswordButton}
+                      onClick={handleChangePassword}
+                    >
+                      <span className={styles.buttonRow}>
+                      <FiLock className={styles.editIcon} /> <span>Change Password</span> 
+                      </span>
+                    </button>
+                  </>
+                  
                 ) : (
                   <>
                     <button

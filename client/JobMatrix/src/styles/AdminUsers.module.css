@@ -17,30 +17,43 @@
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 500;
   color: #24292e;
   margin: 0;
 }
 
+/* Add this to your existing CSS */
 .searchContainer {
   position: relative;
   width: 30rem;
   margin-right: 3rem;
+  display: flex;
+  align-items: center;
 }
 
 .searchInput {
-  padding: 0.5rem 1rem;
-  border: 0px solid var(--aqua);
-  border-radius: 20px;
+  padding: 0.8rem 1.5rem 0.8rem 3rem;
+  border: 1px solid var(--aqua);
+  border-radius: 30px;
   width: 100%;
   font-size: 0.95rem;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  background-color: var(--white);
+  color: var(--english-violet);
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--aqua);
+  border-color: var(--light-blue);
+}
+
+.searchContainer svg {
+  position: absolute;
+  left: 1rem;
+  color: var(--light-blue);
+  font-size: 1.2rem;
+  pointer-events: none;
 }
 
 /* Filter and Pagination Row */
@@ -278,30 +291,6 @@
   color: #dc2626;
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  gap: 1rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #6366f1;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .noResults {
   text-align: center;
   padding: 2rem;
@@ -403,4 +392,26 @@
 .deleteConfirmButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.loadingAnimation {
+  width: 100%;
+  height: 100%;
+  padding-left: 5rem;
+  border: none;
+  margin: 0;
 }

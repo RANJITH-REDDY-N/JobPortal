@@ -7,17 +7,17 @@ import RegisterCompanyPage from './components/SharedPages/RegisterCompanyPage';
 import ProtectedRoute from './components/SharedPages/ProtectedRoute';
 import ApplicantDashboard from './components/Applicants/ApplicantDashboard';
 import RecruiterDashboard from './components/Recruiters/RecruiterDashboard';
-
 import AdminLayout from "./components/Admins/AdminLayout";
 import AdminDashboard from "./components/Admins/AdminDashboard";
 import AdminUsers from "./components/Admins/AdminUsers";
 import AdminCompanies from "./components/Admins/AdminCompanies";
 import AdminJobs from "./components/Admins/AdminJobs";
 import AdminSettings from "./components/Admins/AdminSettings";
-
+import ForgotPassword from './components/SharedPages/ForgotPassword'; // Add ForgotPassword import
+import ChangePassword from './components/SharedPages/ChangePassword'; // Add ChangePassword import
 import './App.css';
-function App() {
 
+function App() {
   const [formData, setFormData] = useState({
     user_first_name: "",
     user_last_name: "",
@@ -37,6 +37,14 @@ function App() {
         <Route path="/signup" element={<SignupPage formData={formData} setFormData={setFormData} />} />
         <Route path="/register-company" element={<RegisterCompanyPage formData={formData} setFormData={setFormData}/>} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/change-password" 
+          element={
+            <ProtectedRoute allowedRoles={["APPLICANT", "RECRUITER", "ADMIN"]}>
+              <ChangePassword />
+            </ProtectedRoute>
+          } 
+        /> 
         
         {/* Applicant and Recruiter Routes */}
         <Route path="/applicant/*" 
@@ -70,7 +78,6 @@ function App() {
             <Route path="jobs" element={<AdminJobs />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
-
       </Routes>
     </Router>
   );

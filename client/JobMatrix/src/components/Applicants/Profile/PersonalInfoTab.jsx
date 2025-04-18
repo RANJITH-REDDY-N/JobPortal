@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiEdit3 } from "react-icons/fi";
+import { FiEdit3, FiLock } from "react-icons/fi";
 import { LuEraser, LuSave } from "react-icons/lu";
 import { userDetails, patchUserDetails } from "../../../services/api";
 import styles from "../../../styles/PersonalInfoTab.module.css";
@@ -8,6 +8,7 @@ import defaultProfilePhoto from "../../../assets/noprofilephoto.png";
 import ToastNotification from "../../ToastNotification";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../../Redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const PersonalInfoTab = () => {
   // Get user data from Redux store
@@ -29,6 +30,8 @@ const PersonalInfoTab = () => {
   const [toastQueue, setToastQueue] = useState([]);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Added for navigation
+
   const showToast = (message, type = "success") => {
     const newToast = { message, type, id: Date.now() };
     setToastQueue(prev => [...prev, newToast]);
@@ -100,6 +103,11 @@ const PersonalInfoTab = () => {
     setProfilePhotoFile(null);
     setIsEditing(false);
     showToast("Changes discarded", "info");
+  };
+
+  // Added new function to navigate to change password page
+  const handleChangePassword = () => {
+    navigate("/change-password");
   };
 
   const handleSubmit = async (e) => {
@@ -235,13 +243,29 @@ const PersonalInfoTab = () => {
 
           <div className={styles.actions}>
             {!isEditing ? (
+              <>
               <button
                 type="button"
-                className={styles.editButton}
+                className={styles.editProfileButton}
                 onClick={handleEdit}
               >
-                Edit Profile <FiEdit3 className={styles.editIcon} />
+                <span className={styles.buttonRow}>
+                  <FiEdit3 className={styles.editIcon} /> <span>Edit Profile</span> 
+                </span>
+                 
               </button>
+
+              {/* Added Change Password Button */}
+              <button
+              type="button"
+              className={styles.changePasswordButton}
+              onClick={handleChangePassword}
+            >
+              <span className={styles.buttonRow}>
+              <FiLock className={styles.editIcon} /> <span>Change Password</span> 
+              </span>
+            </button>
+            </>
             ) : (
               <>
                 <button

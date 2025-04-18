@@ -4,7 +4,7 @@ import { FiUsers, FiBriefcase, FiBarChart2, FiRefreshCw, FiBookmark, FiFileText 
 import { MdBusiness, MdPieChart, MdShowChart } from "react-icons/md";
 import { FaUser, FaUserTie, FaUserCog } from "react-icons/fa";
 import { getDashboardInsights } from "../../services/api";
-import { motion, useScroll } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -14,21 +14,6 @@ const AdminDashboard = () => {
   
   const overviewRef = useRef(null);
   const analyticsRef = useRef(null);
-  const containerRef = useRef(null);
-
-  const { scrollYProgress } = useScroll({
-    container: containerRef,
-    onChange: (latest) => {
-      const analyticsTop = analyticsRef.current?.offsetTop || 0;
-      const scrollPosition = latest * document.documentElement.scrollHeight;
-      
-      if (scrollPosition >= analyticsTop - 100) {
-        setActiveSection('analytics');
-      } else {
-        setActiveSection('overview');
-      }
-    }
-  });
 
   const fetchData = async () => {
     try {
@@ -48,6 +33,29 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const analyticsTop = analyticsRef.current?.offsetTop || 0;
+      const overviewTop = overviewRef.current?.offsetTop || 0;
+      const scrollPosition = window.scrollY + 100; // Adding offset for sticky header
+
+      if (scrollPosition >= analyticsTop) {
+        setActiveSection('analytics');
+      } else if (scrollPosition >= overviewTop) {
+        setActiveSection('overview');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (ref) => {
+    const yOffset = -80;
+    const y = ref.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  };
 
   if (loading) {
     return (
@@ -126,20 +134,19 @@ const AdminDashboard = () => {
       title: "Total Applications",
       value: dashboardData.activity.total_applications,
       icon: <FiFileText />,
-      color: "var(--purple)"
+      color: "var(--steel-blue)"
     },
     {
       title: "Total Bookmarks",
       value: dashboardData.activity.total_bookmarks,
       icon: <FiBookmark />,
-      color: "var(--pink)"
+      color: "var(--english-violet)"
     }
   ];
 
-  // Generate gradient colors for distribution bars
   const generateColor = (index, total) => {
     const baseColor = [100, 149, 237]; // Cornflower blue (var(--light-blue))
-    const lightnessFactor = 0.9 - (index / total) * 0.4; // Decrease lightness as we go down
+    const lightnessFactor = 0.9 - (index / total) * 0.4;
     return `rgb(
       ${Math.floor(baseColor[0] * lightnessFactor)},
       ${Math.floor(baseColor[1] * lightnessFactor)},
@@ -148,24 +155,20 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container}>
       <div className={styles.headerContainer}>
         <div className={styles.mainHeader}>
           <h1 className={styles.mainTitle}>ADMIN DASHBOARD</h1>
           <div className={styles.headerTabs}>
             <button 
               className={`${styles.headerTab} ${activeSection === 'overview' ? styles.activeHeaderTab : ''}`}
-              onClick={() => {
-                overviewRef.current?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={() => scrollToSection(overviewRef)}
             >
               Overview
             </button>
             <button 
               className={`${styles.headerTab} ${activeSection === 'analytics' ? styles.activeHeaderTab : ''}`}
-              onClick={() => {
-                analyticsRef.current?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={() => scrollToSection(analyticsRef)}
             >
               Analytics
             </button>

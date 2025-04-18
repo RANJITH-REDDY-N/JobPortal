@@ -83,7 +83,7 @@ const LoginPage = () => {
         else if(response.user_role === 'ADMIN') navigate('/admin/dashboard');
 
       } else {
-        setError(response.message || "Invalid email or password!", response);
+        setError(response.error || "Invalid email or password!", response);
       }
     } catch (err) {
       setError(err?.message || "Something went wrong. Please try again.");

@@ -178,8 +178,42 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  /* margin-top: 1rem; */
 }
+
+.editProfileButton{
+  padding: 1rem 1rem;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  min-width: 5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #4f46e5;
+  color: var(--aqua);
+  border: none;
+}
+
+.editProfileButton:hover{
+  background-color: #4338ca;
+}
+
+.changePasswordButton{
+  padding: 1rem 1rem;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  min-width: 5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--aqua);
+  color: var(--english-violet);
+  border: none;
+}
+.changePasswordButton:hover {
+  background-color: var(--light-blue);
+  color: var(--aqua);
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .container {

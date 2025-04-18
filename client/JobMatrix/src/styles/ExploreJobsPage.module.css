@@ -51,7 +51,7 @@
     display: flex;
     flex-direction: column;
     width: auto;
-    height: 50px;
+    height: fit-content;
 }
 
 .daysAgo {
@@ -197,6 +197,53 @@
 .companyInfo{
     margin-top: 1rem;
 }
+
+
+
+
+
+
+
+.descriptionSection {
+    margin-top: 0.75rem;
+  }
+  
+  .subSectionHeader {
+    display: flex;
+    align-items: center;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--english-violet);
+    margin-bottom: 0.25rem;
+  }
+  
+  .sectionIcon {
+    font-size: 1.1rem;
+    margin-right: 0.4rem;
+    color: var(--english-violet);
+  }
+  
+  .descriptionSection p {
+    font-size: 0.88rem;
+    color: var(--english-violet);
+    opacity: 0.95;
+    line-height: 1.5;
+  }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Button Row Styling */
 .buttonRow {
     display: flex;

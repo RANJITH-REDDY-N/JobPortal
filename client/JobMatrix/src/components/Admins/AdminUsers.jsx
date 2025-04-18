@@ -6,6 +6,7 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { VscEye } from "react-icons/vsc";
 import { LuPenLine } from "react-icons/lu";
 import { RxTrash } from "react-icons/rx";
+import { MdOutlinePersonSearch } from "react-icons/md";
 import UserDetailsModal from "./UserDetailsModal";
 import EditUserModal from "./EditUserModal";
 
@@ -173,6 +174,7 @@ const AdminUsers = () => {
             onChange={handleSearch}
             className={styles.searchInput}
           />
+          <MdOutlinePersonSearch className={styles.searchIcon} />
         </div>
       </div>
 
@@ -217,9 +219,18 @@ const AdminUsers = () => {
       {/* Users Table */}
       <div className={styles.tableContainer}>
         {loading ? (
-          <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <p>Loading users...</p>
+          <div className={styles.loadingOverlay}>
+            <iframe
+              src="https://lottie.host/embed/642b60ca-6e74-40ba-8d4e-c12fa8db1bc3/gxUxRH683G.lottie"
+              className={styles.loadingAnimation}
+              title="Loading animation"
+              allowFullScreen
+              allow="autoplay"
+              style={{
+                backgroundColor: 'transparent',
+                overflow: 'hidden'
+              }}
+            />
           </div>
         ) : (
           <>

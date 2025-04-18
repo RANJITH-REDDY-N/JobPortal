@@ -11,6 +11,7 @@ import rejectedIcon from "../../assets/CommonJobCardIcon-Images/RejectedApplicat
 import { LocationOn, Paid, History, ClearAll } from "@mui/icons-material";
 import { BsCalendarCheckFill } from "react-icons/bs";
 import { LuCircleArrowOutUpRight } from "react-icons/lu";
+import { MdWork, MdList, MdSchool, MdStarRate } from 'react-icons/md';
 import { ImHourGlass } from "react-icons/im";
 import { NavLink } from "react-router-dom";
 import { getAppliedJobs } from "../../services/api";
@@ -217,7 +218,7 @@ const AppliedJobsPage = () => {
 
                 <hr className={styles.divider} />
 
-                <div className={styles.jobDescription}>
+                {/* <div className={styles.jobDescription}>
                   <div
                     className={styles.descriptionContent}
                     style={{
@@ -282,7 +283,8 @@ const AppliedJobsPage = () => {
                       {application_status.charAt(0).toUpperCase() + application_status.slice(1)}
                     </button>
                   </div>
-                </div>
+                </div> */}
+                
 
               </div>
             ))

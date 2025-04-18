@@ -5,8 +5,6 @@
   box-sizing: border-box;
   margin-left: 220px;
   color: var(--english-violet);
-  overflow-y: auto;
-  scroll-behavior: smooth;
 }
 
 /* Sticky Header with Dashboard Title and Tabs */
@@ -15,16 +13,14 @@
   top: 0;
   background: var(--aqua);
   z-index: 100;
-  padding: 1rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 2rem 0;
 }
 
 .mainHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0 2rem;
 }
 
@@ -58,19 +54,21 @@
 }
 
 .headerTab:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--aqua);
+  color: var(--english-violet);
 }
 
 .activeHeaderTab {
-  background: var(--light-blue);
+  background: var(--soft-blue);
   color: white;
 }
 
 /* Main Content Sections */
 .section {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 2rem auto;
   padding: 2rem;
+  scroll-margin-top: 100px;
 }
 
 /* Overview Section */
@@ -284,7 +282,7 @@
 .distributionBar {
   height: 100%;
   border-radius: 5px;
-  background: linear-gradient(90deg, #a2b7db,var(--light-blue));
+  background: linear-gradient(90deg, #a2b7db, var(--light-blue));
 }
 
 /* Activity Section */
@@ -419,3 +417,8 @@
 .card:nth-child(2) { animation-delay: 0.2s; }
 .card:nth-child(3) { animation-delay: 0.3s; }
 .card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Smooth scrolling for html */
+html {
+  scroll-behavior: smooth;
+}
