@@ -32,7 +32,6 @@ def send_email_with_sendgrid(subject, message, from_email, to_email, fail_silent
     try:
         # Get API key with fallback
         api_key = settings.EMAIL_HOST_PASSWORD
-        print(api_key)
 
         # Create SendGrid client with SSL verification disabled
         sg = SendGridAPIClient(api_key)
