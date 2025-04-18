@@ -15,12 +15,13 @@ from ..auth_backend import JWTAuthentication
 from django.contrib.auth.hashers import make_password, check_password
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def send_email_with_sendgrid(subject, message, from_email, to_email, fail_silently=False):
     # Temporarily disable SSL verification
-    import urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
     mail_message = Mail(
         from_email=from_email,
@@ -30,8 +31,8 @@ def send_email_with_sendgrid(subject, message, from_email, to_email, fail_silent
     )
     try:
         # Get API key with fallback
-        api_key = os.environ.get('SENDGRID_API_KEY') or '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'
-        print(f"Using API key: {api_key[:5]}...{api_key[-4:]}")  # Log first 5 and last 4 chars safely
+        api_key = settings.EMAIL_HOST_PASSWORD
+        print(api_key)
 
         # Create SendGrid client with SSL verification disabled
         sg = SendGridAPIClient(api_key)
