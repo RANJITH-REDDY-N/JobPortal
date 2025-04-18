@@ -114,3 +114,20 @@ MIGRATION_MODULES = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+import os
+from dotenv import load_dotenv
+
+# For production, use SMTP:
+# Email settings for SendGrid
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587  # You can also use 465 for SSL
+EMAIL_USE_TLS = True
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_KEYFILE = None
+EMAIL_TIMEOUT = 30
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = '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'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'nalla4r@cmich.edu')

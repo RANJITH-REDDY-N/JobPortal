@@ -1,6 +1,6 @@
-# JobMatrix/urls.py
-
 from django.urls import path
+
+from JobMatrix.views.password_reset_view import PasswordResetRequestView, VerifyResetCodeView, ResetPasswordView, ChangePasswordView
 from JobMatrix.views.views import *
 
 from JobMatrix.views.admin_dashboard import AdminDashboardCountsView
@@ -10,7 +10,6 @@ from JobMatrix.views.admin_actions import (
     AdminCompanyDeleteView,
     AdminJobDeleteView
 )
-
 
 urlpatterns = [
     # Auth & User
@@ -22,18 +21,17 @@ urlpatterns = [
     path("users/patch/<int:pk>/", UserPartialUpdateView.as_view(), name="patch-user"),
     path("users/resume-update/", ApplicantResumeUpdateView.as_view(), name="update-applicant-resume"),
     path("users/recruiter-update/", RecruiterDetailsUpdateView.as_view(), name="recruiter-details-update"),
+    path("change-password/", ChangePasswordView.as_view(), name="change-password"),  # New endpoint
 
     # Company
     path('companies/', CompanyListView.as_view(), name='company-list'),
     path('company-jobs/', CompanyJobsListView.as_view(), name='company-jobs-list'),
     path('company/update/', CompanyUpdateView.as_view(), name='company-update'),
 
-
     # Admin Dashboard
     path('admin/dashboard-insights/', AdminDashboardCountsView.as_view(), name='admin-dashboard-insights'),
 
     # Admin User Management
-    # path('admin/users/', AdminUserListView.as_view(), name='admin-users'),
     path('admin/users/<int:user_id>/delete/', AdminUserDeleteView.as_view(), name='admin-user-delete'),
 
     # Admin Company Management
@@ -42,4 +40,9 @@ urlpatterns = [
 
     # Admin Job Management
     path('admin/jobs/<int:job_id>/delete/', AdminJobDeleteView.as_view(), name='admin-job-delete'),
+
+    # Password Reset URLs
+    path('password-reset-request/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('verify-reset-code/', VerifyResetCodeView.as_view(), name='verify_reset_code'),
+    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),  # New endpoint
 ]
