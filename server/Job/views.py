@@ -21,7 +21,7 @@ from django.urls import reverse_lazy
 
 # ---------------- Jobs ------------------ #
 class JobListPagination(PageNumberPagination):
-    page_size = 5  # Default number of items per page
+    page_size = 6  # Default number of items per page
     page_size_query_param = 'page_size'
     max_page_size = 100
 

@@ -1,10 +1,7 @@
-/* Import Glacial Indifference Font */
 @import url('https://fonts.cdnfonts.com/css/glacial-indifference-2');
-/* Import Aileron Font */
 @import url('https://fonts.cdnfonts.com/css/aileron');
 
 
-/* Apply font and colors globally */
 :root {
   --english-violet: #413C58;
   --steel-blue: #5A8FAF;
@@ -15,9 +12,17 @@
   --aqua: #F5F7FA;
   --light-blue:#718EBF;
   --light-gray:#e6e5e5;
+  --light-red: #f8d7da;
+  --dark-red: #721c24;
+  --red:#dc3545;
+  --light-green: #d4edda;
+  --dark-green: #155724;
+  --green:#28a745;
+  --light-yellow: #fff3cd;
+  --dark-yellow: #856404;
+  --yellow:#ffc107;
 }
 
-/* Global font style */
 body {
   font-family: 'Glacial Indifference', 'Aileron', sans-serif;
   color: var(--english-violet);
@@ -30,32 +35,26 @@ body {
 
 
 
-/* Hide Scrollbar Globally */
 html, body {
   height: 100vh;
   width: 100vw;
-  /* overflow: hidden; Hides scrollbar */
 }
 
-/* Hide scrollbar for Chrome, Safari, and Edge */
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for Firefox */
 body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-/* Job Matrix Font */
 .job-matrix {
   font-size: 4vw;
   font-weight: bold;
   color: var(--english-violet);
 }
 
-/* Global Button Styles */
 .button {
   background-color: var(--english-violet);
   color: var(--white);

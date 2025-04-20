@@ -16,7 +16,6 @@ import { useSelector } from 'react-redux';
 
 const JobsList = () => {
   const userData = useSelector((state)=> state.user.user)
-  const [jobsPerPage, setJobsPerPage] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [allJobs, setAllJobs] = useState([]);
@@ -29,79 +28,90 @@ const JobsList = () => {
   const [applicantsListCurrentPage, setApplicantsListCurrentPage] = useState(1);
   const [applicantsListTotalPages, setApplicantsListTotalPages] = useState(1)
   const [selectedStatus, setSelectedStatus] = useState('All');
-  const [updatingStatus, setUpdatingStatus] = useState(null);
   const [showPostJobPopup, setShowPostJobPopup] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [jobToDelete, setJobToDelete] = useState(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [clearSearch, setClearSearch] = useState(true)
   const [filters, setFilters] = useState({
     locations: [],
     jobTitles: [],
     datePosted: "Any time"
   });
+
+  
+
+  const fetchData = async (controller) => {  
+    setIsLoading(true);
+    try {
+      const response = await getJobsListByACompany({
+        page: currentPage,
+        ...filters
+      }, { signal: controller.signal });
+      
+      if (response?.results) {
+        setAllJobs(response.results);
+        setTotalPages(response.total_pages);
+      } else {
+        setAllJobs([]);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error(`Error in fetching Job List: ${err}`);
+        setError(err.message || "Failed to fetch jobs");
+        setAllJobs([]);
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        setIsLoading(false);
+      }
+    }
+  };
   
 
   useEffect(() => {
     const controller = new AbortController();
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getJobsListByACompany({
-          page: currentPage,
-          ...filters
-        }, { signal: controller.signal });
-        
-        if (response?.results) {
-          setAllJobs(response.results);
-          setTotalPages(response.total_pages);
-          setJobsPerPage(response.results.length);
-        } else {
-          setAllJobs([]);
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error(`Error in fetching Job List: ${err}`);
-          setError(err.message || "Failed to fetch jobs");
-          setAllJobs([]);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-    
+    fetchData(controller);
     return () => controller.abort();
   }, [currentPage, filters]);
+
+  
   
   const refreshJobs = useCallback(() => {
     setCurrentPage(1); 
   }, []);
 
-  // Handle edit job
+
   const handleEditJob = async (updatedJobData) => {
-    console.log()
     try {
       await updateJobPosting(editingJob.job_id, updatedJobData);
       refreshJobs();
       setEditingJob(null);
+      const controller = new AbortController();
+      fetchData(controller);
     } catch (error) {
       console.error("Error updating job:", error);
     }
   };
 
-  // Handle delete job
   const handleDeleteJob = async () => {
     if (!jobToDelete) return;
     
     try {
+      setIsDeleting(true);
       await deleteJobPosting(jobToDelete.job_id);
-      refreshJobs();
       setJobToDelete(null);
+      refreshJobs();
+      const controller = new AbortController();
+      fetchData(controller);
+      setToast({ message: 'Job deleted successfully', type: 'success' });
     } catch (error) {
       console.error("Error deleting job:", error);
+      setToast({ message: 'Failed to delete job', type: 'error' });
+    } finally {
+      setIsDeleting(false);
     }
   };
   
@@ -114,7 +124,8 @@ const JobsList = () => {
     }
   }, [applicantsListCurrentPage, selectedJob]);
 
-// heyyy
+
+  
 const handleViewApplicants = useCallback(async (job, status = '') => {
   setIsLoadingApplicants(true);
   const data = {
@@ -127,7 +138,7 @@ const handleViewApplicants = useCallback(async (job, status = '') => {
     setApplicantsListTotalPages(apps.total_pages);
     setSelectedStatus(status || 'All');
     setSelectedJob(job);
-    setPanelOpen(true); // Add this line
+    setPanelOpen(true); 
   } catch (error) {
     console.error("Error fetching applicants:", error);
     setError("Failed to load applicants");
@@ -141,14 +152,11 @@ const handleClosePanel = () => {
   setTimeout(() => {
     setSelectedJob(null);
     setApplications(null);
-  }, 300); // Match this with your CSS transition duration
+  }, 300);
 };
 
-// heyyy
-
   const handlePageChange = (page) => {
-    setCurrentPage(page);  // Update the page state first
-    // fetchJobsList(page);   // Then fetch data for that page
+    setCurrentPage(page);
   };
 
   const handleSearch = (value) => {
@@ -157,14 +165,12 @@ const handleClosePanel = () => {
 
   const handleStatusChange = async (applicationId, newStatus, comment = null) => {
     console.log("Updating status:", applicationId, newStatus, comment);
-    setUpdatingStatus(applicationId);
 
     try {
       const response = await updateApplicationStatus(applicationId, {
         "application_status": newStatus,
         "application_recruiter_comment": comment
       });
-      console.log("responseee ",response)
       if (response && !response.error) {
         setApplications(prev => {
           if (!prev || !prev.results) return prev;
@@ -188,14 +194,13 @@ const handleClosePanel = () => {
       }
     } catch (error) {
       console.error("Error updating application:", error);
-      setUpdatingStatus(null);
       
     }
   };
 
-   // Add this function to handle filter changes
+
    const handleFilter = useCallback((newFilters) => {
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
     setFilters(prev => ({
       ...prev,
       ...newFilters
@@ -210,24 +215,23 @@ const handleClosePanel = () => {
     );
   }, [searchQuery, allJobs]);
 
+
+  
+  
+
   
   const currentJobs = filteredJobs
-
-  // Animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
     hover: { y: -5, boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)" }
   };
 
-  if (isLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
-        <p>Loading jobs...</p>
-      </div>
-    );
-  }
+  useEffect(()=> {
+    const controller = new AbortController();
+    fetchData(controller);
+    return () => controller.abort();
+  },[showPostJobPopup])
 
   if (error) {
     return (
@@ -249,6 +253,7 @@ const handleClosePanel = () => {
     <div className={styles.container}>
       <RecruiterCommonTopBar
         onSearch={handleSearch}
+        clearSearch = {!clearSearch}
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
@@ -257,7 +262,9 @@ const handleClosePanel = () => {
         onPostJob={() => setShowPostJobPopup(true)}
         title="Posted Jobs"
       />
-
+    {
+      !isLoading ?
+      (
       <div className={styles.jobsList}>
         {currentJobs.length > 0 ? (
           <AnimatePresence initial={false}>
@@ -349,42 +356,81 @@ const handleClosePanel = () => {
               </svg>
             </div>
             <h3>No jobs found</h3>
+            
             <p>{searchQuery ? "No jobs match your search criteria" : "You haven't posted any jobs yet"}</p>
-            {searchQuery && (
+            
+            {
+              searchQuery && 
               <button 
                 className={styles.clearSearchButton}
-                onClick={() => setSearchQuery("")}
+                onClick={() => {setSearchQuery(""); setClearSearch(!clearSearch)}}
               >
                 Clear search
               </button>
-            )}
+            }
+
+            {
+              (!searchQuery && (filters.locations.length > 0 || filters.jobTitles.length > 0 || filters.datePosted !== "Any time")) && 
+              <button 
+                className={styles.clearSearchButton}
+                onClick={() => {
+                  setFilters({
+                    locations: [],
+                    jobTitles: [],
+                    datePosted: "Any time"
+                  });
+                  setSearchQuery("");
+                  
+                }}
+              >
+                Clear Filters
+              </button>
+            }
+              
           </div>
         )}
       </div>
+      )
+      :
+      (
+        <div className={styles.loadingOverlay}>
+          <iframe
+            src="https://lottie.host/embed/642b60ca-6e74-40ba-8d4e-c12fa8db1bc3/gxUxRH683G.lottie"
+            className={styles.loadingAnimation}
+            title="Loading animation"
+            allowFullScreen
+            allow="autoplay"
+            style={{
+              backgroundColor: 'transparent',
+              overflow: 'hidden'
+            }}
+          />
+        </div>
+      )
 
-      {selectedJob && (
-  <>
-    <div 
-      className={`${styles.overlay} ${panelOpen ? styles.active : ''}`} 
-      onClick={handleClosePanel} 
-    />
-    <div 
-      className={`${styles.applicantsPanelWrapper} ${panelOpen ? styles.active : ''}`}
-    >
-      <ApplicantsPanel 
-        job={selectedJob} 
-        onClose={handleClosePanel}
-        applications={applications}
-        onStatusChange={handleStatusChange}
-        applicantsListCurrentPage={applicantsListCurrentPage}
-        setApplicantsListCurrentPage={setApplicantsListCurrentPage}
-        applicantsListTotalPages={applicantsListTotalPages}
-        handleViewApplicants={handleViewApplicants}
-        selectedStatus={selectedStatus}
-      />
-    </div>
-  </>
-)}
+    }
+
+      {panelOpen && selectedJob && (
+        <>
+          <div 
+            className={`${styles.overlay} ${styles.active}`} 
+            onClick={handleClosePanel} 
+          />
+          <div className={`${styles.applicantsPanelWrapper} ${styles.active}`}>
+            <ApplicantsPanel 
+              job={selectedJob} 
+              onClose={handleClosePanel}
+              applications={applications}
+              onStatusChange={handleStatusChange}
+              applicantsListCurrentPage={applicantsListCurrentPage}
+              setApplicantsListCurrentPage={setApplicantsListCurrentPage}
+              applicantsListTotalPages={applicantsListTotalPages}
+              handleViewApplicants={handleViewApplicants}
+              selectedStatus={selectedStatus}
+            />
+          </div>
+        </>
+      )}
 
       {showPostJobPopup && (
         <PostJobPopup
@@ -405,35 +451,68 @@ const handleClosePanel = () => {
         />
       )}
 
-      {/* Delete Confirmation Popup */}
-      {jobToDelete && (
-        <div className={styles.overlay} onClick={() => setJobToDelete(null)}>
-          <motion.div 
-            className={styles.confirmationPopup}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Delete Job Posting</h3>
-            <p>Are you sure you want to delete "{jobToDelete.job_title}"?</p>
-            <p className={styles.warningText}>This action cannot be undone.</p>
-            
-            <div className={styles.confirmationButtons}>
-              <button 
-                className={styles.cancelButton}
-                onClick={() => setJobToDelete(null)}
-              >
-                Cancel
-              </button>
-              <button 
-                className={styles.deleteConfirmButton}
-                onClick={handleDeleteJob}
-              >
-                Delete
-              </button>
-            </div>
-          </motion.div>
+{jobToDelete && (
+  <div className={styles.modalOverlay} onClick={() => setJobToDelete(null)}>
+    <motion.div 
+      className={styles.confirmationModal}
+      initial={{ scale: 0.95, opacity: 0, y: 20 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ scale: 0.95, opacity: 0, y: 20 }}
+      transition={{ type: "spring", damping: 25, stiffness: 400 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className={styles.modalHeader}>
+        <div className={styles.warningIcon}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" 
+                  stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h3 className={styles.modalTitle}>Delete Job Posting</h3>
+      </div>
+      
+      <div className={styles.modalContent}>
+        <p className={styles.confirmationText}>
+          Are you sure you want to delete <strong>"{jobToDelete.job_title}"</strong>?
+        </p>
+        <p className={styles.warningText}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0378 2.66667 10.268 4L3.33978 16C2.56998 17.3333 3.53223 19 5.07183 19Z" 
+                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          This action cannot be undone. All associated applications will be removed.
+        </p>
+      </div>
+      
+      <div className={styles.modalFooter}>
+        <button 
+          className={styles.secondaryButton}
+          onClick={() => setJobToDelete(null)}
+          disabled={isDeleting}
+        >
+          Cancel
+        </button>
+        <button 
+          className={styles.dangerButton}
+          onClick={handleDeleteJob}
+          disabled={isDeleting}
+        >
+          {isDeleting ? (
+            <>
+              <span className={styles.spinner}></span>
+              Deleting...
+            </>
+          ) : (
+            'Delete Permanently'
+          )}
+        </button>
+      </div>
+    </motion.div>
+  </div>
+)}
+      {toast && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          {toast.message}
         </div>
       )}
 

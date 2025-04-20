@@ -115,7 +115,6 @@ export const getApplicantsForJob = (data, status) => {
   return fetchAPI(`job/applicants/${data.job_Id}/?${queryString.toString()}&application_status=${status}`,"GET",null,true,'application/json',false);
 }
 export const getJobsListByACompany = (params = {}) => {
-  console.log("params ",params)
   const queryString = new URLSearchParams();
 
   if (params.datePosted && params.datePosted !== "Any time") queryString.append('date_posted', params.datePosted);
@@ -125,6 +124,7 @@ export const getJobsListByACompany = (params = {}) => {
 
   return fetchAPI(`company-jobs/?${queryString.toString()}`, "GET", null, true, 'application/json', false);
 }
+export const getRecruiterCompanyDetails = () => fetchAPI(`recruiter/company-stats/`, "GET", null, true, 'application/json', false);
 
 export const updateApplicationStatus = (applicationId, data) => fetchAPI(`job/recruiter/applications/${applicationId}/`, "PATCH", data, true,'application/json',false)
 export const updateCompanyDetails = (data) => fetchAPI(`company/update/`, "PATCH", data, true,'multipart/form-data',true )

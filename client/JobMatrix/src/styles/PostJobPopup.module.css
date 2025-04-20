@@ -73,7 +73,7 @@
   
   /* Form Styles */
   .jobPopupForm {
-    padding: 0.5rem 1.5rem;
+    padding: 1.5rem;
     overflow-y: auto;
     flex: 1;
     display: flex;

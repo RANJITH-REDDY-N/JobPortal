@@ -61,16 +61,16 @@ class JobApplicantDetailSerializer(serializers.ModelSerializer):
             'id': user.user_id,
             'email': user.user_email,
             'full_name': f"{user.user_first_name} {user.user_last_name}",
+            'profile_photo': None,
             'resume': None
         }
 
         request = self.context.get('request')
 
-        # Add resume URL if it exists
         if applicant.applicant_resume and request:
-            # The .url property already includes the MEDIA_URL prefix,
-            # so we only need to make it absolute
             applicant_data['resume'] = request.build_absolute_uri(applicant.applicant_resume.url)
+        if user.user_profile_photo and request:
+            applicant_data['profile_photo'] = request.build_absolute_uri(user.user_profile_photo.url)
 
         return applicant_data
 
