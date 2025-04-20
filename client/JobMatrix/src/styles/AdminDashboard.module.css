@@ -65,7 +65,7 @@
 
 /* Main Content Sections */
 .section {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 2rem auto;
   padding: 2rem;
   scroll-margin-top: 100px;
@@ -74,7 +74,7 @@
 /* Overview Section */
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -359,7 +359,7 @@
 }
 
 .retryButton:hover {
-  background: var(--dark-blue);
+  background: var(--soft-blue);
   transform: translateY(-1px);
 }
 

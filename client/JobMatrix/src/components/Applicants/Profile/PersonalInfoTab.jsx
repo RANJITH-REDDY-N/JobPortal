@@ -105,7 +105,6 @@ const PersonalInfoTab = () => {
     showToast("Changes discarded", "info");
   };
 
-  // Added new function to navigate to change password page
   const handleChangePassword = () => {
     navigate("/change-password");
   };
@@ -167,7 +166,6 @@ const PersonalInfoTab = () => {
       );
   
       if (response && !response.error) {
-        // Ensure we preserve the resume data in the update
         const updatedUser = {
           ...response,
           applicant_resume: user.applicant_resume
@@ -230,7 +228,7 @@ const PersonalInfoTab = () => {
                   type="text"
                   name={field.name}
                   className={styles.input}
-                  style={field.disabled ? {backgroundColor:'var(--aqua)'}:{}}
+                  style={field.disabled || !isEditing ? {backgroundColor:'var(--aqua)'}:{}}
                   value={formData[field.name]}
                   onChange={handleChange}
                   disabled={field.disabled || !isEditing}

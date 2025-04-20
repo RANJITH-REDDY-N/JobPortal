@@ -390,9 +390,11 @@ class CompanyListView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializerForResponse
 
+
 class CompanyJobsListView(generics.ListAPIView):
     """
-    API view to list all jobs posted by the company of the authenticated recruiter.
+    API view to list all jobs posted by the company of the authenticated recruiter,
+    including jobs posted by inactive recruiters.
     Requires JWT token authentication.
     """
     serializer_class = JobListSerializer
@@ -402,21 +404,23 @@ class CompanyJobsListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        # Check if the user is a recruiter and is active
+        # Check if the user is a recruiter (only active recruiters can access)
         try:
             recruiter = Recruiter.objects.get(recruiter_id=user.user_id)
+
+            # Only active recruiters can view the company's jobs
             if not recruiter.recruiter_is_active:
-                return Job.objects.none()  # Return empty queryset if recruiter is not active
+                return Job.objects.none()
 
             company = recruiter.company_id
 
-            # Get all recruiters for this company
+            # Get ALL recruiters for this company, both active and inactive
+            # This allows viewing jobs posted by previous recruiters
             recruiter_ids = Recruiter.objects.filter(
-                company_id=company,
-                recruiter_is_active=True
+                company_id=company
             ).values_list('recruiter_id', flat=True)
 
-            # Get all jobs posted by these recruiters
+            # Get all jobs posted by any recruiter (active or inactive) from this company
             queryset = Job.objects.filter(recruiter_id__in=recruiter_ids).order_by('-job_date_posted')
 
             # Apply filters from query parameters
@@ -480,10 +484,12 @@ class CompanyJobsListView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         """
         Override list method to handle case when recruiter is not active
+        and provide customized response
         """
         try:
             recruiter = Recruiter.objects.get(recruiter_id=request.user)
 
+            # Only active recruiters can access this endpoint
             if not recruiter.recruiter_is_active:
                 return Response(
                     {"detail": "Your recruiter account is not active."},
@@ -492,6 +498,8 @@ class CompanyJobsListView(generics.ListAPIView):
 
             # Continue with regular list behavior
             response = super().list(request, *args, **kwargs)
+
+            # Check if response contains paginated data
             if isinstance(response.data, dict) and 'results' in response.data:
                 # Get pagination info
                 count = response.data.get('count', 0)
@@ -499,24 +507,31 @@ class CompanyJobsListView(generics.ListAPIView):
                 previous_link = response.data.get('previous', None)
                 page_size = self.paginator.page_size
                 current_page = request.query_params.get(self.paginator.page_query_param, 1)
+
                 try:
                     current_page = int(current_page)
                 except (ValueError, TypeError):
                     current_page = 1
 
-            total_pages = (count + page_size - 1) // page_size if page_size > 0 else 0
+                total_pages = (count + page_size - 1) // page_size if page_size > 0 else 0
 
-            # Create a new response structure
-            new_data = {
-                'total_count': count,
-                'next': next_link,
-                'previous': previous_link,
-                'current_page': current_page,
-                'total_pages': total_pages,
-                'results': response.data.get('results', [])
-            }
+                # Create a custom response with additional info
+                company = recruiter.company_id
+                new_data = {
+                    'status': 'success',
+                    'message': f"All jobs for {company.company_name} retrieved successfully, including those posted by inactive recruiters",
+                    'company_name': company.company_name,
+                    'company_id': company.company_id,
+                    'total_count': count,
+                    'next': next_link,
+                    'previous': previous_link,
+                    'current_page': current_page,
+                    'total_pages': total_pages,
+                    'results': response.data.get('results', [])
+                }
 
-            response.data = new_data
+                response.data = new_data
+
             return response
 
         except Recruiter.DoesNotExist:

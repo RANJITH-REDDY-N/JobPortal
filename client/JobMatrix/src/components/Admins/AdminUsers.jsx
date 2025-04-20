@@ -165,7 +165,7 @@ const AdminUsers = () => {
     <div className={styles.container}>
       {/* Top Bar with Title and Search */}
       <div className={styles.topBar}>
-        <h1 className={styles.title}>User Management</h1>
+        <h1 className={styles.title}>USER MANAGEMENT</h1>
         <div className={styles.searchContainer}>
           <input
             type="text"

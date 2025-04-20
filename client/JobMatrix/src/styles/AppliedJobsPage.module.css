@@ -57,7 +57,7 @@
 .daysAgo {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.2rem;
     max-width: fit-content;
     border: 0px solid var(--gray);
     padding: 0.3rem 0.5rem 0.3rem 0.3rem;
@@ -154,9 +154,10 @@
 .jobDescription {
     font-size: 0.95rem;
     color: var(--english-violet);
+    margin-top: 0.5rem;
 }
 
-.jobInfoSection strong, 
+.jobInfoSection strong,
 .companyInfo strong,
 .recruiterComments strong {
     display: block;
@@ -169,7 +170,18 @@
 /* Description Content */
 .descriptionContent {
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease-out;
+    max-height: 100px;
+    opacity: 0.98;
+    will-change: max-height, opacity;
+}
+
+/* Expanded State */
+.descriptionContent[style*="1000px"] {
+    opacity: 1;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.4s ease-in;
 }
 
 .jobInfoSection p,
@@ -186,10 +198,35 @@
     line-height: 1.5;
 }
 
-/* Section Spacing */
-.jobInfoSection,
+/* Section Styling */
+.descriptionSection {
+    margin-top: 0.75rem;
+}
+
+.subSectionHeader {
+    display: flex;
+    align-items: center;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--english-violet);
+    margin-bottom: 0.25rem;
+}
+
+.sectionIcon {
+    font-size: 1.1rem;
+    margin-right: 0.4rem;
+    color: var(--english-violet);
+}
+
+.descriptionSection p {
+    font-size: 0.88rem;
+    color: var(--english-violet);
+    opacity: 0.95;
+    line-height: 1.5;
+}
+
 .companyInfo {
-    margin-bottom: 0.5rem;
+    margin-top: 1rem;
 }
 
 /* Recruiter Comments Section */
@@ -231,42 +268,41 @@
     transition: transform 0.2s ease;
 }
 
-/* Apply Button */
-.applyButton {
-    align-self: flex-end;
-    border: none;
-    padding: 0.7rem 1.2rem;
-    border-radius: 5px;
-    font-size: 0.95rem;
-    font-weight: 500;
+/* Status Chip Styling */
+.statusChip {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    cursor: not-allowed;
-    pointer-events: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
     min-width: 9rem;
     justify-content: center;
 }
 
 .statusIcon {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
 }
 
-/* Status-specific styles */
-.status-pending {
-    background-color: #f7c42bb5;
-    color: var(--aqua);
+/* Status-specific styles with lighter colors */
+.status-tag-pending {
+    background-color: rgba(247, 196, 43, 0.15);
+    color: #c49c00;
+    border: 1px solid rgba(247, 196, 43, 0.3);
 }
 
-.status-approved {
-    background-color: #67b267dc;
-    color: var(--aqua);
+.status-tag-approved {
+    background-color: rgba(103, 178, 103, 0.15);
+    color: #4b874b;
+    border: 1px solid rgba(103, 178, 103, 0.3);
 }
 
-.status-rejected {
-    background-color: var(--english-violet);
-    color: var(--aqua);
+.status-tag-rejected {
+    background-color: rgba(255, 180, 180, 0.32);
+    color: darkred;
+    border: 1px solid rgba(255, 180, 180, 0.32);
 }
 
 /* Loading Overlay */
@@ -377,9 +413,9 @@
         height: 50px;
     }
     
-    .applyButton {
-        width: 100%;
-        justify-content: center;
+    .statusChip {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
     }
     
     .noResultsImage {

@@ -186,8 +186,7 @@ class UserAppliedJobsSerializer(serializers.ModelSerializer):
         return {
             "job_id": job.job_id,
             "job_title": job.job_title,
-            "job_description": job.job_description[:100] + "..." if len(
-                job.job_description) > 100 else job.job_description,
+            "job_description": job.job_description,
             "job_location": job.job_location,
             "job_salary": float(job.job_salary),
             "job_date_posted": job.job_date_posted,
@@ -222,8 +221,7 @@ class UserAppliedJobsSerializer(serializers.ModelSerializer):
             "company_id": company.company_id,
             "company_name": company.company_name,
             "company_industry": company.company_industry,
-            "company_description": company.company_description[:150] + "..." if len(
-                company.company_description) > 150 else company.company_description,
+            "company_description": company.company_description,
             "company_image": company_image
         }
 

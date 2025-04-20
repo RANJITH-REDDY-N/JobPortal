@@ -1,5 +1,28 @@
 const API_BASE_URL = import.meta.env.VITE_JOB_MATRIX_API_BASE_URL;
 
+/**
+ * Standardizes error handling by extracting error messages from different response formats
+ * @param {object} response - The API response object
+ * @param {string} defaultMessage - Default error message if no specific error is found
+ * @returns {object} Standardized error object with message and original response
+ */
+export const extractErrorMessage = (response, defaultMessage = "An unexpected error occurred") => {
+  if (!response) return { message: defaultMessage, originalResponse: response };
+
+  // Check all possible error paths in order of priority
+  const errorMessage =
+      response.error?.message || // Nested error object with message
+      response.error || // Direct error string
+      response.message || // Message property
+      (typeof response === 'string' ? response : null) || // Response is error string
+      defaultMessage; // Fallback
+
+  return {
+    message: errorMessage,
+    originalResponse: response
+  };
+};
+
 const fetchAPI = async (URL, method = "GET", data = null, is_auth = false, content_type = 'application/json', isMultipart = false) => {
   try {
     const token = localStorage.getItem("jwtToken");
@@ -22,15 +45,22 @@ const fetchAPI = async (URL, method = "GET", data = null, is_auth = false, conte
     const resData = await response.json();
 
     if (!response.ok) {
-      return { error: resData || `HTTP error! Status: ${response.status}` };
+      // Return standardized error object
+      return {
+        error: extractErrorMessage(resData, `HTTP error! Status: ${response.status}`).message,
+        originalResponse: resData
+      };
     }
 
     return resData;
   } catch (e) {
     console.error("Error in fetching request:", e);
-    return { error: "Network error. Please try again." };
+    return {
+      error: "Network error. Please try again.",
+      originalResponse: e
+    };
   }
-};
+}
 
 /** OPEN API - NO AUTH */
 export const registerUser = (formData) => fetchAPI(`users/create/`, "POST", formData, false, 'multipart/form-data', true);
@@ -149,5 +179,8 @@ export const getAllUsers = (page = 1, search = "", role = "") => {
 export const getDashboardInsights = () => fetchAPI('admin/dashboard-insights/', "GET", null, true, 'application/json', false);
 
 export const deleteUserApplicant = (applicantId) => fetchAPI(`admin/users/${applicantId}/delete/`, "DELETE", null, true, 'application/json', false);
+/** ADMIN COMPANY MANAGEMENT */
+export const getAdminCompanies = () => fetchAPI('admin/companies/', "GET", null, true);
+export const deleteCompany = (companyId) => fetchAPI(`admin/companies/${companyId}/delete/`, "DELETE", null, true);
 
 export default fetchAPI;

@@ -32,10 +32,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 1.5rem;
-  padding: 2rem 1rem;
+  padding: 9rem 1rem;
   box-sizing: border-box;
   min-height: 100vh;
 }
@@ -61,16 +61,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content:center; 
+  justify-content:center;
   gap: 0.5rem;
-  max-width: 15rem;
-  max-height: 15rem;
+  max-width: 10rem;
+  max-height: 10rem;
 }
 
 .uploadHint {
   font-size: 0.8rem;
   color: var(--steel-blue);
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 /* Input Groups */
@@ -152,51 +152,113 @@
 /* Buttons */
 .buttonGroup {
   display: flex;
-  justify-content: space-between;
+  justify-content:space-around;
   gap: 1rem;
   margin-top: 1rem;
+  width: 100%;
 }
 
-.primaryButton {
-  flex: 1;
-  padding: 0.9rem 0;
-  font-size: 0.95rem;
-  font-weight: bold;
-  background-color: var(--english-violet);
-  color: white;
-  border-radius: 12px;
-  border: none;
+
+.button {
+  width: 75%;
+  font-style: normal;
+  font-size: 1rem;
+  border-radius: 15px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  min-width: 15rem;
+  font-weight: normal;
+  background: linear-gradient(135deg, var(--steel-blue), var(--english-violet));
+  color: white;
+  border: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.primaryButton:hover {
-  background-color: var(--steel-blue);
+.button:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, var(--steel-blue), var(--steel-blue) 40%, var(--english-violet));
 }
 
-.primaryButton:disabled {
-  background-color: #a39ba4;
-  cursor: not-allowed;
+.button:active {
+  transform: scale(0.98);
 }
 
 .secondaryButton {
-  flex: 1;
-  padding: 0.9rem 0;
-  font-size: 0.95rem;
-  font-weight: bold;
-  background-color: var(--white);
-  color: var(--english-violet);
-  border: 2px solid var(--english-violet);
-  border-radius: 12px;
+  width: 25%;
+  font-style: normal;
+  font-size: 1rem;
+  border-radius: 15px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 9rem;
+  font-weight: normal;
+  background: white;
+  color: var(--english-violet);
+  border: 1px solid var(--english-violet);
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .secondaryButton:hover {
-  background-color: #f5f5f5;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  background: #f5f5f5;
 }
+
+.secondaryButton:active {
+  transform: scale(0.98);
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loadingDots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+
 
 /* Error Message */
 .errorMessage {

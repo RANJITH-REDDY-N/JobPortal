@@ -7,6 +7,7 @@ import viewMoreButton from "../../assets/CommonJobCardIcon-Images/viewmore_expan
 import viewLessButton from "../../assets/CommonJobCardIcon-Images/viewmore_collapse.svg";
 import { ClearAll, LocationOn, Paid, History } from "@mui/icons-material";
 import { LuUpload, LuCheck, LuCircleArrowOutUpRight } from "react-icons/lu";
+import { MdWork, MdList, MdSchool, MdStarRate } from 'react-icons/md';
 import { NavLink } from "react-router-dom";
 import noBookmarksImage from '../../assets/NoBookmarksPage1.png';
 import ToastNotification from "../../components/ToastNotification";
@@ -267,23 +268,102 @@ const BookmarksPage = () => {
               <hr className={styles.divider} />
 
               <div className={styles.jobDescription}>
+                {/*<div*/}
+                {/*  className={styles.descriptionContent}*/}
+                {/*  style={{*/}
+                {/*    maxHeight: expandedJobId === job_details.job_id ? '1000px' : '100px',*/}
+                {/*    overflow: 'hidden',*/}
+                {/*    transition: 'max-height 0.3s ease-in-out'*/}
+                {/*  }}*/}
+                {/*>*/}
+                {/*  <div className={styles.jobInfoSection}>*/}
+                {/*    <strong>Job Description</strong>*/}
+                {/*    <p>{expandedJobId === job_details.job_id ? job_details.job_description : `${job_details.job_description.slice(0, 100)}...`}</p>*/}
+                {/*  </div>*/}
+                {/*  {expandedJobId === job_details.job_id && (*/}
+                {/*    <div className={styles.companyInfo}>*/}
+                {/*      <strong>About Company</strong>*/}
+                {/*      <p>{job_details.company.company_description}</p>*/}
+                {/*    </div>*/}
+                {/*  )}*/}
+                {/*</div>*/}
+
                 <div
-                  className={styles.descriptionContent}
-                  style={{
-                    maxHeight: expandedJobId === job_details.job_id ? '1000px' : '100px',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease-in-out'
-                  }}
+                    className={styles.descriptionContent}
+                    style={{
+                      maxHeight: expandedJobId === job_details.job_id ? '1000px' : '100px',
+                      overflow: 'hidden',
+                      transition: 'max-height 0.3s ease-in-out'
+                    }}
                 >
                   <div className={styles.jobInfoSection}>
                     <strong>Job Description</strong>
-                    <p>{expandedJobId === job_details.job_id ? job_details.job_description : `${job_details.job_description.slice(0, 100)}...`}</p>
+                    {expandedJobId === job_details.job_id ? (() => {
+                      const sections = job_details.job_description.split(/(?=\[.*?\])/g);
+                      const mandatorySection = sections.find(section =>
+                          section.startsWith('[About the Role]')
+                      );
+
+                      const otherSections = sections.filter(section =>
+                          !section.startsWith('[About the Role]') &&
+                          section.replace(/\[.*?\]/, '').trim().length > 0
+                      );
+
+                      const renderSection = (section) => {
+                        const titleMatch = section.match(/\[(.*?)\]/);
+                        const title = titleMatch ? titleMatch[1] : null;
+                        const content = section.replace(/\[.*?\]/, '').trim();
+
+                        let Icon;
+                        switch (title) {
+                          case 'About the Role':
+                            Icon = MdWork;
+                            break;
+                          case 'Key Responsibilities':
+                            Icon = MdList;
+                            break;
+                          case 'Required Qualifications':
+                            Icon = MdSchool;
+                            break;
+                          case 'Preferred Qualifications':
+                            Icon = MdStarRate;
+                            break;
+                          default:
+                            Icon = null;
+                        }
+
+                        return (
+                            <div key={title} className={styles.descriptionSection}>
+                              {title && (
+                                  <div className={styles.subSectionHeader}>
+                                    {Icon && <Icon className={styles.sectionIcon} />}
+                                    <span>{title}</span>
+                                  </div>
+                              )}
+                              <p>{content}</p>
+                            </div>
+                        );
+                      };
+
+                      return (
+                          <>
+                            {/* Always render the mandatory "About the Role" section */}
+                            {mandatorySection && renderSection(mandatorySection)}
+
+                            {/* Only render other sections if they have content */}
+                            {otherSections.map(section => renderSection(section))}
+                          </>
+                      );
+                    })() : (
+                        <p>{`${job_details.job_description.slice(0, 100)}...`}</p>
+                    )}
                   </div>
+
                   {expandedJobId === job_details.job_id && (
-                    <div className={styles.companyInfo}>
-                      <strong>About Company</strong>
-                      <p>{job_details.company.company_description}</p>
-                    </div>
+                      <div className={styles.companyInfo}>
+                        <strong>About Company</strong>
+                        <p>{job_details.company.company_description}</p>
+                      </div>
                   )}
                 </div>
                 <div className={styles.buttonRow}>

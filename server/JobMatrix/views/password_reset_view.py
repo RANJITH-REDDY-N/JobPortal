@@ -20,8 +20,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def send_email_with_sendgrid(subject, message, from_email, to_email, fail_silently=False):
-    # Temporarily disable SSL verification
-
 
     mail_message = Mail(
         from_email=from_email,
@@ -30,10 +28,8 @@ def send_email_with_sendgrid(subject, message, from_email, to_email, fail_silent
         plain_text_content=message
     )
     try:
-        # Get API key with fallback
         api_key = settings.EMAIL_HOST_PASSWORD
 
-        # Create SendGrid client with SSL verification disabled
         sg = SendGridAPIClient(api_key)
         sg.client.verify_ssl_certs = False  # Disable SSL verification
 

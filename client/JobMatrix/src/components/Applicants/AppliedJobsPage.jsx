@@ -9,12 +9,15 @@ import appliedIcon from "../../assets/CommonJobCardIcon-Images/AppliedApplicatio
 import approvedIcon from "../../assets/CommonJobCardIcon-Images/ApprovedApplication.svg";
 import rejectedIcon from "../../assets/CommonJobCardIcon-Images/RejectedApplication.svg";
 import { LocationOn, Paid, History, ClearAll } from "@mui/icons-material";
-import { BsCalendarCheckFill } from "react-icons/bs";
+import {BsCalendarCheckFill, BsFileEarmarkCheck, BsFileEarmarkExcel} from "react-icons/bs";
 import { LuCircleArrowOutUpRight } from "react-icons/lu";
-import { MdWork, MdList, MdSchool, MdStarRate } from 'react-icons/md';
-import { ImHourGlass } from "react-icons/im";
+import {MdWork, MdList, MdSchool, MdStarRate, MdClose, MdCheckCircle} from 'react-icons/md';
+import { MdOutlineAccessTime } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import { getAppliedJobs } from "../../services/api";
+import ToastNotification from "../ToastNotification.jsx";
+import {GiCheckMark} from "react-icons/gi";
+import {FaFileCircleCheck, FaFileCircleXmark} from "react-icons/fa6";
 
 const AppliedJobsPage = () => {
   const [applications, setApplications] = useState([]);
@@ -28,6 +31,7 @@ const AppliedJobsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filtersCleared, setFiltersCleared] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [toastQueue, setToastQueue] = useState([]);
   const [paginationMeta, setPaginationMeta] = useState({ 
     total_pages: 1, 
     current_page: 1, 
@@ -36,7 +40,14 @@ const AppliedJobsPage = () => {
   const [expandedJobId, setExpandedJobId] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const showToast = (message, type) => {
+    const newToast = { message, type, id: Date.now() };
+    setToastQueue(prev => [...prev, newToast]);
 
+    setTimeout(() => {
+      setToastQueue(prev => prev.filter(t => t.id !== newToast.id));
+    }, 3000);
+  };
   const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
@@ -56,7 +67,7 @@ const AppliedJobsPage = () => {
         showToast("Failed to load applications", "error");
       }
     } catch (err) {
-      showToast("Unexpected error", "error");
+      showToast(err || "Unexpected error", "error");
     } finally {
       setLoading(false);
     }
@@ -187,7 +198,7 @@ const AppliedJobsPage = () => {
                               <BsCalendarCheckFill className={styles.calendarIcon} />
                             </div>
                             <div>
-                              <span>Applied {formatDatePosted(application_date_applied)}</span>
+                              <span>{formatDatePosted(application_date_applied)}</span>
                             </div>
                           </div>
                         </span>
@@ -218,73 +229,240 @@ const AppliedJobsPage = () => {
 
                 <hr className={styles.divider} />
 
-                {/* <div className={styles.jobDescription}>
+                {/*<div className={styles.jobDescription}>*/}
+                {/*  <div*/}
+                {/*      className={styles.descriptionContent}*/}
+                {/*      style={{*/}
+                {/*        maxHeight: expandedJobId === job_details.job_id ? '1000px' : '100px',*/}
+                {/*        overflow: 'hidden',*/}
+                {/*        transition: 'max-height 0.3s ease-in-out'*/}
+                {/*      }}*/}
+                {/*  >*/}
+                {/*    <div className={styles.jobInfoSection}>*/}
+                {/*      <strong>Job Description</strong>*/}
+                {/*      {expandedJobId === job_details.job_id ? (() => {*/}
+                {/*        const sections = job_details.job_description.split(/(?=\[.*?\])/g);*/}
+                {/*        const mandatorySection = sections.find(section =>*/}
+                {/*            section.startsWith('[About the Role]')*/}
+                {/*        );*/}
+
+                {/*        const otherSections = sections.filter(section =>*/}
+                {/*            !section.startsWith('[About the Role]') &&*/}
+                {/*            section.replace(/\[.*?\]/, '').trim().length > 0*/}
+                {/*        );*/}
+
+                {/*        const renderSection = (section) => {*/}
+                {/*          const titleMatch = section.match(/\[(.*?)\]/);*/}
+                {/*          const title = titleMatch ? titleMatch[1] : null;*/}
+                {/*          const content = section.replace(/\[.*?\]/, '').trim();*/}
+
+                {/*          let Icon;*/}
+                {/*          switch (title) {*/}
+                {/*            case 'About the Role':*/}
+                {/*              Icon = MdWork;*/}
+                {/*              break;*/}
+                {/*            case 'Key Responsibilities':*/}
+                {/*              Icon = MdList;*/}
+                {/*              break;*/}
+                {/*            case 'Required Qualifications':*/}
+                {/*              Icon = MdSchool;*/}
+                {/*              break;*/}
+                {/*            case 'Preferred Qualifications':*/}
+                {/*              Icon = MdStarRate;*/}
+                {/*              break;*/}
+                {/*            default:*/}
+                {/*              Icon = null;*/}
+                {/*          }*/}
+
+                {/*          return (*/}
+                {/*              <div key={title} className={styles.descriptionSection}>*/}
+                {/*                {title && (*/}
+                {/*                    <div className={styles.subSectionHeader}>*/}
+                {/*                      {Icon && <Icon className={styles.sectionIcon} />}*/}
+                {/*                      <span>{title}</span>*/}
+                {/*                    </div>*/}
+                {/*                )}*/}
+                {/*                <p>{content}</p>*/}
+                {/*              </div>*/}
+                {/*          );*/}
+                {/*        };*/}
+
+                {/*        return (*/}
+                {/*            <>*/}
+                {/*              /!* Always render the mandatory "About the Role" section *!/*/}
+                {/*              {mandatorySection && renderSection(mandatorySection)}*/}
+
+                {/*              /!* Only render other sections if they have content *!/*/}
+                {/*              {otherSections.map(section => renderSection(section))}*/}
+                {/*            </>*/}
+                {/*        );*/}
+                {/*      })() : (*/}
+                {/*          <p>{`${job_details.job_description.slice(0, 100)}...`}</p>*/}
+                {/*      )}*/}
+                {/*    </div>*/}
+
+                {/*    {expandedJobId === job_details.job_id && (*/}
+                {/*        <div className={styles.companyInfo}>*/}
+                {/*          <strong>About Company</strong>*/}
+                {/*          <p>{job_details.company_details.company_description}</p>*/}
+                {/*        </div>*/}
+                {/*    )}*/}
+
+                {/*    /!* Keep the existing recruiter comments section if it's already there *!/*/}
+                {/*    {expandedJobId === job_details.job_id && application_recruiter_comment && (*/}
+                {/*        <div className={styles.recruiterComments}>*/}
+                {/*          <strong>Recruiter Comments</strong>*/}
+                {/*          <p>{application_recruiter_comment}</p>*/}
+                {/*        </div>*/}
+                {/*    )}*/}
+                {/*  </div>*/}
+
+                {/*  <div className={styles.buttonRow}>*/}
+                {/*    <button*/}
+                {/*      className={styles.viewMoreButton}*/}
+                {/*      onClick={() =>*/}
+                {/*        setExpandedJobId(prev =>*/}
+                {/*          prev === job_details.job_id ? null : job_details.job_id*/}
+                {/*        )*/}
+                {/*      }*/}
+                {/*    >*/}
+                {/*      <img*/}
+                {/*        src={expandedJobId === job_details.job_id ? viewLessButton : viewMoreButton}*/}
+                {/*        alt={expandedJobId === job_details.job_id ? 'Collapse' : 'Expand'}*/}
+                {/*      />*/}
+                {/*      {expandedJobId === job_details.job_id ? 'View Less' : 'View More'}*/}
+                {/*    </button>*/}
+
+                {/*    <button*/}
+                {/*      className={`${styles.applyButton} ${styles[`status-${application_status.toLowerCase()}`]}`}*/}
+                {/*      disabled*/}
+                {/*    >*/}
+                {/*      {application_status === 'PENDING' ? (*/}
+                {/*        <MdOutlineAccessTime className={styles.statusIcon} />*/}
+                {/*      ) : (*/}
+                {/*        <img*/}
+                {/*          src={getStatusIcon(application_status)}*/}
+                {/*          alt={application_status}*/}
+                {/*          className={styles.statusIcon}*/}
+                {/*        />*/}
+                {/*      )}*/}
+                {/*      {application_status.charAt(0).toUpperCase() + application_status.slice(1)}*/}
+                {/*    </button>*/}
+                {/*  </div>*/}
+                {/*</div>*/}
+
+                <div className={styles.jobDescription}>
                   <div
-                    className={styles.descriptionContent}
-                    style={{
-                      maxHeight: expandedJobId === job_details.job_id ? '1000px' : '100px',
-                      overflow: 'hidden',
-                      transition: 'max-height 0.3s ease-in-out'
-                    }}
+                      className={styles.descriptionContent}
+                      style={{
+                        maxHeight: expandedJobId === job_details.job_id ? '1000px' : '100px',
+                        overflow: 'hidden',
+                        transition: 'max-height 0.3s ease-in-out'
+                      }}
                   >
                     <div className={styles.jobInfoSection}>
                       <strong>Job Description</strong>
-                      <p>
-                        {expandedJobId === job_details.job_id
-                          ? job_details.job_description
-                          : `${job_details.job_description.slice(0, 100)}...`}
-                      </p>
+                      {expandedJobId === job_details.job_id ? (() => {
+                        const sections = job_details.job_description.split(/(?=\[.*?\])/g);
+                        const mandatorySection = sections.find(section =>
+                            section.startsWith('[About the Role]')
+                        );
+
+                        const otherSections = sections.filter(section =>
+                            !section.startsWith('[About the Role]') &&
+                            section.replace(/\[.*?\]/, '').trim().length > 0
+                        );
+
+                        const renderSection = (section) => {
+                          const titleMatch = section.match(/\[(.*?)\]/);
+                          const title = titleMatch ? titleMatch[1] : null;
+                          const content = section.replace(/\[.*?\]/, '').trim();
+
+                          let Icon;
+                          switch (title) {
+                            case 'About the Role':
+                              Icon = MdWork;
+                              break;
+                            case 'Key Responsibilities':
+                              Icon = MdList;
+                              break;
+                            case 'Required Qualifications':
+                              Icon = MdSchool;
+                              break;
+                            case 'Preferred Qualifications':
+                              Icon = MdStarRate;
+                              break;
+                            default:
+                              Icon = null;
+                          }
+
+                          return (
+                              <div key={title} className={styles.descriptionSection}>
+                                {title && (
+                                    <div className={styles.subSectionHeader}>
+                                      {Icon && <Icon className={styles.sectionIcon} />}
+                                      <span>{title}</span>
+                                    </div>
+                                )}
+                                <p>{content}</p>
+                              </div>
+                          );
+                        };
+
+                        return (
+                            <>
+                              {/* Always render the mandatory "About the Role" section */}
+                              {mandatorySection && renderSection(mandatorySection)}
+
+                              {/* Only render other sections if they have content */}
+                              {otherSections.map(section => renderSection(section))}
+                            </>
+                        );
+                      })() : (
+                          <p>{`${job_details.job_description.slice(0, 100)}...`}</p>
+                      )}
                     </div>
 
                     {expandedJobId === job_details.job_id && (
-                      <div className={styles.companyInfo}>
-                        <strong>About Company</strong>
-                        <p>{job_details.company_details.company_description}</p>
-                      </div>
+                        <div className={styles.companyInfo}>
+                          <strong>About Company</strong>
+                          <p>{job_details.company_details.company_description}</p>
+                        </div>
                     )}
 
-                    {expandedJobId === job_details.job_id && (
-                      <div className={styles.recruiterComments}>
-                        <strong>Recruiter Comments</strong>
-                        <p>{application_recruiter_comment || 'No comments available'}</p>
-                      </div>
+                    {/* Keep the existing recruiter comments section if it's already there */}
+                    {expandedJobId === job_details.job_id && application_recruiter_comment && (
+                        <div className={styles.recruiterComments}>
+                          <strong>Recruiter Comments</strong>
+                          <p>{application_recruiter_comment}</p>
+                        </div>
                     )}
                   </div>
 
                   <div className={styles.buttonRow}>
                     <button
-                      className={styles.viewMoreButton}
-                      onClick={() =>
-                        setExpandedJobId(prev =>
-                          prev === job_details.job_id ? null : job_details.job_id
-                        )
-                      }
+                        className={styles.viewMoreButton}
+                        onClick={() =>
+                            setExpandedJobId(prev =>
+                                prev === job_details.job_id ? null : job_details.job_id
+                            )
+                        }
                     >
                       <img
-                        src={expandedJobId === job_details.job_id ? viewLessButton : viewMoreButton}
-                        alt={expandedJobId === job_details.job_id ? 'Collapse' : 'Expand'}
+                          src={expandedJobId === job_details.job_id ? viewLessButton : viewMoreButton}
+                          alt={expandedJobId === job_details.job_id ? 'Collapse' : 'Expand'}
                       />
                       {expandedJobId === job_details.job_id ? 'View Less' : 'View More'}
                     </button>
 
-                    <button
-                      className={`${styles.applyButton} ${styles[`status-${application_status.toLowerCase()}`]}`}
-                      disabled
-                    >
-                      {application_status === 'PENDING' ? (
-                        <ImHourGlass className={styles.statusIcon} />
-                      ) : (
-                        <img
-                          src={getStatusIcon(application_status)}
-                          alt={application_status}
-                          className={styles.statusIcon}
-                        />
-                      )}
-                      {application_status.charAt(0).toUpperCase() + application_status.slice(1)}
-                    </button>
+                    <div className={`${styles.statusChip} ${styles[`status-tag-${application_status.toLowerCase()}`]}`}>
+                      {application_status === 'PENDING' ? ( <MdOutlineAccessTime className={styles.statusIcon} /> ) :
+                       application_status === 'REJECTED'? ( <FaFileCircleXmark className={styles.statusIcon} /> ) : ( <FaFileCircleCheck className={styles.statusIcon} /> )
+                      }
+                      <span>{application_status.charAt(0).toUpperCase() + application_status.slice(1).toLowerCase()}</span>
+                    </div>
                   </div>
-                </div> */}
-                
+                </div>
 
               </div>
             ))
@@ -342,6 +520,17 @@ const AppliedJobsPage = () => {
           />
         </div>
       )}
+
+      {/* Toast Notifications */}
+      {toastQueue.slice(0, 3).map((toast, index) => (
+          <ToastNotification
+              key={toast.id}
+              message={toast.message}
+              type={toast.type}
+              style={{ top: `${20 + (index * 70)}px` }}
+              onClose={() => setToastQueue(prev => prev.filter(t => t.id !== toast.id))}
+          />
+      ))}
     </div>
   );
 };

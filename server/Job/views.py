@@ -833,7 +833,7 @@ class UserAppliedJobsView(generics.ListAPIView):
             for name in company_names:
                 company_name_queries |= Q(job_id__recruiter_id__company_id__company_name__icontains=name)
             queryset = queryset.filter(company_name_queries)
-        elif company_name := self.request.query_params.get('company_name'):  # Fallback to single param
+        elif company_name := self.request.query_params.get('company_name'):
             queryset = queryset.filter(job_id__recruiter_id__company_id__company_name__icontains=company_name)
 
         # Filter by minimum salary

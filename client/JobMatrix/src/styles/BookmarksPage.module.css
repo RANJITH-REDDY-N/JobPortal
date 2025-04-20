@@ -48,17 +48,10 @@
     border: 1px solid var(--gray);
 }
 
-.jobInfoSection {
-    display: flex;
-    flex-direction: column;
-    width: auto;
-    height: 50px;
-}
-
 .daysAgo {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.2rem;
     max-width: fit-content;
     border: 0px solid var(--gray);
     padding: 0.3rem 0.5rem 0.3rem 0.3rem;
@@ -154,17 +147,40 @@
 }
 
 /* Job Description Container */
+.descriptionSection {
+    margin-top: 10px;
+}
+
+.subSectionHeader {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    font-weight: 600;
+    color: var(--english-violet);
+}
+
+.sectionIcon {
+    margin-right: 8px;
+    font-size: 18px;
+}
 .jobDescription {
     font-size: 0.95rem;
     color: var(--english-violet);
     margin-top: 0.5rem;
 }
 
+.jobInfoSection {
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    height: fit-content;
+}
+
 
 .jobInfoSection strong, 
 .companyInfo strong {
     display: block;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: var(--english-violet);
 }
 

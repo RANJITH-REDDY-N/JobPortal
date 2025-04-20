@@ -4,12 +4,16 @@ import styles from '../../styles/RegisterCompanyPage.module.css';
 import CropImageUploader from '../CropImageUploader';
 import logo from '../../assets/logo.svg';
 import defaultCompanyImage from '../../assets/nocompanyimage2.jpg';
-import { VisibilityOffOutlined, VisibilityOutlined } from '@mui/icons-material';
-import { registerUser } from '../../services/api';
-import CircularProgress from '@mui/material/CircularProgress';
+import { VscEye, VscEyeClosed } from 'react-icons/vsc';
+import { AiOutlineFileDone } from "react-icons/ai";
+import { registerUser, userAuth, userDetails } from '../../services/api';
+import { useDispatch } from "react-redux";
+import { setUser } from "../../Redux/userSlice.js";
+import { motion } from "framer-motion";
 
 const RegisterCompanyPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const [companySecretVisible, setCompanySecretVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,35 +92,35 @@ const RegisterCompanyPage = () => {
 
       /**
        *  REDIRECT TO RECRUITER DASHBOARD.
-       */ 
-        const loginData = {
-          user_email: formData.email,
-          user_password: formData.password
-        };
-      
-        try {
-          const loginRes = await userAuth(loginData);
-          if (loginRes && loginRes.token) {
-            
-            // Save Basic User Details to localStorage for immediate access
-            localStorage.setItem('userEmail',loginRes.user_email);
-            localStorage.setItem("jwtToken", loginRes.token);
-            localStorage.setItem("userRole", loginRes.user_role);
-            localStorage.setItem("userId",loginRes.user_id);
-      
-            // fetch user details
-            const userData = await userDetails(loginRes.user_email);
-            dispatch(setUser(userData));
-      
-            nav("/recruiter/jobs");
-          } else {
-            console.error("Login failed after registration", loginRes.error);
-            nav("/login"); // fallback
-          }
-        } catch (loginErr) {
-          console.error("Login error after registration", loginErr);
-          nav("/login"); // fallback
+       */
+      const loginData = {
+        user_email: formData.email,
+        user_password: formData.password
+      };
+
+      try {
+        const loginRes = await userAuth(loginData);
+        if (loginRes && loginRes.token) {
+
+          // Save Basic User Details to localStorage for immediate access
+          localStorage.setItem('userEmail',loginRes.user_email);
+          localStorage.setItem("jwtToken", loginRes.token);
+          localStorage.setItem("userRole", loginRes.user_role);
+          localStorage.setItem("userId",loginRes.user_id);
+
+          // fetch user details
+          const userData = await userDetails(loginRes.user_email);
+          dispatch(setUser(userData));
+
+          navigate("/recruiter/jobs");
+        } else {
+          console.error("Login failed after registration", loginRes.error);
+          navigate("/login"); // fallback
         }
+      } catch (loginErr) {
+        console.error("Login error after registration", loginErr);
+        navigate("/login"); // fallback
+      }
 
     } catch (err) {
       console.error('Registration error:', err);
@@ -127,129 +131,141 @@ const RegisterCompanyPage = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.leftPanel}>
-        <img src={logo} alt="JobMatrix Logo" className={styles.logo} />
-      </div>
+      <div className={styles.container}>
+        <div className={styles.leftPanel}>
+          <img src={logo} alt="JobMatrix Logo" className={styles.logo} />
+        </div>
 
-      <div className={styles.divider}></div>
+        <div className={styles.divider}></div>
 
-      <div className={styles.rightPanel}>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <h3 className={styles.signupText}>Create Your Company Profile</h3>
+        <div className={styles.rightPanel}>
+          <motion.form
+              className={styles.form}
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+          >
+            <h3 className={styles.signupText}>Create Your Company Profile</h3>
 
-          <div className={styles.imageUploadContainer}>
-            <CropImageUploader
-              name="companyImage"
-              onFileChange={handleImageChange}
-              defaultImage={defaultCompanyImage}
-              currentImage={formData.companyImage}
-              aspectRatio={1}
-            />
-            <p className={styles.uploadHint}>Recommended size: 500x500px</p>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <input
-              type="text"
-              name="companyName"
-              value={formData.companyName}
-              onChange={handleChange}
-              required
-              placeholder=" "
-            />
-            <label className={styles.floatingLabel}>Company Name*</label>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <select
-              name="companyIndustry"
-              value={formData.companyIndustry}
-              onChange={handleChange}
-              required
-            >
-              <option value="" disabled hidden></option>
-              <option value="Technology">Technology</option>
-              <option value="Finance">Finance</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Manufacturing">Manufacturing</option>
-              <option value="Retail">Retail</option>
-              <option value="Education">Education</option>
-              <option value="Other">Other</option>
-            </select>
-            <label className={styles.floatingLabel}>Industry*</label>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <textarea
-              name="companyDescription"
-              value={formData.companyDescription}
-              onChange={handleChange}
-              required
-              placeholder=" "
-              rows={4}
-            />
-            <label className={styles.floatingLabel}>Company Description*</label>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <input
-              type={companySecretVisible ? 'text' : 'password'}
-              name="companySecretKey"
-              value={formData.companySecretKey}
-              onChange={handleChange}
-              required
-              placeholder=" "
-              className={styles.passwordInput}
-            />
-            <label className={styles.floatingLabel}>Company Secret Key*</label>
-            <div className={styles.passwordIcons}>
-              <span
-                className={styles.eyeIcon}
-                onClick={() => setCompanySecretVisible(!companySecretVisible)}
-              >
-                {companySecretVisible ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
-              </span>
+            <div className={styles.imageUploadContainer}>
+              <CropImageUploader
+                  name="companyImage"
+                  onFileChange={handleImageChange}
+                  defaultImage={defaultCompanyImage}
+                  currentImage={formData.companyImage}
+                  aspectRatio={1}
+              />
             </div>
-          </div>
 
-          <div className={styles.inputGroup}>
-            <input
-              type="date"
-              name="recruiterStartDate"
-              value={formData.recruiterStartDate}
-              onChange={handleChange}
-              required
+            <div className={styles.inputGroup}>
+              <input
+                  type="text"
+                  name="companyName"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  required
+                  placeholder=" "
+              />
+              <label className={styles.floatingLabel}>Company Name*</label>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <select
+                  name="companyIndustry"
+                  value={formData.companyIndustry}
+                  onChange={handleChange}
+                  required
+              >
+                <option value="" disabled hidden></option>
+                <option value="Technology">Technology</option>
+                <option value="Finance">Finance</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Retail">Retail</option>
+                <option value="Education">Education</option>
+                <option value="Other">Other</option>
+              </select>
+              <label className={styles.floatingLabel}>Industry*</label>
+            </div>
+
+            <div className={styles.inputGroup}>
+            <textarea
+                name="companyDescription"
+                value={formData.companyDescription}
+                onChange={handleChange}
+                required
+                placeholder=" "
+                rows={4}
             />
-            <label className={styles.floatingLabel}>Your Start Date*</label>
-          </div>
+              <label className={styles.floatingLabel}>Company Description*</label>
+            </div>
 
-          {error && <div className={styles.errorMessage}>{error}</div>}
+            <div className={styles.inputGroup}>
+              <input
+                  type={companySecretVisible ? 'text' : 'password'}
+                  name="companySecretKey"
+                  value={formData.companySecretKey}
+                  onChange={handleChange}
+                  required
+                  placeholder=" "
+                  className={styles.passwordInput}
+              />
+              <label className={styles.floatingLabel}>Company Secret Key*</label>
+              <div className={styles.passwordIcons}>
+              <span
+                  className={styles.eyeIcon}
+                  onClick={() => setCompanySecretVisible(!companySecretVisible)}
+              >
+                {companySecretVisible ? <VscEyeClosed /> : <VscEye />}
+              </span>
+              </div>
+            </div>
 
-          <div className={styles.buttonGroup}>
-            <button
-              type="button"
-              onClick={handleBack}
-              className={styles.secondaryButton}
-              disabled={isLoading}
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              className={styles.primaryButton}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                'Complete Registration'
-              )}
-            </button>
-          </div>
-        </form>
+            <div className={styles.inputGroup}>
+              <input
+                  type="date"
+                  name="recruiterStartDate"
+                  value={formData.recruiterStartDate}
+                  onChange={handleChange}
+                  required
+              />
+              <label className={styles.floatingLabel}>Your Start Date*</label>
+            </div>
+
+            {error && <div className={styles.errorMessage}>{error}</div>}
+
+            <div className={styles.buttonGroup}>
+              <motion.button
+                  type="button"
+                  onClick={handleBack}
+                  className={`${styles.secondaryButton} secondaryButton`}
+                  disabled={isLoading}
+                  whileTap={{ scale: 0.98 }}
+              >
+                Back
+              </motion.button>
+              <motion.button
+                  type="submit"
+                  className={`${styles.button} button`}
+                  disabled={isLoading}
+                  whileTap={{ scale: 0.98 }}
+              >
+                {isLoading ? (
+                    <div className={styles.loadingContainer}>
+                      <span>Completing Registration</span>
+                      <div className={styles.loadingDots}>
+                        <div className={styles.dot}></div>
+                        <div className={styles.dot}></div>
+                        <div className={styles.dot}></div>
+                      </div>
+                    </div>
+                ) : <><AiOutlineFileDone style={{marginRight:'10px', fontSize:'large'}}/> Complete Registration</>}
+              </motion.button>
+            </div>
+          </motion.form>
+        </div>
       </div>
-    </div>
   );
 };
 
