@@ -684,5 +684,104 @@ class UserListView(generics.ListAPIView):
         return context
 
 
+class RecruiterCompanyDetailView(APIView):
+    """
+    API view that returns company details for a recruiter along with:
+    - List of all recruiters with their details
+    - Total jobs for the company
+    - Number of jobs posted by each recruiter
 
+    - Requires authentication
+    - Only accessible to authenticated recruiters
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsRecruiter]
 
+    def get(self, request):
+        try:
+            # Get the currently authenticated recruiter - this was causing the error
+            # We need to query by the user's ID, not the user object itself
+            current_recruiter = Recruiter.objects.get(recruiter_id_id=request.user.user_id)
+
+            # Get the company details
+            company = current_recruiter.company_id
+
+            # Format company image URL if available
+            company_image_url = None
+            if company.company_image:
+                try:
+                    company_image_url = request.build_absolute_uri(company.company_image.url)
+                except:
+                    company_image_url = company.company_image.name if company.company_image else None
+
+            # Prepare company data
+            company_data = {
+                "company_id": company.company_id,
+                "company_name": company.company_name,
+                "company_industry": company.company_industry,
+                "company_description": company.company_description,
+                "company_image": company_image_url
+            }
+
+            # Get all recruiters for this company
+            recruiters = Recruiter.objects.filter(company_id=company)
+
+            # Get total jobs count for the company
+            # Use recruiter_id_id field for job counting
+            total_jobs = Job.objects.filter(
+                recruiter_id__in=recruiters
+            ).count()
+
+            # Prepare recruiter data with job counts
+            recruiter_data = []
+            for recruiter in recruiters:
+                # Get User model information
+                user = User.objects.get(user_id=recruiter.recruiter_id_id)
+
+                # Count jobs by this recruiter
+                recruiter_job_count = Job.objects.filter(recruiter_id=recruiter).count()
+
+                # Add recruiter info to the list
+                recruiter_data.append({
+                    "recruiter_id": recruiter.recruiter_id_id,
+                    "user_email": user.user_email,
+                    "user_first_name": user.user_first_name,
+                    "user_last_name": user.user_last_name,
+                    "is_active": recruiter.recruiter_is_active,
+                    "start_date": recruiter.recruiter_start_date.strftime(
+                        '%Y-%m-%d') if recruiter.recruiter_start_date else None,
+                    "end_date": recruiter.recruiter_end_date.strftime(
+                        '%Y-%m-%d') if recruiter.recruiter_end_date else None,
+                    "jobs_posted": recruiter_job_count,
+                    "is_current_user": recruiter.recruiter_id_id == request.user.user_id
+                })
+
+            # Sort recruiters by activity status and then by jobs posted
+            recruiter_data = sorted(
+                recruiter_data,
+                key=lambda x: (-x["is_active"], -x["jobs_posted"])
+            )
+
+            # Prepare response data
+            response_data = {
+                "company": company_data,
+                "stats": {
+                    "total_recruiters": len(recruiter_data),
+                    "active_recruiters": sum(1 for r in recruiter_data if r["is_active"]),
+                    "total_jobs": total_jobs
+                },
+                "recruiters": recruiter_data
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Recruiter.DoesNotExist:
+            return Response(
+                {"message": "You don't have a recruiter profile or it's not active."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        except Exception as e:
+            return Response(
+                {"message": f"An error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

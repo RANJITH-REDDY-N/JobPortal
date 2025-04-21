@@ -27,28 +27,66 @@ const PostJobPopup = ({ onClose, recruiterId, refreshJobs, jobData, onSave }) =>
       preferred_qualifications: '',
       join_us: ''
     };
-
-    // Simple parsing logic - can be enhanced as needed
-    const sections = desc.split('\n\n').reduce((acc, section) => {
-      if (section.includes('[About the Role]')) {
-        acc.about_role = section.replace('[About the Role]\n', '');
-      } else if (section.includes('[Key Responsibilities]')) {
-        acc.key_responsibilities = section.replace('[Key Responsibilities]\n', '');
-      } else if (section.includes('[Required Qualifications]')) {
-        acc.required_qualifications = section.replace('[Required Qualifications]\n', '');
-      } else if (section.includes('[Preferred Qualifications]')) {
-        acc.preferred_qualifications = section.replace('[Preferred Qualifications]\n', '');
-      }
-      return acc;
-    }, {});
-
-    return {
-      about_role: sections.about_role || '',
-      key_responsibilities: sections.key_responsibilities || '',
-      required_qualifications: sections.required_qualifications || '',
-      preferred_qualifications: sections.preferred_qualifications || '',
-      join_us: sections.join_us || ''
+  
+    // If description doesn't contain any section headers, treat entire content as "About the Role"
+    if (!desc.includes('[') || !desc.includes(']')) {
+      return {
+        about_role: desc,
+        key_responsibilities: '',
+        required_qualifications: '',
+        preferred_qualifications: '',
+        join_us: ''
+      };
+    }
+  
+    // Initialize all sections as empty
+    const sections = {
+      about_role: '',
+      key_responsibilities: '',
+      required_qualifications: '',
+      preferred_qualifications: '',
+      join_us: ''
     };
+  
+    // Split by section headers
+    const parts = desc.split(/(\[[^\]]+\])/);
+    let currentSection = 'about_role'; // Default to about_role for content before first header
+    
+    parts.forEach(part => {
+      if (part.startsWith('[') && part.endsWith(']')) {
+        // This is a section header - determine which section it maps to
+        const sectionName = part.slice(1, -1).trim();
+        switch(sectionName) {
+          case 'About the Role':
+            currentSection = 'about_role';
+            break;
+          case 'Key Responsibilities':
+            currentSection = 'key_responsibilities';
+            break;
+          case 'Required Qualifications':
+            currentSection = 'required_qualifications';
+            break;
+          case 'Preferred Qualifications':
+            currentSection = 'preferred_qualifications';
+            break;
+          case 'Join Us':
+            currentSection = 'join_us';
+            break;
+          default:
+            // Unknown section - keep current section
+            break;
+        }
+      } else if (part.trim()) {
+        // This is content - add to current section
+        if (sections[currentSection]) {
+          sections[currentSection] += '\n' + part.trim();
+        } else {
+          sections[currentSection] = part.trim();
+        }
+      }
+    });
+  
+    return sections;
   };
 
   const formatDescription = () => {
@@ -212,14 +250,14 @@ const PostJobPopup = ({ onClose, recruiterId, refreshJobs, jobData, onSave }) =>
                   name: 'key_responsibilities', 
                   label: 'Key Responsibilities', 
                   icon: Checklist,
-                  required: true,
+                  required: false,
                   placeholder: 'List the main duties and expectations...'
                 },
                 { 
                   name: 'required_qualifications', 
                   label: 'Required Qualifications', 
                   icon: School,
-                  required: true,
+                  required: false,
                   placeholder: 'Essential skills, education, and experience...'
                 },
                 { 

@@ -27,6 +27,7 @@ urlpatterns = [
     path('companies/', CompanyListView.as_view(), name='company-list'),
     path('company-jobs/', CompanyJobsListView.as_view(), name='company-jobs-list'),
     path('company/update/', CompanyUpdateView.as_view(), name='company-update'),
+    path('recruiter/company-stats/', RecruiterCompanyDetailView.as_view(), name='recruiter-company-stats'),
 
     # Admin Dashboard
     path('admin/dashboard-insights/', AdminDashboardCountsView.as_view(), name='admin-dashboard-insights'),

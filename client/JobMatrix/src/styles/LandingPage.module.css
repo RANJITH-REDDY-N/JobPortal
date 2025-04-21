@@ -1,21 +1,3 @@
-:root {
-    --primary: #3a70e3;
-    --primary-dark: #2756c0;
-    --secondary: #ff6b6b;
-    --text-primary: #1a1a2e;
-    --text-secondary: #4a4a68;
-    --bg-light: #f8faff;
-    --card-bg: #ffffff;
-    --gradient-start: #3a70e3;
-    --gradient-end: #8456ec;
-    --shadow-color: rgba(58, 112, 227, 0.1);
-
-    --icon-primary: #3a70e3;
-    --icon-secondary: #ff6b6b;
-    --icon-tertiary: #8456ec;
-}
-
-/* Container and Hero Section */
 .container {
     min-height: 100vh;
     background: var(--bg-light);
@@ -34,7 +16,6 @@
     overflow: hidden;
 }
 
-/* Left Section */
 .left {
     flex: 1.2;
     z-index: 2;
@@ -73,7 +54,6 @@
     max-width: 85%;
 }
 
-/* Buttons */
 .buttons {
     display: flex;
     gap: 1.5rem;
@@ -103,7 +83,6 @@
     border: 2px solid var(--primary);
 }
 
-/* Right Section - Feature Icons */
 .featureIconsContainer {
     display: flex;
     flex-direction: column;
@@ -166,7 +145,6 @@
     overflow: hidden;
 }
 
-/* Features Section */
 .featuresSection {
     display: flex;
     justify-content: center;
@@ -223,7 +201,6 @@
     line-height: 1.6;
 }
 
-/* Responsive Design */
 @media (max-width: 1280px) {
     .hero {
         padding: 3rem 4rem;

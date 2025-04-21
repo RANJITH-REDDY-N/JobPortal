@@ -1,11 +1,9 @@
-/* Main Container */
 .container {
     background-color: var(--aqua);
     min-height: -webkit-fill-available;
     position: relative;
 }
 
-/* Jobs List Layout */
 .jobsList {
     display: flex;
     flex-direction: column;
@@ -14,7 +12,6 @@
     margin: 0rem 3rem;
 }
 
-/* Job Card Container */
 .jobCard {
     background-color: var(--white);
     border: 1px solid var(--gray);
@@ -25,7 +22,6 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Card Header Section */
 .cardHeader {
     display: flex;
     justify-content: space-between;
@@ -98,7 +94,6 @@
     padding: 0;
 }
 
-/* Right Side Elements */
 .rightSection {
     display: flex;
     flex-direction: column;
@@ -142,7 +137,6 @@
     color: var(--steel-blue);
 }
 
-/* Divider Line */
 .divider {
     border: none;
     height: 1px;
@@ -150,7 +144,6 @@
     margin: 0.5rem 0;
 }
 
-/* Job Description Container */
 .jobDescription {
     font-size: 0.95rem;
     color: var(--english-violet);
@@ -167,7 +160,6 @@
     font-weight: 600;
 }
 
-/* Description Content */
 .descriptionContent {
     overflow: hidden;
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
@@ -177,7 +169,6 @@
     will-change: max-height, opacity;
 }
 
-/* Expanded State */
 .descriptionContent[style*="1000px"] {
     opacity: 1;
     transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
@@ -198,7 +189,6 @@
     line-height: 1.5;
 }
 
-/* Section Styling */
 .descriptionSection {
     margin-top: 0.75rem;
 }
@@ -229,14 +219,12 @@
     margin-top: 1rem;
 }
 
-/* Recruiter Comments Section */
 .recruiterComments {
     border-top: 1px solid var(--light-gray);
     padding-top: 1.5rem;
     margin-bottom: 1rem;
 }
 
-/* Button Row Styling */
 .buttonRow {
     display: flex;
     justify-content: space-between;
@@ -244,7 +232,6 @@
     margin-top: 1rem;
 }
 
-/* View More/Less Button */
 .viewMoreButton {
     background: none;
     border: none;
@@ -268,7 +255,6 @@
     transition: transform 0.2s ease;
 }
 
-/* Status Chip Styling */
 .statusChip {
     display: flex;
     align-items: center;
@@ -286,26 +272,24 @@
     height: 20px;
 }
 
-/* Status-specific styles with lighter colors */
 .status-tag-pending {
-    background-color: rgba(247, 196, 43, 0.15);
-    color: #c49c00;
-    border: 1px solid rgba(247, 196, 43, 0.3);
+    background-color: var(--light-yellow);
+    color: var(--dark-yellow);
+    border: 1px solid var(--light-yellow);
 }
 
 .status-tag-approved {
-    background-color: rgba(103, 178, 103, 0.15);
-    color: #4b874b;
-    border: 1px solid rgba(103, 178, 103, 0.3);
+    background-color: var(--light-green);
+    color: var(--dark-green);
+    border: 1px solid var(--light-green);
 }
 
 .status-tag-rejected {
-    background-color: rgba(255, 180, 180, 0.32);
-    color: darkred;
-    border: 1px solid rgba(255, 180, 180, 0.32);
+    background-color: var(--light-red);
+    color: var(--dark-red);
+    border: 1px solid var(--light-red);
 }
 
-/* Loading Overlay */
 .loadingOverlay {
     position: fixed;
     top: 0;
@@ -328,7 +312,6 @@
     margin: 0;
 }
 
-/* No Results State */
 .noResultsContainer {
     display: flex;
     flex-direction: column;
@@ -390,7 +373,6 @@
     font-size: 1.1rem;
 }
 
-/* Responsive Design */
 @media (max-width: 720px) {
     .cardHeader {
         flex-direction: column;

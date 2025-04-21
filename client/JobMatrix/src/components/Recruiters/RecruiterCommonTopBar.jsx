@@ -8,6 +8,7 @@ import {
 
 const RecruiterCommonTopBar = ({
   onSearch,
+  clearSearch,
   onFilter,
   currentPage,
   totalPages,
@@ -25,6 +26,7 @@ const RecruiterCommonTopBar = ({
     jobTitles: [...filters.jobTitles],
     datePosted: filters.datePosted
   });
+
   
   useEffect(() => {
     setTempFilters({
@@ -44,7 +46,11 @@ const RecruiterCommonTopBar = ({
     onSearch(searchTerm);
   }, [searchTerm]);
 
-  // Close popup when clicking outside
+  useEffect(()=> {
+    setSearchTerm("")
+  },[clearSearch])
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -124,14 +130,14 @@ const RecruiterCommonTopBar = ({
       jobTitles: [],
       datePosted: "Any time"
     };
-    setFilters(clearedFilters);
     setTempFilters(clearedFilters);
     setInputValues({
       location: "",
       jobTitle: ""
     });
-    document.documentElement.style.removeProperty('--slider-percentage');
+
     if (onFilter) onFilter(clearedFilters);
+    setShowFilters(false)
   };
 
   const handleClose = () => {
@@ -208,7 +214,7 @@ const RecruiterCommonTopBar = ({
             <SearchOutlined className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Search jobs in this page"
+              placeholder="Search jobs"
               className={styles.searchInput}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

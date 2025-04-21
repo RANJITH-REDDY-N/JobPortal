@@ -9,13 +9,12 @@ const API_BASE_URL = import.meta.env.VITE_JOB_MATRIX_API_BASE_URL;
 export const extractErrorMessage = (response, defaultMessage = "An unexpected error occurred") => {
   if (!response) return { message: defaultMessage, originalResponse: response };
 
-  // Check all possible error paths in order of priority
   const errorMessage =
-      response.error?.message || // Nested error object with message
-      response.error || // Direct error string
-      response.message || // Message property
-      (typeof response === 'string' ? response : null) || // Response is error string
-      defaultMessage; // Fallback
+      response.error?.message ||
+      response.error ||
+      response.message ||
+      (typeof response === 'string' ? response : null) ||
+      defaultMessage;
 
   return {
     message: errorMessage,
@@ -28,7 +27,6 @@ const fetchAPI = async (URL, method = "GET", data = null, is_auth = false, conte
     const token = localStorage.getItem("jwtToken");
     const options = {method, headers: {}};
 
-    // Only set Content-Type if not multipart
     if (!isMultipart) {
       options.headers["Content-Type"] = content_type;
     }
@@ -45,7 +43,6 @@ const fetchAPI = async (URL, method = "GET", data = null, is_auth = false, conte
     const resData = await response.json();
 
     if (!response.ok) {
-      // Return standardized error object
       return {
         error: extractErrorMessage(resData, `HTTP error! Status: ${response.status}`).message,
         originalResponse: resData
@@ -150,7 +147,6 @@ export const getApplicantsForJob = (data, status) => {
   return fetchAPI(`job/applicants/${data.job_Id}/?${queryString.toString()}&application_status=${status}`, "GET", null, true, 'application/json', false);
 }
 export const getJobsListByACompany = (params = {}) => {
-  console.log("params ", params);
   const queryString = new URLSearchParams();
 
   if (params.datePosted && params.datePosted !== "Any time") queryString.append('date_posted', params.datePosted);
@@ -160,7 +156,7 @@ export const getJobsListByACompany = (params = {}) => {
 
   return fetchAPI(`company-jobs/?${queryString.toString()}`, "GET", null, true, 'application/json', false);
 }
-
+export const getRecruiterCompanyDetails = () => fetchAPI('recruiter/company-stats', "GET", null, true, 'application/json', false);
 export const updateApplicationStatus = (applicationId, data) => fetchAPI(`job/recruiter/applications/${applicationId}/`, "PATCH", data, true, 'application/json', false);
 export const updateCompanyDetails = (data) => fetchAPI(`company/update/`, "PATCH", data, true, 'multipart/form-data', true);
 

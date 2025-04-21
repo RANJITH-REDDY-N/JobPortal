@@ -1,10 +1,6 @@
-/* Import Glacial Indifference Font */
 @import url('https://fonts.cdnfonts.com/css/glacial-indifference-2');
-/* Import Aileron Font */
 @import url('https://fonts.cdnfonts.com/css/aileron');
 
-
-/* Apply font and colors globally */
 :root {
   --english-violet: #413C58;
   --steel-blue: #5A8FAF;
@@ -15,6 +11,46 @@
   --aqua: #F5F7FA;
   --light-blue:#718EBF;
   --light-gray:#e6e5e5;
+  --light-red: #f8d7da;
+  --dark-red: #721c24;
+  --red:#dc3545;
+  --light-green: #d4edda;
+  --dark-green: #155724;
+  --green:#28a745;
+  --light-yellow: #fff3cd;
+  --dark-yellow: #856404;
+  --yellow:#ffc107;
+
+  --primary: #3a70e3;
+  --primary-dark: #2756c0;
+  --secondary: #ff6b6b;
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a68;
+  --bg-light: #f8faff;
+  --card-bg: #ffffff;
+  --gradient-start: #3a70e3;
+  --gradient-end: #8456ec;
+  --shadow-color: rgba(58, 112, 227, 0.1);
+  --icon-primary: #3a70e3;
+  --icon-secondary: #ff6b6b;
+  --icon-tertiary: #8456ec;
+
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  --error-color: #ef4444;
+  --text-dark: #1f2937;
+  --text-medium: #4b5563;
+  --text-light: #6b7280;
+  --bg-medium: #f3f4f6;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --transition: all 0.2s ease;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 50%;
 }
 
 /* Global font style */
@@ -28,34 +64,26 @@ body {
   overscroll-behavior: none;
 }
 
-
-
-/* Hide Scrollbar Globally */
 html, body {
   height: 100vh;
   width: 100vw;
-  /* overflow: hidden; Hides scrollbar */
 }
 
-/* Hide scrollbar for Chrome, Safari, and Edge */
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for Firefox */
 body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-/* Job Matrix Font */
 .job-matrix {
   font-size: 4vw;
   font-weight: bold;
   color: var(--english-violet);
 }
 
-/* Global Button Styles */
 .button {
   background-color: var(--english-violet);
   color: var(--white);
