@@ -26,11 +26,6 @@
 
 /* Left Profile Section */
 .leftSection {
-  /* changed */
-  /* width: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center; */
   padding: 1rem 1rem;
   margin-right: auto;
   margin-left: auto;
@@ -55,9 +50,6 @@
 .form {
   display: flex;
   flex-direction: column;
-  /* height: 100%;
-  width: 100%;
-  min-width: fit-content; */
 }
 
 .form h2 {
@@ -79,7 +71,7 @@
 /* Input Fields with Text Overflow Solution */
 .inputGroup {
   position: relative;
-  min-width: fit-content; /* Essential for overflow control */
+  min-width: fit-content;
 }
 
 .input {

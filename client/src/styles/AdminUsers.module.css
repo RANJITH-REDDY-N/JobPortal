@@ -85,13 +85,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 8px 8px;
   background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border: 1px solid var(--aqua);
+  border-radius: 16px;
   cursor: pointer;
   font-size: 14px;
-  color: #4b5563;
+  color: var(--english-violet);
   transition: all 0.2s;
 }
 
@@ -113,7 +113,6 @@
   top: 100%;
   left: 0;
   width: 240px;
-  /*margin-top: 4px;*/
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -137,7 +136,7 @@
 .dropdownSection h4 {
   margin: 0 0 12px 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--english-violet);
   font-weight: 500;
 }
 

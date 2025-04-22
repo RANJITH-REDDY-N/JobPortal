@@ -3,8 +3,9 @@ import { FiEdit3, FiLock } from "react-icons/fi";
 import { LuEraser, LuSave } from "react-icons/lu";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import { userDetails, patchUserDetails } from "../../services/api";
-import styles from "../../styles/PersonalInfoTab.module.css";
+import styles from "../../styles/AdminSettings.module.css";
 import CropImageUploader from "../CropImageUploader";
+
 import defaultProfilePhoto from "../../assets/noprofilephoto.png";
 import ToastNotification from "../ToastNotification";
 import { useDispatch, useSelector } from "react-redux";
@@ -192,8 +193,6 @@ const AdminSettings = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.card}>
         <div className={styles.container}>
           <div className={styles.toastContainer}>
             {toastQueue.map((toast) => (
@@ -318,8 +317,6 @@ const AdminSettings = () => {
             </form>
           </div>
         </div>
-      </div>
-    </div>
   );
 };
 

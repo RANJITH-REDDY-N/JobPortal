@@ -1,7 +1,12 @@
-from rest_framework import serializers
 from config import settings
-from .models import User, Applicant, Recruiter, Admin, Company, Application, Job
-from django.contrib.auth.hashers import make_password
+from .models import *
+from django.contrib.auth.hashers import make_password, check_password
+from rest_framework import serializers
+from Profile.serializers import (
+    SkillSerializer,
+    WorkExperienceSerializer,
+    EducationSerializer,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -154,7 +159,6 @@ class JobListSerializer(serializers.ModelSerializer):
                   'job_salary', 'date_posted', 'recruiter_name']
 
     def get_recruiter_name(self, obj):
-        """Get the name of the recruiter who posted the job"""
         if obj.recruiter_id and hasattr(obj.recruiter_id, 'recruiter_id'):
             user = obj.recruiter_id.recruiter_id
             return f"{user.user_first_name} {user.user_last_name}" if user.user_first_name else user.user_last_name
@@ -172,24 +176,28 @@ class CompanyUpdateSerializer(serializers.ModelSerializer):
             'company_industry',
             'company_description',
             'company_image',
-            'company_secret_key'
         ]
-        # Add extra validation if needed
-        extra_kwargs = {
-            'company_secret_key': {'required': False}  # Make secret key optional for updates
-        }
 
-from rest_framework import serializers
-from JobMatrix.models import User, Applicant, Recruiter, Admin, Skill, WorkExperience, Education, Company
-from JobMatrix.serializers import (
-    RecruiterSerializer,
-    CompanySerializerForResponse
-)
-from Profile.serializers import (
-    SkillSerializer,
-    WorkExperienceSerializer,
-    EducationSerializer,
-)
+class CompanySecretKeyUpdateSerializer(serializers.ModelSerializer):
+    current_company_secret_key = serializers.CharField(write_only=True, required=True)
+    new_company_secret_key = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = Company
+        fields = ['current_company_secret_key', 'new_company_secret_key']
+
+    def validate(self, attrs):
+        instance = self.instance
+
+        if not check_password(attrs['current_company_secret_key'], instance.company_secret_key):
+            raise serializers.ValidationError({"current_company_secret_key": "Current secret key is incorrect"})
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.company_secret_key = make_password(validated_data['new_company_secret_key'])
+        instance.save()
+        return instance
 
 class AdminUserListSerializer(serializers.ModelSerializer):
     skills = serializers.SerializerMethodField()

@@ -540,6 +540,7 @@ class CompanyJobsListView(generics.ListAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+
 class CompanyUpdateView(generics.UpdateAPIView):
     """
     API view for updating company details
@@ -547,11 +548,19 @@ class CompanyUpdateView(generics.UpdateAPIView):
     Handles PUT/PATCH requests to update company information
     - PUT: Complete update (all fields required except image and secret_key)
     - PATCH: Partial update (only include fields you want to change)
+
+    To update company_secret_key:
+    - Include 'current_company_secret_key' and 'new_company_secret_key' in request
     """
-    serializer_class = CompanyUpdateSerializer
     permission_classes = [IsRecruiter]
     authentication_classes = [JWTAuthentication]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_serializer_class(self):
+        # Use the appropriate serializer based on request params
+        if 'current_company_secret_key' in self.request.data and 'new_company_secret_key' in self.request.data:
+            return CompanySecretKeyUpdateSerializer
+        return CompanyUpdateSerializer
 
     def get_object(self):
         """
@@ -579,14 +588,20 @@ class CompanyUpdateView(generics.UpdateAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # Check if this is a secret key update
+        is_secret_key_update = ('current_company_secret_key' in request.data and
+                                'new_company_secret_key' in request.data)
+
         # Use partial=True for PATCH requests
         partial = kwargs.pop('partial', False)
+
+        # Get appropriate serializer
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
         if serializer.is_valid():
             try:
-                # Special handling for the image field
-                if 'company_image' in request.FILES:
+                # Special handling for normal updates (not secret key)
+                if not is_secret_key_update and 'company_image' in request.FILES:
                     # If a new image is uploaded, delete the old one first (optional)
                     if instance.company_image:
                         # Store the old image path
@@ -599,6 +614,13 @@ class CompanyUpdateView(generics.UpdateAPIView):
                 # Save the updated company details
                 self.perform_update(serializer)
 
+                # For secret key updates, return simplified success response
+                if is_secret_key_update:
+                    return Response({
+                        "message": "Company secret key updated successfully"
+                    }, status=status.HTTP_200_OK)
+
+                # For other updates, prepare full response
                 # Prepare image URL if available
                 image_url = None
                 if instance.company_image:

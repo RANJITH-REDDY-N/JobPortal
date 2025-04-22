@@ -2,6 +2,10 @@ from django.urls import path
 
 from JobMatrix.views.password_reset_view import PasswordResetRequestView, VerifyResetCodeView, ResetPasswordView, ChangePasswordView
 from JobMatrix.views.views import *
+from JobMatrix.serializers import (
+    RecruiterSerializer,
+    CompanySerializerForResponse
+)
 
 from JobMatrix.views.admin_dashboard import AdminDashboardCountsView
 from JobMatrix.views.admin_actions import (

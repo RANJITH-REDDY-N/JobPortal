@@ -7,7 +7,7 @@
 .input {
   width: 100%;
   min-width: 25rem;
-  padding: 1.1rem 3rem 0.7rem 1.2rem; 
+  padding: 1.1rem 3rem 0.7rem 1.2rem;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   font-size: 0.95rem;
@@ -31,13 +31,13 @@
     justify-content: flex-start;
     box-sizing: border-box;
   }
-  
-  
+
+
   .card {
     background-color: var(--white);
-    padding: 2rem 2rem 0rem 2rem; 
+    padding: 2rem 2rem 0rem 2rem;
     width: auto;
-    height: -webkit-fill-available;
+    height: auto;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
@@ -51,7 +51,7 @@
     flex-direction: column;
     gap: 10px;
   }
-  
+
   /* Main Container */
   .container {
     display: flex;
@@ -67,7 +67,7 @@
     border-radius: 16px;
     margin-left:200px;
   }
-  
+
   /* Left Profile Section */
   .leftSection {
     width: 260px;
@@ -77,7 +77,7 @@
     padding: 1rem 1rem;
     margin-right: 2rem;
   }
-  
+
   .imageWrapper {
     width: 250px;
     height: 250px;
@@ -87,18 +87,18 @@
     border: 3px solid var(--aqua);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
-  
+
   /* Right Form Section - Overflow Protected */
   .rightSection {
     flex: 1;
-    background-color: var(--aqua);
+    background-color: var(--white);
     padding: 2.5rem 3rem;
     border-radius: 16px;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
     width: auto;
     justify-items: center;
   }
-  
+
   /* Form Structure */
   .form {
     display: flex;
@@ -107,7 +107,7 @@
     width: 100%;
     min-width: fit-content;
   }
-  
+
   .form h2 {
     font-size: 2rem;
     color: var(--english-violet);
@@ -116,20 +116,20 @@
     border-bottom: 1px solid var(--aqua);
     font-weight: 600;
   }
-  
+
   /* Grid Layout with Overflow Protection */
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem 4rem;
   }
-  
+
   /* Input Fields with Text Overflow Solution */
   .inputGroup {
     position: relative;
     min-width: fit-content; /* Essential for overflow control */
   }
-  
+
   .input {
     width: 90%;
     min-width: 25rem;
@@ -144,13 +144,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   .input:focus {
     border-color: #6366f1;
     outline: none;
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
   }
-  
+
   .floatingLabel {
     position: absolute;
     left: 1.2rem;
@@ -164,7 +164,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   .input:focus + .floatingLabel,
   .input:not(:placeholder-shown) + .floatingLabel {
     transform: translateY(-1.3rem) scale(0.82);
@@ -172,7 +172,7 @@
     padding: 0 0.4rem;
     color: #6366f1;
   }
-  
+
   /* Action Buttons */
   .actions {
     display: flex;
@@ -182,7 +182,7 @@
     border-top: 1px solid var(--aqua);
     margin-top: 1.8rem;
   }
-  
+
   .editButton,
   .saveButton,
   .cancelButton {
@@ -193,34 +193,34 @@
     cursor: pointer;
     transition: all 0.2s ease;
   }
-  
+
   .editButton,
   .saveButton {
     background-color: #4f46e5;
     color: white;
     border: none;
   }
-  
+
   .editButton:hover,
   .saveButton:hover {
     background-color: #4338ca;
   }
-  
+
   .cancelButton {
     background-color: white;
     color: #4f46e5;
     border: 1px solid #4f46e5;
   }
-  
+
   .cancelButton:hover {
     background-color: #f1f5f9;
   }
-  
+
   .editIcon{
     width: 21px;
     height: 21px;
   }
-  
+
   .buttonRow {
     display: flex;
     justify-content: space-between;
@@ -240,11 +240,11 @@
     color: var(--aqua);
     border: none;
   }
-  
+
   .editProfileButton:hover{
     background-color: #4338ca;
   }
-  
+
   .changePasswordButton{
     padding: 1rem 1rem;
     border-radius: 7px;
@@ -267,50 +267,50 @@
       flex-direction: column;
       padding: 1.5rem;
     }
-    
+
     .leftSection {
       width: 100%;
       margin-right: 0;
       margin-bottom: 1.5rem;
       padding: 1rem 0;
     }
-    
+
     .rightSection {
       width: 100%;
       padding: 2rem;
     }
-    
+
     .imageWrapper {
       width: 140px;
       height: 140px;
     }
   }
-  
+
   @media (max-width: 768px) {
     .grid {
       grid-template-columns: 1fr;
       gap: 1.5rem;
     }
-    
+
     .form h2 {
       font-size: 1.5rem;
     }
   }
-  
+
   @media (max-width: 576px) {
     .rightSection {
       padding: 1.5rem;
     }
-    
+
     .input {
       padding: 1rem 1rem 0.6rem 1rem;
     }
-    
+
     .actions {
       flex-direction: column;
       gap: 0.8rem;
     }
-    
+
     .editButton,
     .saveButton,
     .cancelButton {
