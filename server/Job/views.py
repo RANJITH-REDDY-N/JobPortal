@@ -5,6 +5,8 @@ from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 from JobMatrix.permissions import *
 from JobMatrix.auth_backend import JWTAuthentication
 from JobMatrix.models import Job, Applicant, Application, User
@@ -1139,3 +1141,61 @@ class RecruiterApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
         # Serialize and return the updated instance
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+class JobApplicationStatsView(APIView):
+    permission_classes = [IsAuthenticated, IsActiveRecruiter]
+
+    def get(self, request, job_id):
+        try:
+            # Get the job
+            job = Job.objects.get(job_id=job_id)
+
+            # Verify the recruiter belongs to the company that posted the job
+            recruiter = Recruiter.objects.get(recruiter_id=request.user)
+            job_company = job.recruiter_id.company_id
+
+            if recruiter.company_id.company_id != job_company.company_id:
+                return Response({
+                    "message": "You don't have permission to view statistics for this job",
+                    "error": True
+                }, status=status.HTTP_403_FORBIDDEN)
+
+            # Get application counts
+            application_stats = Application.objects.filter(job_id=job_id)
+
+            # Count total applications
+            total_count = application_stats.count()
+
+            # Count applications by status
+            approved_count = application_stats.filter(application_status="APPROVED").count()
+            rejected_count = application_stats.filter(application_status="REJECTED").count()
+            pending_count = application_stats.filter(application_status="PENDING").count()
+
+            return Response({
+                "message": "Application statistics retrieved successfully",
+                "error": False,
+                "data": {
+                    "job_id": job_id,
+                    "total_applications": total_count,
+                    "approved_applications": approved_count,
+                    "rejected_applications": rejected_count,
+                    "pending_applications": pending_count
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Job.DoesNotExist:
+            return Response({
+                "message": f"Job with ID {job_id} does not exist",
+                "error": True
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Recruiter.DoesNotExist:
+            return Response({
+                "message": "Recruiter profile not found",
+                "error": True
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "message": f"An error occurred: {str(e)}",
+                "error": True
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

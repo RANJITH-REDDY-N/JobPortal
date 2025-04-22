@@ -29,8 +29,7 @@ urlpatterns = [
     path('recruiter/applications/', RecruiterApplicationListView.as_view(), name='recruiter-applications-list'),
     path('recruiter/applications/<int:pk>/', RecruiterApplicationUpdateAPIView.as_view(), name='recruiter-application-update'),
     path('applicants/<int:job_id>/', JobApplicantsListView.as_view(), name='job-applicants-list'),
-
-    # -------- Company ---------------------------- #
+    path('recruiter/application-stats/<int:job_id>/', JobApplicationStatsView.as_view(), name='job-application-stats'),
 
 
 ]

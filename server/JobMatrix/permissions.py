@@ -49,6 +49,20 @@ class IsSelf(BasePermission):
         return False
 
 
+# class IsActiveRecruiter(BasePermission):
+#     """
+#     Custom permission to only allow active recruiters to access the view.
+#     """
+#
+#     def has_permission(self, request, view):
+#         try:
+#             return Recruiter.objects.filter(
+#                 recruiter_id=request.user.id,
+#                 recruiter_is_active=True
+#             ).exists()
+#         except:
+#             return False
+
 class IsActiveRecruiter(BasePermission):
     """
     Custom permission to only allow active recruiters to access the view.
@@ -56,13 +70,21 @@ class IsActiveRecruiter(BasePermission):
 
     def has_permission(self, request, view):
         try:
+            if not request.user.is_authenticated:
+                return False
+
+            # Check if user is a recruiter
+            if request.user.user_role != 'RECRUITER':
+                return False
+
+            # Check if recruiter is active
             return Recruiter.objects.filter(
-                recruiter_id=request.user.id,
+                recruiter_id=request.user,
                 recruiter_is_active=True
             ).exists()
-        except:
+        except Exception as e:
+            print(f"Permission error: {str(e)}")
             return False
-
 
 class IsCompanyRecruiter(BasePermission):
     """
