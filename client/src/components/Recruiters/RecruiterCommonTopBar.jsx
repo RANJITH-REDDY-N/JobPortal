@@ -1,23 +1,30 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import styles from "../../styles/RecruiterCommonTopBar.module.css";
-import { 
-  Tune, ClearAll, Add, Cancel, SearchOutlined, 
-  History, LocationOn, Work, Apartment
+import {
+  Tune, ClearAll, Add, Cancel, SearchOutlined,
+  History, LocationOn, Work, Apartment, Close
 } from '@mui/icons-material';
+import { RiFunctionAddFill } from "react-icons/ri";
+import { SiReaddotcv } from "react-icons/si";
+import { LuListPlus } from "react-icons/lu";
+import { BiSolidLayerPlus } from "react-icons/bi";
+// import { PiListPlusFill } from "react-icons/tb";
+import { PiListPlusFill } from "react-icons/pi";
+
 
 const RecruiterCommonTopBar = ({
-  onSearch,
-  clearSearch,
-  onFilter,
-  currentPage,
-  totalPages,
-  onPageChange,
-  filtersCleared,
-  filters,
-  onPostJob,
-  title = "Posted Jobs"
-}) => {
+                                 onSearch,
+                                 clearSearch,
+                                 onFilter,
+                                 currentPage,
+                                 totalPages,
+                                 onPageChange,
+                                 filtersCleared,
+                                 filters,
+                                 onPostJob,
+                                 title = "Posted Jobs"
+                               }) => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -27,7 +34,7 @@ const RecruiterCommonTopBar = ({
     datePosted: filters.datePosted
   });
 
-  
+
   useEffect(() => {
     setTempFilters({
       locations: [...filters.locations],
@@ -35,7 +42,7 @@ const RecruiterCommonTopBar = ({
       datePosted: filters.datePosted
     });
   }, [filters]);
-  
+
   const [inputValues, setInputValues] = useState({
     location: "",
     jobTitle: ""
@@ -70,7 +77,7 @@ const RecruiterCommonTopBar = ({
     });
   };
 
-  
+
 
   const handleKeyDown = (e, field) => {
     if (e.key === "Enter") {
@@ -90,7 +97,7 @@ const RecruiterCommonTopBar = ({
     if (tempFilters[filterKey].length >= 3) return;
 
     const exists = tempFilters[filterKey].some(
-      item => item.toLowerCase() === value.toLowerCase()
+        item => item.toLowerCase() === value.toLowerCase()
     );
 
     if (!exists) {
@@ -151,7 +158,7 @@ const RecruiterCommonTopBar = ({
 
   const handleRemoveFilter = (filterType, value = null) => {
     const newFilters = { ...filters };
-    
+
     if (filterType === 'datePosted') {
       newFilters.datePosted = "Any time";
     } else if (value) {
@@ -159,7 +166,7 @@ const RecruiterCommonTopBar = ({
     } else {
       newFilters[filterType] = [];
     }
-  
+
     onFilter(newFilters); // This will update the filters in JobsList
   };
 
@@ -176,7 +183,7 @@ const RecruiterCommonTopBar = ({
           pagination.push(i);
         }
         pagination.push("...");
-      } 
+      }
       else if (currentPage >= totalPages - 3) {
         pagination.push("...");
         for (let i = totalPages - 4; i <= totalPages - 1; i++) {
@@ -196,243 +203,243 @@ const RecruiterCommonTopBar = ({
   };
 
   useEffect(() => {
-    if (filtersCleared !== undefined) { 
+    if (filtersCleared !== undefined) {
       handleClearFilters();
     }
   }, [filtersCleared]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.topSection}>
-        <div className={styles.titleContainer}>
-          <h1 className={styles.title}>{title}</h1>
-          <p className={styles.subtitle}>Manage your posted jobs and applicants</p>
-        </div>
-
-        <div className={styles.searchContainer}>
-          <div className={styles.searchWrapper}>
-            <SearchOutlined className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search jobs"
-              className={styles.searchInput}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <button className={styles.postJobButton} onClick={onPostJob}>
-          <span>+</span> Post New Job
-        </button>
-      </div>
-
-      <div className={styles.bottomSection}>
-        <div className={styles.bottomBar}>
-          <div className={styles.filtersContainer}>
-            <button 
-              className={styles.filtersButton}
-              onClick={() => setShowFilters(true)}
-            >
-              <Tune fontSize="small" />
-              <span>Filters</span>
-            </button>
-            <div className={styles.activeFilters}>
-  {filters.datePosted && filters.datePosted !== "Any time" && (
-    <span className={styles.filterChip}>
-      <History fontSize="small" />
-      {filters.datePosted}
-      <button 
-        onClick={() => handleRemoveFilter('datePosted')}
-        className={styles.removeFilter}
-      >
-        <Cancel fontSize="small" />
-      </button>
-    </span>
-  )}
-  
-  {filters.locations?.map((location, index) => (
-    <span key={`loc-${index}`} className={styles.filterChip}>
-      <LocationOn fontSize="small" />
-      {location}
-      <button 
-        onClick={() => handleRemoveFilter('locations', location)}
-        className={styles.removeFilter}
-      >
-        <Cancel fontSize="small" />
-      </button>
-    </span>
-  ))}
-  
-  {filters.jobTitles?.map((title, index) => (
-    <span key={`title-${index}`} className={styles.filterChip}>
-      <Work fontSize="small" />
-      {title}
-      <button
-        onClick={() => handleRemoveFilter('jobTitles', title)}
-        className={styles.removeFilter}
-      >
-        <Cancel fontSize="small" />
-      </button>
-    </span>
-  ))}
-</div>
+      <div className={styles.container}>
+        <div className={styles.topSection}>
+          <div className={styles.titleContainer}>
+            <h1 className={styles.title}>{title}</h1>
+            <p className={styles.subtitle}>Manage your posted jobs and applicants</p>
           </div>
 
-          <div className={styles.pagination}>
-            <button
-              onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={styles.paginationButton}
-            >
-              ‹
-            </button>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchWrapper}>
+              <SearchOutlined className={styles.searchIcon} />
+              <input
+                  type="text"
+                  placeholder="Search jobs"
+                  className={styles.searchInput}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
 
-            {getPagination(currentPage, totalPages).map((page, index) => (
+          <button className={styles.postJobButton} onClick={onPostJob}>
+            <span> <LuListPlus/></span><span>  Post New Job </span>
+          </button>
+        </div>
+
+        <div className={styles.bottomSection}>
+          <div className={styles.bottomBar}>
+            <div className={styles.filtersContainer}>
               <button
-                key={index}
-                disabled={page === "..."}
-                className={
-                  currentPage === page
-                    ? `${styles.paginationButton} ${styles.active}`
-                    : page === "..."
-                    ? `${styles.paginationButton} ${styles.dots}`
-                    : styles.paginationButton
-                }
-                onClick={() => page !== "..." && onPageChange(page)}
+                  className={styles.filtersButton}
+                  onClick={() => setShowFilters(true)}
               >
-                {page}
+                <Tune fontSize="small" />
+                <span>Filters</span>
               </button>
-            ))}
+              <div className={styles.activeFilters}>
+                {filters.datePosted && filters.datePosted !== "Any time" && (
+                    <span className={styles.filterChip}>
+      <History fontSize="small" />
+                      {filters.datePosted}
+                      <button
+                          onClick={() => handleRemoveFilter('datePosted')}
+                          className={styles.removeFilter}
+                      >
+        <Cancel fontSize="small" />
+      </button>
+    </span>
+                )}
 
-            <button
-              onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={styles.paginationButton}
-            >
-              ›
-            </button>
-          </div>
-        </div>
-      </div>
+                {filters.locations?.map((location, index) => (
+                    <span key={`loc-${index}`} className={styles.filterChip}>
+      <LocationOn fontSize="small" />
+                      {location}
+                      <button
+                          onClick={() => handleRemoveFilter('locations', location)}
+                          className={styles.removeFilter}
+                      >
+        <Cancel fontSize="small" />
+      </button>
+    </span>
+                ))}
 
-      {/* Filter Popup */}
-      {showFilters && (
-        <div className={styles.filterPopupOverlay}>
-          <div className={styles.filterPopup} ref={popupRef}>
-            <div className={styles.filterHeader}>
-              <h3>Filters</h3>
-              <button className={styles.closeButton} onClick={handleClose}>
-                <Cancel />
-              </button>
+                {filters.jobTitles?.map((title, index) => (
+                    <span key={`title-${index}`} className={styles.filterChip}>
+      <Work fontSize="small" />
+                      {title}
+                      <button
+                          onClick={() => handleRemoveFilter('jobTitles', title)}
+                          className={styles.removeFilter}
+                      >
+        <Cancel fontSize="small" />
+      </button>
+    </span>
+                ))}
+              </div>
             </div>
 
-            <div className={styles.filterGroup}>
-              <h4>
-                <History fontSize="small" />
-                Date Posted
-              </h4>
-              <div className={styles.datePostedOptions}>
-                {["Past 24 hours", "Past 3 days", "Past week", "Past month", "Any time"].map((option) => (
-                  <label key={option} className={styles.dateOption}>
+            <div className={styles.pagination}>
+              <button
+                  onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={styles.paginationButton}
+              >
+                ‹
+              </button>
+
+              {getPagination(currentPage, totalPages).map((page, index) => (
+                  <button
+                      key={index}
+                      disabled={page === "..."}
+                      className={
+                        currentPage === page
+                            ? `${styles.paginationButton} ${styles.active}`
+                            : page === "..."
+                                ? `${styles.paginationButton} ${styles.dots}`
+                                : styles.paginationButton
+                      }
+                      onClick={() => page !== "..." && onPageChange(page)}
+                  >
+                    {page}
+                  </button>
+              ))}
+
+              <button
+                  onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={styles.paginationButton}
+              >
+                ›
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Popup */}
+        {showFilters && (
+            <div className={styles.filterPopupOverlay}>
+              <div className={styles.filterPopup} ref={popupRef}>
+                <div className={styles.filterHeader}>
+                  <h3>Filters</h3>
+                  <button className={styles.closeButton} onClick={handleClose}>
+                    <Close />
+                  </button>
+                </div>
+
+                <div className={styles.filterGroup}>
+                  <h4>
+                    <History fontSize="small" />
+                    Date Posted
+                  </h4>
+                  <div className={styles.datePostedOptions}>
+                    {["Past 24 hours", "Past 3 days", "Past week", "Past month", "Any time"].map((option) => (
+                        <label key={option} className={styles.dateOption}>
+                          <input
+                              type="radio"
+                              name="datePosted"
+                              checked={tempFilters.datePosted === option}
+                              onChange={() => handleDatePostedChange(option)}
+                          />
+                          <span>{option}</span>
+                        </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.filterGroup}>
+                  <h4>
+                    <LocationOn fontSize="small" />
+                    Locations
+                  </h4>
+                  <div className={styles.filterInputContainer}>
                     <input
-                      type="radio"
-                      name="datePosted"
-                      checked={tempFilters.datePosted === option}
-                      onChange={() => handleDatePostedChange(option)}
+                        type="text"
+                        placeholder={tempFilters.locations.length >= 3 ? 'Max 3 locations' : 'Add location'}
+                        value={inputValues.location}
+                        onChange={(e) => handleInputChange(e, "location")}
+                        onKeyDown={(e) => handleKeyDown(e, "location")}
+                        disabled={tempFilters.locations.length >= 3}
                     />
-                    <span>{option}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.filterGroup}>
-              <h4>
-                <LocationOn fontSize="small" />
-                Locations
-              </h4>
-              <div className={styles.filterInputContainer}>
-                <input
-                  type="text"
-                  placeholder={tempFilters.locations.length >= 3 ? 'Max 3 locations' : 'Add location'}
-                  value={inputValues.location}
-                  onChange={(e) => handleInputChange(e, "location")}
-                  onKeyDown={(e) => handleKeyDown(e, "location")}
-                  disabled={tempFilters.locations.length >= 3}
-                />
-                <button 
-                  className={styles.addButton}
-                  onClick={() => addFilterItem("location")}
-                  disabled={tempFilters.locations.length >= 3}
-                >
-                  <Add fontSize="small" /> Add
-                </button>
-              </div>
-              <div className={styles.filterTags}>
-                {tempFilters.locations.map((location, index) => (
-                  <span key={index} className={styles.filterTag}>
+                    <button
+                        className={styles.addButton}
+                        onClick={() => addFilterItem("location")}
+                        disabled={tempFilters.locations.length >= 3}
+                    >
+                      <Add fontSize="small" /> Add
+                    </button>
+                  </div>
+                  <div className={styles.filterTags}>
+                    {tempFilters.locations.map((location, index) => (
+                        <span key={index} className={styles.filterTag}>
                     {location}
-                    <button onClick={() => removeFilterItem("locations", location)}>
+                          <button onClick={() => removeFilterItem("locations", location)}>
                       <Cancel fontSize="small" />
                     </button>
                   </span>
-                ))}
-              </div>
-            </div>
+                    ))}
+                  </div>
+                </div>
 
-            <div className={styles.filterGroup}>
-              <h4>
-                <Work fontSize="small" />
-                Job Titles
-              </h4>
-              <div className={styles.filterInputContainer}>
-                <input
-                  type="text"
-                  placeholder={tempFilters.jobTitles.length >= 3 ? 'Max 3 titles' : 'Add job title'}
-                  value={inputValues.jobTitle}
-                  onChange={(e) => handleInputChange(e, "jobTitle")}
-                  onKeyDown={(e) => handleKeyDown(e, "jobTitle")}
-                  disabled={tempFilters.jobTitles.length >= 3}
-                />
-                <button 
-                  className={styles.addButton}
-                  onClick={() => addFilterItem("jobTitle")}
-                  disabled={tempFilters.jobTitles.length >= 3}
-                >
-                  <Add fontSize="small" /> Add
-                </button>
-              </div>
-              <div className={styles.filterTags}>
-                {tempFilters.jobTitles.map((title, index) => (
-                  <span key={index} className={styles.filterTag}>
+                <div className={styles.filterGroup}>
+                  <h4>
+                    <Work fontSize="small" />
+                    Job Titles
+                  </h4>
+                  <div className={styles.filterInputContainer}>
+                    <input
+                        type="text"
+                        placeholder={tempFilters.jobTitles.length >= 3 ? 'Max 3 titles' : 'Add job title'}
+                        value={inputValues.jobTitle}
+                        onChange={(e) => handleInputChange(e, "jobTitle")}
+                        onKeyDown={(e) => handleKeyDown(e, "jobTitle")}
+                        disabled={tempFilters.jobTitles.length >= 3}
+                    />
+                    <button
+                        className={styles.addButton}
+                        onClick={() => addFilterItem("jobTitle")}
+                        disabled={tempFilters.jobTitles.length >= 3}
+                    >
+                      <Add fontSize="small" /> Add
+                    </button>
+                  </div>
+                  <div className={styles.filterTags}>
+                    {tempFilters.jobTitles.map((title, index) => (
+                        <span key={index} className={styles.filterTag}>
                     {title}
-                    <button onClick={() => removeFilterItem("jobTitles", title)}>
+                          <button onClick={() => removeFilterItem("jobTitles", title)}>
                       <Cancel fontSize="small" />
                     </button>
                   </span>
-                ))}
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.filterActions}>
+                  <button
+                      className={styles.clearButton}
+                      onClick={handleClearFilters}
+                  >
+                    <ClearAll fontSize="small" /> Clear All
+                  </button>
+                  <button
+                      className={styles.applyButton}
+                      onClick={handleApplyFilters}
+                  >
+                    Apply Filters
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className={styles.filterActions}>
-              <button 
-                className={styles.clearButton}
-                onClick={handleClearFilters}
-              >
-                <ClearAll fontSize="small" /> Clear All
-              </button>
-              <button 
-                className={styles.applyButton}
-                onClick={handleApplyFilters}
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
   );
 };
 

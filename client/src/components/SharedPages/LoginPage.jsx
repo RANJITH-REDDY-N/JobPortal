@@ -12,7 +12,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
-    email: "ranjith@jobmatrix.com",
+    email: "cr@apple.com",
     password: "Aa@12345",
   });
   const [error, setError] = useState("");

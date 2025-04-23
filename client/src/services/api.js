@@ -86,7 +86,6 @@ export const getAllJobs = (params = {}) => {
   if (params.locations) params.locations.forEach(loc => queryString.append('location', loc));
   if (params.jobTitles) params.jobTitles.forEach(title => queryString.append('job_title', title));
   if (params.companies) params.companies.forEach(comp => queryString.append('company_name', comp));
-  
   return fetchAPI(`job/jobs-list/?${queryString.toString()}`, "GET", null, true, 'application/json', false);
 };
 
@@ -164,7 +163,7 @@ export const updateCompanyDetails = (data) => fetchAPI(`company/update/`, "PATCH
 export const createJobPosting = (data) => fetchAPI('job/create/', "POST", data, true, 'application/json', false);
 export const updateJobPosting = (job_id, data) => fetchAPI(`job/${job_id}/update/`, "PATCH", data, true, 'application/json', false);
 export const deleteJobPosting = (job_id) => fetchAPI(`job/${job_id}/delete/`, "DELETE", null, true, 'application/json', false);
-
+export const jobApplicantsStatus = (job_id) => fetchAPI(`job/recruiter/application-stats/${job_id}/`, "GET", null, true, 'application/json', false);
 /** ADMIN */
 export const getAllUsers = (page = 1, search = "", role = "") => {
   let url = `admin/users/all/?page=${page}`;
@@ -175,6 +174,7 @@ export const getAllUsers = (page = 1, search = "", role = "") => {
 export const getDashboardInsights = () => fetchAPI('admin/dashboard-insights/', "GET", null, true, 'application/json', false);
 
 export const deleteUserApplicant = (applicantId) => fetchAPI(`admin/users/${applicantId}/delete/`, "DELETE", null, true, 'application/json', false);
+
 /** ADMIN COMPANY MANAGEMENT */
 export const getAdminCompanies = () => fetchAPI('admin/companies/', "GET", null, true);
 export const deleteCompany = (companyId) => fetchAPI(`admin/companies/${companyId}/delete/`, "DELETE", null, true);

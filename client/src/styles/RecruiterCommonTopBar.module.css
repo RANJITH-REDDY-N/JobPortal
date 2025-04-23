@@ -7,7 +7,7 @@
 
 .topSection {
   display: grid;
-  grid-template-columns: 2fr 5fr 1fr;
+  grid-template-columns: 2fr 9fr 1fr;
   align-items: center;
   margin-bottom: 1.5rem;
   gap: 1.5rem;
@@ -51,7 +51,7 @@
   width: 95%;
   padding: 0.75rem 0rem 0.75rem 2.3rem;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 20px;
   font-size: 0.875rem;
   transition: all 0.2s;
   background-color: #f9fafb;
@@ -76,12 +76,16 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap; 
+  white-space: nowrap;
 }
 
 .postJobButton span {
-  font-size: 1.25rem;
+  font-size: 0.8rem;
   line-height: 1;
+}
+
+.postJobButton svg {
+  font-size: 1.2rem;
 }
 
 .postJobButton:hover {

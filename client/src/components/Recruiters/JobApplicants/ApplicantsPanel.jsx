@@ -7,16 +7,13 @@ import {
   School, Code, LocationOn, Event, ExpandMore, ExpandLess,
   Search, FilterList
 } from '@mui/icons-material';
-import { userDetails } from '../../../services/api';
+import { userDetails, jobApplicantsStatus } from '../../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlBadge } from 'react-icons/sl';
-// Custom Icons (using react-icons)
 import {
-  FiEye as EyeScanIcon,
   FiCheckCircle as ApprovalRayIcon,
   FiXCircle as RejectPulseIcon,
   FiRotateCcw as TimeReverseIcon,
-  FiCpu as BrainChipIcon,
   FiZap as SparklesIcon
 } from 'react-icons/fi';
 import { FaCalendarCheck } from 'react-icons/fa';
@@ -32,31 +29,57 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
   const [comments, setComments] = useState({});
   const [showJobDetails, setShowJobDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [showStatusInfo, setShowStatusInfo] = useState(false);
+  const [applicantsStats, setApplicantsStats] = useState({
+    "total_applications": 0,
+    "approved_applications": 0,
+    "rejected_applications": 0,
+    "pending_applications": 0
+  })
+
 
   const filteredApplicants = applications?.results?.filter(applicant =>
       applicant.applicant_details.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       applicant.applicant_details.email.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  // Handle resume view in new tab
   const handleViewResume = (resumeUrl, e) => {
-    e.stopPropagation(); // Prevent card expansion when clicking resume button
+    e.stopPropagation();
     window.open(resumeUrl, '_blank');
   };
 
-  // Handle resume download
   const handleDownloadResume = (resumeUrl, applicantName, e) => {
-    e.stopPropagation(); // Prevent card expansion when clicking download button
-    const link = document.createElement('a');
-    link.href = resumeUrl;
-    link.download = `${applicantName.replace(/\s+/g, '_')}_Resume.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    e.preventDefault();
+    e.stopPropagation();
 
+    // Start file download using fetch API
+    fetch(resumeUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          // Create a blob URL for the file
+          const blobUrl = window.URL.createObjectURL(blob);
+
+          // Create a temporary link element
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = `${applicantName.replace(/\s+/g, '_')}_Resume.pdf`;
+          link.style.display = 'none';
+
+          // Add to DOM, trigger click, then clean up
+          document.body.appendChild(link);
+          link.click();
+
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+          }, 200);
+        })
+        .catch(error => {
+          console.error('Error downloading resume:', error);
+          // Fallback: If fetch fails, try direct download
+          window.open(resumeUrl, '_blank');
+        });
+  };
   // Handle comment input
   const handleInputComment = (e, applicationId) => {
     setComments(prev => ({
@@ -99,6 +122,27 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
     }
   };
 
+  const fetchApplicationStatuses = async() => {
+    try {
+      const response = await jobApplicantsStatus(job.job_id)
+      console.log("response ",response)
+      if(response.error === false){
+        setApplicantsStats(response.data)
+        console.log("in method applicantsStats ",applicantsStats)
+      }
+
+    }
+    catch(err) {
+      console.error("error fetching applicants stats",err);
+    }
+
+  }
+
+  useEffect(() => {
+    fetchApplicationStatuses()
+    console.log("in use effect applicantsStats ",applicantsStats)
+  },[])
+
   // Reset all expanded applicants when panel is closed
   useEffect(() => {
     return () => {
@@ -116,6 +160,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
       });
       setComments(initialComments);
     }
+    fetchApplicationStatuses()
   }, [applications?.results]);
 
 
@@ -145,16 +190,32 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
     return result.length > 0 ? result : null;
   };
 
-  // AI suggestions for notes
   const suggestionBank = [
-    "Exceptional technical skills demonstrated",
-    "Strong cultural fit for our team",
-    "Would benefit from more leadership experience",
-    "Perfect match for the required tech stack",
-    "Communication skills need improvement",
+    "After reviewing your application, I believe you have potential, but your current skill set does not fully align with the core requirements for this position. You would benefit from gaining more experience in our primary technologies and working on projects of greater scale and complexity. I recommend considering future opportunities with us as your experience grows.",
+
+    "While you demonstrate a solid foundation and some relevant experience, your background does not closely match the specific needs of this role. You may want to further develop your expertise in key technical areas and consider applying again for positions that better fit your strengths. We encourage you to stay in touch for future openings.",
+
+    "Your application shows promise, but at this time, we are seeking candidates with deeper experience in the domains and methodologies central to our work. You might consider expanding your exposure to collaborative development practices and specialized tools before reapplying. We appreciate your interest and hope you’ll consider us again in the future.",
+
+    "Although you have some relevant skills, your experience level is below what we require for this opening, particularly in specialized areas. We recommend you continue building your technical background and seek roles that align more closely with your current expertise. Please feel free to reapply as your skills develop.",
+
+    "You have a good educational background and show potential for growth, but for this role, we are prioritizing applicants with more hands-on experience in our core technologies. We encourage you to continue developing your skills and consider applying for future positions that better match your profile.",
+
+    "Your qualifications are impressive in certain respects, but the fit with our immediate needs is not strong enough to move forward at this time. We suggest focusing on gaining more direct experience in our industry and keeping an eye on future roles that may be a better match for you.",
+
+    "You are a strong fit for this position, demonstrating both the technical skills and adaptability we value. Your background suggests you can quickly contribute to our team, and I recommend moving you forward in our hiring process.",
+
+    "Your application stands out for its combination of relevant experience and problem-solving abilities. I believe you would thrive in our environment and suggest advancing you to the next stage of interviews.",
+
+    "You bring a compelling mix of expertise and initiative that aligns well with our team’s needs. Your achievements indicate you can add value from the start, so I recommend proceeding with your application.",
+
+    "Your skills and experience are closely aligned with our requirements, and your approach to challenges fits our team culture. I look forward to exploring your potential further in the interview process.",
+
+    "You demonstrate a solid foundation in our core technologies and show the drive we seek in new team members. I recommend moving you forward so we can learn more about your fit for this role.",
+
+    "Your background and accomplishments are impressive, and I believe you would be an asset to our organization. I suggest advancing your application to the next round as soon as possible."
   ];
 
-  // Generate AI suggestion for notes
   const generateAINote = (applicationId) => {
     const randomNote = suggestionBank[Math.floor(Math.random() * suggestionBank.length)];
     setComments(prev => ({
@@ -163,14 +224,54 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
     }));
   };
 
-  // Handle status change and keep applicant expanded
   const handleStatusChange = (applicationId, newStatus, comment) => {
     onStatusChange(applicationId, newStatus, comment);
-    // Keep this applicant expanded after status change
     setExpandedApplicant(applicationId);
   };
 
-  // Render tab content for skills, experience, education
+  const formatDatePosted = (dateString) => {
+    if (!dateString || typeof dateString !== 'string') return 'Recently';
+
+    let postedDate;
+
+    if (dateString.includes('T')) {
+      // ISO 8601 with Z or timezone
+      postedDate = new Date(dateString);
+    } else if (dateString.includes(' ')) {
+      // MySQL format: "YYYY-MM-DD HH:MM:SS"
+      const [datePart, timePart] = dateString.split(' ');
+      const [year, month, day] = datePart.split('-').map(Number);
+      const [hour, minute, second] = timePart.split(':').map(Number);
+      // Use UTC to prevent local timezone shifts
+      postedDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    } else {
+      return 'Recently';
+    }
+
+    const now = new Date();
+    const timeDiff = now - postedDate;
+
+    if (isNaN(postedDate.getTime()) || timeDiff < 0) {
+      return 'Recently';
+    }
+
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (seconds < 60) return 'Just now';
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+    if (weeks <= 4) return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+    if (months < 12) return `Posted ${months} month${months === 1 ? '' : 's'} ago`;
+    return `Posted ${years} year${years === 1 ? '' : 's'} ago`;
+  };
+
   const renderTabContent = (details) => {
     if (!details) return null;
 
@@ -186,7 +287,7 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
           >
             {activeTab === 'skills' && (
                 <div className={styles.skillsGrid}>
-                  {details.skills?.length > 0 ? (
+                  {details.skills?.length > 0 && (
                       details.skills.slice().sort((a,b) => b.skill_years_of_experience - a.skill_years_of_experience).map(skill => (
                           <motion.div
                               key={skill.skill_id}
@@ -207,14 +308,18 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
                             </div>
                           </motion.div>
                       ))
-                  ) : (
-                      <div className={styles.emptyState}>
-                        <Person sx={{ fontSize: 40 }} />
-                        <p>No skills listed</p>
-                      </div>
                   )}
                 </div>
             )}
+
+            {activeTab === 'skills' && details.skills?.length < 1 && (
+                <div className={styles.emptyState}>
+                  <Person sx={{ fontSize: 40 }} />
+                  <p>No skills listed</p>
+                </div>
+            )}
+
+
 
             {activeTab === 'experience' && (
                 <div className={styles.experienceContainer}>
@@ -372,22 +477,20 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
                 <div className={styles.statPill}>
                   <span>Total</span>
                   <strong>
-                    {(applications?.status_counts.approved || 0) +
-                        (applications?.status_counts.rejected || 0) +
-                        (applications?.status_counts.pending || 0)}
+                    {(applicantsStats?.total_applications)}
                   </strong>
                 </div>
                 <div className={styles.statPill}>
                   <span>Pending</span>
-                  <strong>{applications?.status_counts.pending || 0}</strong>
+                  <strong>{applicantsStats?.pending_applications}</strong>
                 </div>
                 <div className={styles.statPill}>
                   <span>Approved</span>
-                  <strong>{applications?.status_counts.approved || 0}</strong>
+                  <strong>{applicantsStats?.approved_applications}</strong>
                 </div>
                 <div className={styles.statPill}>
                   <span>Rejected</span>
-                  <strong>{applications?.status_counts.rejected || 0}</strong>
+                  <strong>{applicantsStats?.rejected_applications}</strong>
                 </div>
               </div>
             </div>
@@ -516,9 +619,9 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
                               <h4>{application.applicant_details.full_name}</h4>
                               <div className={styles.metaInfo}>
                                 <span className={styles.appliedDate}>
-                            <FaCalendarCheck className={styles.calendarIcon} /> {new Date(application.application_date_applied).toLocaleDateString()}
+                            <FaCalendarCheck className={styles.calendarIcon} /> {formatDatePosted(application.application_date_applied)}
                           </span>
-                          <span className={styles.statusBadge} data-status={application.application_status.toLowerCase()}>
+                                <span className={styles.statusBadge} data-status={application.application_status.toLowerCase()}>
                             {application.application_status}
                           </span>
 

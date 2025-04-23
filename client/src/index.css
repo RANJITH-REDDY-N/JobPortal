@@ -46,7 +46,7 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
-  --transition: all 0.2s ease;
+  --transition: all 0.5s ease;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;

@@ -150,7 +150,7 @@
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 5px;
 }
 
 .searchContainer {
@@ -182,8 +182,8 @@
 }
 
 .filterButton, .closeButton {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: none;
+  border: 0px solid #e5e7eb;
   border-radius: 8px;
   width: 40px;
   height: 40px;

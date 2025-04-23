@@ -35,3 +35,14 @@ __pycache__/
 *$py.class
 .DS_Store
 **/.DS_Store
+
+# macOS
+.DS_Store
+
+# Python compiled files
+__pycache__/
+*.pyc
+
+# JetBrains IDE
+.idea/
+*.iml
