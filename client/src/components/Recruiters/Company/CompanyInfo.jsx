@@ -1,35 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import styles from "../../../styles/CompanyInfo.module.css";
-import { FiEdit3, FiSave } from "react-icons/fi";
+import { FiEdit3, FiSave, FiUsers, FiBriefcase } from "react-icons/fi";
 import { LuEraser } from "react-icons/lu";
-import { BsBuilding, BsGraphUp, BsPeople } from "react-icons/bs";
+import { BsBuilding, BsGraphUp, BsCalendarDate } from "react-icons/bs";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import CropImageUploader from "../../CropImageUploader";
 import ToastNotification from "../../ToastNotification";
 import { setCompany } from "../../../Redux/userSlice";
 import { updateCompanyDetails, getRecruiterCompanyDetails } from '../../../services/api';
 import defaultCompanyImage from '../../../assets/noprofilephoto.png';
-import defaultBackground from '../../../assets/nocompanyimage2.jpg';
-import classNames from 'classnames';
+import styles from '../../../styles/CompanyInfo.module.css';
+
+const COLORS = ['var(--primary)', 'var(--secondary)', 'var(--icon-tertiary)', 'var(--yellow)'];
 
 const CompanyInfo = () => {
     const dispatch = useDispatch();
-    const userData = useSelector((state) => state.user?.user);
+    const reduxCompanyData = useSelector((state) => state.user?.company);
+    const analyticsRef = useRef(null);
+    const detailsRef = useRef(null);
 
-    const [activeTab, setActiveTab] = useState("details");
     const [companyData, setCompanyData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedDetails, setEditedDetails] = useState({});
     const [toastQueue, setToastQueue] = useState([]);
     const [companyImageFile, setCompanyImageFile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [recruiterTab, setRecruiterTab] = useState("active");
 
     useEffect(() => {
         const fetchCompanyDetails = async () => {
             setIsLoading(true);
             try {
                 const response = await getRecruiterCompanyDetails();
-                console.log("Company details fetched:", response);
                 setCompanyData(response);
                 setEditedDetails({ ...response.company });
                 dispatch(setCompany(response.company));
@@ -68,7 +70,7 @@ const CompanyInfo = () => {
         try {
             const formData = new FormData();
             Object.keys(editedDetails).forEach(key => {
-                if (key !== 'company_image') {
+                if (key !== 'company_image' && key !== 'company_industry') {
                     formData.append(key, editedDetails[key]);
                 }
             });
@@ -85,7 +87,6 @@ const CompanyInfo = () => {
                 showToast(response.error.message || "Operation failed", "error");
             } else {
                 dispatch(setCompany(response.data));
-                // Update local state to reflect changes
                 setCompanyData(prev => ({
                     ...prev,
                     company: response.data
@@ -106,7 +107,8 @@ const CompanyInfo = () => {
     };
 
     const handleCancel = () => {
-        setEditedDetails({ ...companyData?.company });
+        // Restore from Redux store
+        setEditedDetails({ ...reduxCompanyData });
         setCompanyImageFile(null);
         setIsEditing(false);
         showToast("Changes discarded", "info");
@@ -120,12 +122,57 @@ const CompanyInfo = () => {
         }));
     };
 
+    const prepareJobDistributionData = () => {
+        if (!companyData?.recruiters) return [];
+
+        return companyData.recruiters.map(recruiter => ({
+            name: `${recruiter.user_first_name} ${recruiter.user_last_name}`,
+            value: recruiter.jobs_posted
+        }));
+    };
+
+    const renderCustomizedLabel = ({
+                                       cx,
+                                       cy,
+                                       midAngle,
+                                       innerRadius,
+                                       outerRadius,
+                                       percent,
+                                       index,
+                                       value
+                                   }) => {
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * Math.PI / 180);
+        const y = cy + radius * Math.sin(-midAngle * Math.PI / 180);
+
+        return (
+            <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
+                {value}
+            </text>
+        );
+    };
+
+    const filteredRecruiters = () => {
+        if (!companyData?.recruiters) return [];
+        return companyData.recruiters.filter(recruiter =>
+            recruiterTab === "active" ? recruiter.is_active : !recruiter.is_active
+        );
+    };
+
+    const scrollToAnalytics = () => {
+        analyticsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const scrollToDetails = () => {
+        detailsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     if (isLoading) {
         return <div className={styles.loadingContainer}>Loading company information...</div>;
     }
 
     return (
-        <div className={styles.wrapper}>
+        <div className={styles.container}>
             {/* Toast Notifications */}
             <div className={styles.toastContainer}>
                 {toastQueue.map((toast) => (
@@ -138,208 +185,217 @@ const CompanyInfo = () => {
                 ))}
             </div>
 
-            {/* Background Banner */}
-            <div className={styles.banner}>
-                <img
-                    src={defaultBackground}
-                    alt="Company background"
-                    className={styles.bannerImage}
-                />
+            {/* Navigation Links */}
+            <div className={styles.navLinks}>
+                <button
+                    className={styles.navLink}
+                    onClick={scrollToDetails}
+                >
+                    <BsBuilding /> Company Details
+                </button>
+                <button
+                    className={styles.navLink}
+                    onClick={scrollToAnalytics}
+                >
+                    <BsGraphUp /> Analytics
+                </button>
             </div>
 
-            {/* Main Content Container */}
-            <div className={styles.container}>
-                {/* Tabs Navigation */}
-                <div className={styles.tabsContainer}>
-                    <button
-                        className={classNames(styles.tabButton, { [styles.activeTab]: activeTab === "details" })}
-                        onClick={() => setActiveTab("details")}
-                    >
-                        <BsBuilding /> Company Details
-                    </button>
-                    <button
-                        className={classNames(styles.tabButton, { [styles.activeTab]: activeTab === "stats" })}
-                        onClick={() => setActiveTab("stats")}
-                    >
-                        <BsGraphUp /> Company Statistics
-                    </button>
+            {/* Company Details Section */}
+            <div ref={detailsRef} className={styles.section}>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>Company Details</h2>
+                    {!isEditing ? (
+                        <button className={styles.editButton} onClick={handleEditToggle}>
+                            <FiEdit3 /> Edit Profile
+                        </button>
+                    ) : (
+                        <div className={styles.editActions}>
+                            <button className={styles.cancelButton} onClick={handleCancel}>
+                                <LuEraser /> Cancel
+                            </button>
+                            <button className={styles.saveButton} onClick={handleSaveChanges}>
+                                <FiSave /> Save Changes
+                            </button>
+                        </div>
+                    )}
                 </div>
 
-                {/* Company Details Tab */}
-                {activeTab === "details" && (
-                    <>
-                        {/* Header with Logo and Basic Info */}
-                        <div className={styles.header}>
-                            <div className={styles.logoContainer}>
-                                <CropImageUploader
-                                    name="company_image"
-                                    onFileChange={handleCompanyImageChange}
-                                    defaultImage={defaultCompanyImage}
-                                    currentImage={editedDetails.company_image}
-                                    checkPage='company-info'
-                                    isEditing={isEditing}
-                                />
-                            </div>
+                <div className={styles.profileContainer}>
+                    <div className={styles.logoSection}>
+                        <CropImageUploader
+                            name="company_image"
+                            onFileChange={handleCompanyImageChange}
+                            defaultImage={defaultCompanyImage}
+                            currentImage={editedDetails.company_image}
+                            checkPage='company-info'
+                            isEditing={isEditing}
+                            onDelete={() => {
+                                setEditedDetails(prev => ({
+                                    ...prev,
+                                    company_image: null
+                                }));
+                                setCompanyImageFile(null);
+                            }}
+                        />
+                    </div>
+                    <div className={styles.infoSection}>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                name="company_name"
+                                value={editedDetails.company_name || ''}
+                                onChange={handleInputChange}
+                                className={styles.editNameInput}
+                                placeholder="Company Name"
+                            />
+                        ) : (
+                            <h2 className={styles.companyName}>{editedDetails.company_name}</h2>
+                        )}
+                        <div className={styles.industry}>{editedDetails.company_industry}</div>
+                    </div>
+                </div>
 
-                            <div className={styles.headerInfo}>
-                                <h1 className={styles.companyName}>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="company_name"
-                                            value={editedDetails.company_name || ''}
-                                            onChange={handleInputChange}
-                                            className={styles.editInput}
-                                        />
-                                    ) : (
-                                        editedDetails.company_name
-                                    )}
-                                </h1>
+                <div className={styles.descriptionSection}>
+                    <h3 className={styles.subsectionTitle}>About</h3>
+                    {isEditing ? (
+                        <textarea
+                            name="company_description"
+                            value={editedDetails.company_description || ''}
+                            onChange={handleInputChange}
+                            className={styles.editDescription}
+                            rows={6}
+                            placeholder="Company description..."
+                        />
+                    ) : (
+                        <p className={styles.description}>
+                            {editedDetails.company_description || "No description provided."}
+                        </p>
+                    )}
+                </div>
+            </div>
 
-                                <div className={styles.industryTag}>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="company_industry"
-                                            value={editedDetails.company_industry || ''}
-                                            onChange={handleInputChange}
-                                            className={styles.editInput}
-                                            placeholder="Industry..."
-                                        />
-                                    ) : (
-                                        <span>{editedDetails.company_industry}</span>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+            {/* Analytics Section */}
+            {companyData && (
+                <div ref={analyticsRef} className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>Analytics</h2>
+                    </div>
 
-                        {/* Company Content Sections */}
-                        <div className={styles.content}>
-                            {/* About Section */}
-                            <div className={styles.section}>
-                                <h2 className={styles.sectionTitle}>Company Description</h2>
-                                <div className={styles.sectionContent}>
-                                    {isEditing ? (
-                                        <textarea
-                                            name="company_description"
-                                            value={editedDetails.company_description || ''}
-                                            onChange={handleInputChange}
-                                            className={styles.editTextarea}
-                                            rows={5}
-                                            placeholder="Add a company description..."
-                                        />
-                                    ) : (
-                                        <p className={styles.description}>
-                                            {editedDetails.company_description || "No company description available."}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className={styles.buttonGroup}>
-                            {!isEditing ? (
-                                <button
-                                    className={styles.editButton}
-                                    onClick={handleEditToggle}
-                                >
-                                    <FiEdit3 /> Edit Company
-                                </button>
-                            ) : (
-                                <>
-                                    <button
-                                        className={styles.cancelButton}
-                                        onClick={handleCancel}
-                                    >
-                                        <LuEraser /> Cancel
-                                    </button>
-                                    <button
-                                        className={styles.saveButton}
-                                        onClick={handleSaveChanges}
-                                    >
-                                        <FiSave /> Save
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </>
-                )}
-
-                {/* Company Statistics Tab */}
-                {activeTab === "stats" && companyData && (
-                    <div className={styles.statsContainer}>
-                        <h2 className={styles.statsHeader}>Company Statistics</h2>
-
+                    <div className={styles.analyticsGrid}>
+                        {/* Stats Cards */}
                         <div className={styles.statsCards}>
                             <div className={styles.statCard}>
                                 <div className={styles.statIcon}>
-                                    <BsPeople size={24} />
+                                    <FiUsers size={24} />
                                 </div>
-                                <div className={styles.statInfo}>
-                                    <span className={styles.statValue}>{companyData.stats.total_recruiters}</span>
-                                    <span className={styles.statLabel}>Total Recruiters</span>
-                                </div>
-                            </div>
-
-                            <div className={styles.statCard}>
-                                <div className={styles.statIcon}>
-                                    <BsPeople size={24} />
-                                </div>
-                                <div className={styles.statInfo}>
-                                    <span className={styles.statValue}>{companyData.stats.active_recruiters}</span>
-                                    <span className={styles.statLabel}>Active Recruiters</span>
+                                <div className={styles.statContent}>
+                                    <h3 className={styles.statTitle}>Total Recruiters</h3>
+                                    <p className={styles.statValue}>{companyData.stats.total_recruiters}</p>
                                 </div>
                             </div>
-
                             <div className={styles.statCard}>
                                 <div className={styles.statIcon}>
-                                    <BsGraphUp size={24} />
+                                    <FiUsers size={24} />
                                 </div>
-                                <div className={styles.statInfo}>
-                                    <span className={styles.statValue}>{companyData.stats.total_jobs}</span>
-                                    <span className={styles.statLabel}>Total Jobs</span>
+                                <div className={styles.statContent}>
+                                    <h3 className={styles.statTitle}>Active Recruiters</h3>
+                                    <p className={styles.statValue}>{companyData.stats.active_recruiters}</p>
+                                </div>
+                            </div>
+                            <div className={styles.statCard}>
+                                <div className={styles.statIcon}>
+                                    <FiBriefcase size={24} />
+                                </div>
+                                <div className={styles.statContent}>
+                                    <h3 className={styles.statTitle}>Total Jobs</h3>
+                                    <p className={styles.statValue}>{companyData.stats.total_jobs}</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Recruiters List */}
-                        <div className={styles.recruitersSection}>
-                            <h3 className={styles.subsectionTitle}>Company Recruiters</h3>
-                            <div className={styles.recruitersTable}>
-                                <div className={styles.tableHeader}>
-                                    <div className={styles.headerCell}>Name</div>
-                                    <div className={styles.headerCell}>Email</div>
-                                    <div className={styles.headerCell}>Status</div>
-                                    <div className={styles.headerCell}>Start Date</div>
-                                    <div className={styles.headerCell}>Jobs Posted</div>
-                                </div>
+                        {/* Job Distribution Chart */}
+                        <div className={styles.chartContainer}>
+                            <h3 className={styles.chartTitle}>Job Distribution</h3>
+                            <div className={styles.chartWrapper}>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie
+                                            data={prepareJobDistributionData()}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={60}
+                                            outerRadius={90}
+                                            fill="#8884d8"
+                                            paddingAngle={2}
+                                            dataKey="value"
+                                            label={renderCustomizedLabel}
+                                            labelLine={false}
+                                        >
+                                            {prepareJobDistributionData().map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend layout="horizontal" verticalAlign="bottom" />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                    </div>
 
-                                {companyData.recruiters.map(recruiter => (
+                    {/* Recruiters Section */}
+                    <div className={styles.recruitersSection}>
+                        <div className={styles.recruiterTabs}>
+                            <button
+                                className={`${styles.recruiterTab} ${recruiterTab === "active" ? styles.activeRecruiterTab : ''}`}
+                                onClick={() => setRecruiterTab("active")}
+                            >
+                                Active Recruiters ({companyData.stats.active_recruiters})
+                            </button>
+                            <button
+                                className={`${styles.recruiterTab} ${recruiterTab === "inactive" ? styles.activeRecruiterTab : ''}`}
+                                onClick={() => setRecruiterTab("inactive")}
+                            >
+                                Inactive Recruiters ({companyData.stats.total_recruiters - companyData.stats.active_recruiters})
+                            </button>
+                        </div>
+
+                        <div className={styles.recruitersTable}>
+                            <div className={styles.tableHeader}>
+                                <div className={styles.headerCell}>Name</div>
+                                <div className={styles.headerCell}>Email</div>
+                                <div className={styles.headerCell}>Status</div>
+                                <div className={styles.headerCell}>
+                                    {recruiterTab === "active" ? "Start Date" : "End Date"}
+                                </div>
+                                <div className={styles.headerCell}>Jobs Posted</div>
+                            </div>
+                            <div className={styles.tableBody}>
+                                {filteredRecruiters().map(recruiter => (
                                     <div key={recruiter.recruiter_id} className={styles.tableRow}>
                                         <div className={styles.tableCell}>
                                             {recruiter.user_first_name} {recruiter.user_last_name}
-                                            {recruiter.is_current_user && <span className={styles.currentUser}> (You)</span>}
+                                            {recruiter.is_current_user && <span className={styles.currentUserTag}> (You)</span>}
                                         </div>
                                         <div className={styles.tableCell}>{recruiter.user_email}</div>
                                         <div className={styles.tableCell}>
-                                            <span className={
-                                                recruiter.is_active
-                                                    ? styles.statusActive
-                                                    : styles.statusInactive
-                                            }>
+                                            <span className={`${styles.statusBadge} ${recruiter.is_active ? styles.active : styles.inactive}`}>
                                                 {recruiter.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className={styles.tableCell}>{recruiter.start_date}</div>
+                                        <div className={styles.tableCell}>
+                                            <BsCalendarDate className={styles.dateIcon} />
+                                            {recruiterTab === "active" ? recruiter.start_date : recruiter.end_date}
+                                        </div>
                                         <div className={styles.tableCell}>{recruiter.jobs_posted}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };
