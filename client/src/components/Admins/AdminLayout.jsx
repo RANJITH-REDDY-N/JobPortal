@@ -12,8 +12,6 @@ import usersActive from "../../assets/SideNavIcon-Images/users-active.svg";
 import usersInactive from "../../assets/SideNavIcon-Images/users-inactive.svg";
 import companiesActive from "../../assets/SideNavIcon-Images/companies-active.svg";
 import companiesInactive from "../../assets/SideNavIcon-Images/companies-inactive.svg";
-import jobsActive from "../../assets/SideNavIcon-Images/basil_bag-solid-active.svg";
-import jobsInactive from "../../assets/SideNavIcon-Images/basil_bag-solid-inactive.svg";
 import defaultUser from "../../assets/noprofilephoto.png";
 import { fetchUserData } from "../../Redux/userSlice";
 
@@ -34,15 +32,14 @@ const AdminLayout = () => {
     if (location.pathname.includes("/dashboard")) return "0rem";
     if (location.pathname.includes("/users")) return "4.3rem";
     if (location.pathname.includes("/companies")) return "8.8rem";
-    if (location.pathname.includes("/jobs")) return "13.1rem";
 
     // For settings, use the measurement from the ref
     if (location.pathname.includes("/settings")) {
       if (settingsRef.current) {
-        const above = 17.6;
+        const above = 13.2;
         return `${above}rem`;
       }
-      return "17.2rem"; // Default fallback
+      return "13.2rem"; // Default fallback
     }
 
     return "0rem";
@@ -113,15 +110,6 @@ const AdminLayout = () => {
                     <>
                       <img src={isActive ? companiesActive : companiesInactive} alt="Companies" className={styles.icon} />
                       <span className={isActive ? styles.activeText : styles.inactiveText}>Companies</span>
-                    </>
-                )}
-              </NavLink>
-
-              <NavLink to="/admin/jobs" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ""}`}>
-                {({ isActive }) => (
-                    <>
-                      <img src={isActive ? jobsActive : jobsInactive} alt="Jobs" className={styles.icon} />
-                      <span className={isActive ? styles.activeText : styles.inactiveText}>Jobs</span>
                     </>
                 )}
               </NavLink>

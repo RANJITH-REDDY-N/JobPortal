@@ -41,7 +41,7 @@ const userSlice = createSlice({
     setCompany: (state, action) => {
       if (state.user) {
         state.user.company = action.payload;
-        state.status = 'resume uploaded successfully!';
+        state.status = 'company data retrieved successfully!';
         state.error = null;
       }
     }

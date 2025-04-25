@@ -14,9 +14,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import PostJobPopup from './PostJobPopup'
 import { useSelector } from 'react-redux';
 import ToastNotification from "../../ToastNotification";
-import {FaCalendarCheck} from "react-icons/fa";
+import { FaCalendarAlt, FaUserCheck, FaUserTimes, FaUserClock, FaUsers, FaCalendarCheck } from "react-icons/fa";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import {LocationOn} from '@mui/icons-material';
 import { GoPeople } from "react-icons/go";
+import {HiLocationMarker} from "react-icons/hi";
+import {RiMoneyDollarCircleFill} from "react-icons/ri";
 
 const JobsList = () => {
   const userData = useSelector((state)=> state.user.user)
@@ -270,10 +273,8 @@ const JobsList = () => {
             onPostJob={() => setShowPostJobPopup(true)}
             title="Posted Jobs"
         />
-        {
-          !isLoading ?
-              (
-                  <div className={styles.jobsList}>
+        {!isLoading ?
+              (<div className={styles.jobsList}>
                     {currentJobs.length > 0 ? (
                         <AnimatePresence initial={false}>
                           {currentJobs.map((job) => (
@@ -286,67 +287,89 @@ const JobsList = () => {
                                   whileHover="hover"
                                   transition={{ duration: 0.3 }}
                               >
-                                <div className={styles.jobHeader}>
-                                  <div className={styles.companyLogoPlaceholder}>
-                                    {job.job_title?.charAt(0).toUpperCase()}
-                                  </div>
-                                  <div className={styles.jobInfo}>
-                                    <h3 className={styles.jobTitle}>{job.job_title}</h3>
-                                    <div className={styles.jobMeta}>
-                      <span className={styles.Icons}>
-                        <LocationOn/>
-                        {job.job_location}
-                      </span>
-                                      <span className={styles.postedDate}>
-                        <FaCalendarCheck className={styles.Icons} />
-                                        {new Date(job.date_posted).toLocaleDateString()}
-                      </span>
-                                    </div>
-                                  </div>
-                                  <div className={styles.jobSalary}>
-                                    $ {parseFloat(job.job_salary || 0).toLocaleString()}
-                                    <span>/yr</span>
-                                  </div>
-                                </div>
+                                <div className={styles.jobCardSections}>
 
-                                <div className={styles.jobDescription}>
-                                  <p>{job.job_description?.substring(0, 150)}...</p>
-                                </div>
+                                        <div>
+                                            <div className={styles.jobHeader}>
+                                            <div className={styles.companyLogoPlaceholder}>
+                                              {job.job_title?.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className={styles.jobInfo}>
+                                              <h3 className={styles.jobTitle}>{job.job_title}</h3>
+                                              <div className={styles.jobMeta}>
+                                                  <span className={styles.metaItem}>
+                                                    <HiLocationMarker className={styles.metaIcon} />
+                                                    <span>{job.job_location}</span>
+                                                  </span>
+                                                                                <span className={styles.metaItem}>
+                                                    <FaCalendarCheck className={styles.metaIcon} />
+                                                    <span>{new Date(job.date_posted).toLocaleDateString()}</span>
+                                                  </span>
+                                                                                <span className={styles.metaItem}>
+                                                    <RiMoneyDollarCircleFill className={styles.metaIcon} />
+                                                    <span>${parseFloat(job.job_salary || 0).toLocaleString()}/yr</span>
+                                                  </span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
 
-                                <div className={styles.jobActions}>
-                                  <button
-                                      className={styles.viewButton}
-                                      onClick={() => handleViewApplicants(job)}
-                                      // disabled={isLoadingApplicants}
-                                  >
-                                    {isLoadingApplicants && selectedJob?.job_id === job.job_id ? (
-                                        <>
-                                          <span className={styles.spinner}></span> Loading...
-                                        </>
-                                    ) : (
+                                        <div className={styles.jobBottomSection}>
+                                            <div className={styles.applicationsStats}>
+                                          <div className={styles.statItem}>
+                                            <FaUsers className={styles.statIcon} />
+                                            <span className={styles.statValue}>{job.total_applications || 0}</span>
+                                            <span className={styles.statLabel}>Total</span>
+                                          </div>
+                                          <div className={styles.statItem}>
+                                            <FaUserCheck className={styles.statIcon} />
+                                            <span className={styles.statValue}>{job.approved_applications || 0}</span>
+                                            <span className={styles.statLabel}>Approved</span>
+                                          </div>
+                                          <div className={styles.statItem}>
+                                            <FaUserTimes className={styles.statIcon}/>
+                                            <span className={styles.statValue}>{job.rejected_applications || 0}</span>
+                                            <span className={styles.statLabel}>Rejected</span>
+                                          </div>
+                                          <div className={styles.statItem}>
+                                            <FaUserClock className={styles.statIcon}/>
+                                            <span className={styles.statValue}>{job.pending_applications || 0}</span>
+                                            <span className={styles.statLabel}>Pending</span>
+                                          </div>
+                                        </div>
 
-                                        <>
-                                          <GoPeople/> View Applicants
-                                        </>
+                                            <div className={styles.jobActions}>
+                                              <button
+                                                  className={styles.deleteButton}
+                                                  onClick={() => setJobToDelete(job)}
+                                              >
+                                                <FiTrash2 /> Delete
+                                              </button>
+                                              <button
+                                                  className={styles.editButton}
+                                                  onClick={() => setEditingJob(job)}
+                                              >
+                                                <FiEdit /> Edit Job
+                                              </button>
 
-                                    )}
-                                  </button>
-                                  <button className={styles.editButton} onClick={() => setEditingJob(job)}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                    Edit
-                                  </button>
-                                  <button className={styles.deleteButton} onClick={() => setJobToDelete(job)}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                      <polyline points="3 6 5 6 21 6"></polyline>
-                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
-                                    Delete
-                                  </button>
+                                              <button
+                                                  className={styles.viewButton}
+                                                  onClick={() => handleViewApplicants(job)}
+                                              >
+                                                {isLoadingApplicants && selectedJob?.job_id === job.job_id ? (
+                                                    <>
+                                                      <span className={styles.spinner}></span> Loading...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                      <GoPeople /> View Applicants
+                                                    </>
+                                                )}
+                                              </button>
+
+                                        </div>
+                                        </div>
+
                                 </div>
                               </motion.div>
                           ))}

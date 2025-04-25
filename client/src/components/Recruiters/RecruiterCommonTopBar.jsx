@@ -213,7 +213,7 @@ const RecruiterCommonTopBar = ({
         <div className={styles.topSection}>
           <div className={styles.titleContainer}>
             <h1 className={styles.title}>{title}</h1>
-            <p className={styles.subtitle}>Manage your posted jobs and applicants</p>
+            <p className={styles.subtitle}>Manage your posted jobs</p>
           </div>
 
           <div className={styles.searchContainer}>

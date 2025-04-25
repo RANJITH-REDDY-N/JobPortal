@@ -394,7 +394,7 @@ class CompanyListView(generics.ListAPIView):
 class CompanyJobsListView(generics.ListAPIView):
     """
     API view to list all jobs posted by the company of the authenticated recruiter,
-    including jobs posted by inactive recruiters.
+    including jobs posted by inactive recruiters, with application statistics for each job.
     Requires JWT token authentication.
     """
     serializer_class = JobListSerializer
@@ -415,7 +415,6 @@ class CompanyJobsListView(generics.ListAPIView):
             company = recruiter.company_id
 
             # Get ALL recruiters for this company, both active and inactive
-            # This allows viewing jobs posted by previous recruiters
             recruiter_ids = Recruiter.objects.filter(
                 company_id=company
             ).values_list('recruiter_id', flat=True)
@@ -484,7 +483,7 @@ class CompanyJobsListView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         """
         Override list method to handle case when recruiter is not active
-        and provide customized response
+        and provide customized response with application stats for each job
         """
         try:
             recruiter = Recruiter.objects.get(recruiter_id=request.user)
@@ -515,6 +514,46 @@ class CompanyJobsListView(generics.ListAPIView):
 
                 total_pages = (count + page_size - 1) // page_size if page_size > 0 else 0
 
+                # Get application stats for each job
+                job_results = response.data.get('results', [])
+                job_ids = [job['job_id'] for job in job_results]
+
+                # Get all applications for these jobs in a single query
+                applications = Application.objects.filter(job_id__in=job_ids)
+
+                # Create a dictionary to store stats for each job
+                job_stats = {}
+                for app in applications:
+                    job_id = app.job_id_id
+                    if job_id not in job_stats:
+                        job_stats[job_id] = {
+                            'total_applications': 0,
+                            'approved_applications': 0,
+                            'rejected_applications': 0,
+                            'pending_applications': 0
+                        }
+
+                    job_stats[job_id]['total_applications'] += 1
+                    if app.application_status == "APPROVED":
+                        job_stats[job_id]['approved_applications'] += 1
+                    elif app.application_status == "REJECTED":
+                        job_stats[job_id]['rejected_applications'] += 1
+                    elif app.application_status == "PENDING":
+                        job_stats[job_id]['pending_applications'] += 1
+
+                # Add stats to each job in the results
+                for job in job_results:
+                    job_id = job['job_id']
+                    if job_id in job_stats:
+                        job.update(job_stats[job_id])
+                    else:
+                        job.update({
+                            'total_applications': 0,
+                            'approved_applications': 0,
+                            'rejected_applications': 0,
+                            'pending_applications': 0
+                        })
+
                 # Create a custom response with additional info
                 company = recruiter.company_id
                 new_data = {
@@ -527,7 +566,7 @@ class CompanyJobsListView(generics.ListAPIView):
                     'previous': previous_link,
                     'current_page': current_page,
                     'total_pages': total_pages,
-                    'results': response.data.get('results', [])
+                    'results': job_results
                 }
 
                 response.data = new_data

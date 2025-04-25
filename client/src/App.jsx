@@ -11,10 +11,9 @@ import AdminLayout from "./components/Admins/AdminLayout";
 import AdminDashboard from "./components/Admins/AdminDashboard";
 import AdminUsers from "./components/Admins/AdminUsers";
 import AdminCompanies from "./components/Admins/AdminCompanies";
-import AdminJobs from "./components/Admins/AdminJobs";
 import AdminSettings from "./components/Admins/AdminSettings";
-import ForgotPassword from './components/SharedPages/ForgotPassword'; // Add ForgotPassword import
-import ChangePassword from './components/SharedPages/ChangePassword'; // Add ChangePassword import
+import ForgotPassword from './components/SharedPages/ForgotPassword';
+import ChangePassword from './components/SharedPages/ChangePassword';
 import './App.css';
 
 function App() {
@@ -75,7 +74,6 @@ function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="companies" element={<AdminCompanies />} />
-            <Route path="jobs" element={<AdminJobs />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
       </Routes>

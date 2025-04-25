@@ -61,13 +61,6 @@ const AdminDashboard = () => {
     return (
       <div className={styles.container}>
         <div className={styles.loadingOverlay}>
-          {/*<motion.div*/}
-          {/*  animate={{ rotate: 360 }}*/}
-          {/*  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}*/}
-          {/*>*/}
-          {/*  <FiRefreshCw size={32} />*/}
-          {/*</motion.div>*/}
-          {/*<p>Loading dashboard...</p>*/}
           <iframe
               src="https://lottie.host/embed/aaef15e7-7657-41b2-a3ad-e19cb2622ea5/43ZAEMNcF7.lottie"
               className={styles.loadingAnimation}

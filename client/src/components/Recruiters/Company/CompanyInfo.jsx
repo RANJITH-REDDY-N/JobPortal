@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { FiEdit3, FiSave, FiUsers, FiBriefcase } from "react-icons/fi";
-import { LuEraser } from "react-icons/lu";
+import {LuEraser, LuLock} from "react-icons/lu";
 import { BsBuilding, BsGraphUp, BsCalendarDate } from "react-icons/bs";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import CropImageUploader from "../../CropImageUploader";
@@ -10,14 +10,13 @@ import { setCompany } from "../../../Redux/userSlice";
 import { updateCompanyDetails, getRecruiterCompanyDetails } from '../../../services/api';
 import defaultCompanyImage from '../../../assets/noprofilephoto.png';
 import styles from '../../../styles/CompanyInfo.module.css';
+import CompanySecretModal from "./CompanySecretModal.jsx";
 
 const COLORS = ['var(--primary)', 'var(--secondary)', 'var(--icon-tertiary)', 'var(--yellow)'];
 
 const CompanyInfo = () => {
     const dispatch = useDispatch();
     const reduxCompanyData = useSelector((state) => state.user?.company);
-    const analyticsRef = useRef(null);
-    const detailsRef = useRef(null);
 
     const [companyData, setCompanyData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -26,6 +25,8 @@ const CompanyInfo = () => {
     const [companyImageFile, setCompanyImageFile] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [recruiterTab, setRecruiterTab] = useState("active");
+    const [activeSection, setActiveSection] = useState("details");
+    const [isSecretModalOpen, setIsSecretModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchCompanyDetails = async () => {
@@ -107,8 +108,15 @@ const CompanyInfo = () => {
     };
 
     const handleCancel = () => {
-        // Restore from Redux store
-        setEditedDetails({ ...reduxCompanyData });
+        // Reset to the original company data from Redux
+        if (reduxCompanyData) {
+            setEditedDetails({
+                company_name: reduxCompanyData.company_name || '',
+                company_industry: reduxCompanyData.company_industry || '',
+                company_description: reduxCompanyData.company_description || '',
+                company_image: reduxCompanyData.company_image || null
+            });
+        }
         setCompanyImageFile(null);
         setIsEditing(false);
         showToast("Changes discarded", "info");
@@ -137,8 +145,6 @@ const CompanyInfo = () => {
                                        midAngle,
                                        innerRadius,
                                        outerRadius,
-                                       percent,
-                                       index,
                                        value
                                    }) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -159,21 +165,36 @@ const CompanyInfo = () => {
         );
     };
 
-    const scrollToAnalytics = () => {
-        analyticsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const showDetailsSection = () => {
+        setActiveSection("details");
     };
 
-    const scrollToDetails = () => {
-        detailsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const showAnalyticsSection = () => {
+        setActiveSection("analytics");
     };
 
     if (isLoading) {
-        return <div className={styles.loadingContainer}>Loading company information...</div>;
+        return (
+            <div className={styles.container}>
+                <div className={styles.loadingOverlay}>
+                    <iframe
+                        src="https://lottie.host/embed/cdcd4f11-6096-4948-973e-ff382275c994/nPv52HwjAG.lottie"
+                        className={styles.loadingAnimation}
+                        title="Loading animation"
+                        allowFullScreen
+                        allow="autoplay"
+                        style={{
+                            backgroundColor: 'transparent',
+                            overflow: 'hidden'
+                        }}
+                    />
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className={styles.container}>
-            {/* Toast Notifications */}
             <div className={styles.toastContainer}>
                 {toastQueue.map((toast) => (
                     <ToastNotification
@@ -185,105 +206,114 @@ const CompanyInfo = () => {
                 ))}
             </div>
 
-            {/* Navigation Links */}
-            <div className={styles.navLinks}>
-                <button
-                    className={styles.navLink}
-                    onClick={scrollToDetails}
-                >
-                    <BsBuilding /> Company Details
-                </button>
-                <button
-                    className={styles.navLink}
-                    onClick={scrollToAnalytics}
-                >
-                    <BsGraphUp /> Analytics
-                </button>
+            <div className={styles.headerSection}>
+                <h2 className={styles.sectionTitle}>Company Details</h2>
+                <div className={styles.navLinks}>
+                    <button
+                        className={`${styles.navLink} ${activeSection === "details" ? styles.activeNavLink : ""}`}
+                        onClick={showDetailsSection}
+                    >
+                        <BsBuilding /> Company Info
+                    </button>
+                    <button
+                        className={`${styles.navLink} ${activeSection === "analytics" ? styles.activeNavLink : ""}`}
+                        onClick={showAnalyticsSection}
+                    >
+                        <BsGraphUp /> Analytics
+                    </button>
+                </div>
             </div>
 
-            {/* Company Details Section */}
-            <div ref={detailsRef} className={styles.section}>
-                <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Company Details</h2>
-                    {!isEditing ? (
-                        <button className={styles.editButton} onClick={handleEditToggle}>
-                            <FiEdit3 /> Edit Profile
-                        </button>
-                    ) : (
-                        <div className={styles.editActions}>
-                            <button className={styles.cancelButton} onClick={handleCancel}>
-                                <LuEraser /> Cancel
-                            </button>
-                            <button className={styles.saveButton} onClick={handleSaveChanges}>
-                                <FiSave /> Save Changes
-                            </button>
+            {activeSection === "details" && (
+                <div className={`${styles.section} ${styles.detailsSection}`}>
+                    <div className={styles.profileContainer}>
+                        <div className={styles.logoSection}>
+                            <CropImageUploader
+                                name="company_image"
+                                onFileChange={handleCompanyImageChange}
+                                defaultImage={defaultCompanyImage}
+                                currentImage={editedDetails.company_image}
+                                checkPage='company-info'
+                                isEditing={isEditing}
+                                onDelete={() => {
+                                    setEditedDetails(prev => ({
+                                        ...prev,
+                                        company_image: null
+                                    }));
+                                    setCompanyImageFile(null);
+                                }}
+                            />
                         </div>
-                    )}
-                </div>
-
-                <div className={styles.profileContainer}>
-                    <div className={styles.logoSection}>
-                        <CropImageUploader
-                            name="company_image"
-                            onFileChange={handleCompanyImageChange}
-                            defaultImage={defaultCompanyImage}
-                            currentImage={editedDetails.company_image}
-                            checkPage='company-info'
-                            isEditing={isEditing}
-                            onDelete={() => {
-                                setEditedDetails(prev => ({
-                                    ...prev,
-                                    company_image: null
-                                }));
-                                setCompanyImageFile(null);
-                            }}
-                        />
+                        <div className={styles.infoSection}>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    name="company_name"
+                                    value={editedDetails.company_name || ''}
+                                    onChange={handleInputChange}
+                                    className={styles.editNameInput}
+                                    placeholder="Company Name"
+                                />
+                            ) : (
+                                <h2 className={styles.companyName}>{editedDetails.company_name}</h2>
+                            )}
+                            <div className={styles.industry}>{editedDetails.company_industry}</div>
+                        </div>
                     </div>
-                    <div className={styles.infoSection}>
+
+                    <div className={styles.descriptionSection}>
+                        <h3 className={styles.subsectionTitle}>About</h3>
                         {isEditing ? (
-                            <input
-                                type="text"
-                                name="company_name"
-                                value={editedDetails.company_name || ''}
+                            <textarea
+                                name="company_description"
+                                value={editedDetails.company_description || ''}
                                 onChange={handleInputChange}
-                                className={styles.editNameInput}
-                                placeholder="Company Name"
+                                className={styles.editDescription}
+                                rows={6}
+                                placeholder="Company description..."
                             />
                         ) : (
-                            <h2 className={styles.companyName}>{editedDetails.company_name}</h2>
+                            <p className={styles.description}>
+                                {editedDetails.company_description || "No description provided."}
+                            </p>
                         )}
-                        <div className={styles.industry}>{editedDetails.company_industry}</div>
+                    </div>
+
+                    <div className={styles.sectionHeader}>
+                        {!isEditing ? (
+                            <div className={styles.editActions}>
+                                <button className={styles.editButton} onClick={handleEditToggle}>
+                                    <FiEdit3 /> Edit Profile
+                                </button>
+                                <button
+                                    className={styles.changeCompanySecretButton}
+                                    onClick={() => setIsSecretModalOpen(true)}
+                                >
+                                    <LuLock /> Change Company Secret
+                                </button>
+                            </div>
+
+                        ) : (
+                            <div className={styles.editActions}>
+                                <button className={styles.cancelButton} onClick={handleCancel}>
+                                    <LuEraser /> Cancel
+                                </button>
+                                <button className={styles.saveButton} onClick={handleSaveChanges}>
+                                    <FiSave /> Save Changes
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
+            )}
 
-                <div className={styles.descriptionSection}>
-                    <h3 className={styles.subsectionTitle}>About</h3>
-                    {isEditing ? (
-                        <textarea
-                            name="company_description"
-                            value={editedDetails.company_description || ''}
-                            onChange={handleInputChange}
-                            className={styles.editDescription}
-                            rows={6}
-                            placeholder="Company description..."
-                        />
-                    ) : (
-                        <p className={styles.description}>
-                            {editedDetails.company_description || "No description provided."}
-                        </p>
-                    )}
-                </div>
-            </div>
-
-            {/* Analytics Section */}
-            {companyData && (
-                <div ref={analyticsRef} className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Analytics</h2>
+            {activeSection === "analytics" && companyData && (
+                <div className={`${styles.analyticsSection}`}>
+                    <div className={styles.analyticsSectionHeader}>
+                        <h2 className={styles.analyticsSectionTitle}>Analytics</h2>
                     </div>
 
                     <div className={styles.analyticsGrid}>
-                        {/* Stats Cards */}
                         <div className={styles.statsCards}>
                             <div className={styles.statCard}>
                                 <div className={styles.statIcon}>
@@ -314,7 +344,6 @@ const CompanyInfo = () => {
                             </div>
                         </div>
 
-                        {/* Job Distribution Chart */}
                         <div className={styles.chartContainer}>
                             <h3 className={styles.chartTitle}>Job Distribution</h3>
                             <div className={styles.chartWrapper}>
@@ -344,7 +373,6 @@ const CompanyInfo = () => {
                         </div>
                     </div>
 
-                    {/* Recruiters Section */}
                     <div className={styles.recruitersSection}>
                         <div className={styles.recruiterTabs}>
                             <button
@@ -396,6 +424,11 @@ const CompanyInfo = () => {
                     </div>
                 </div>
             )}
+
+            <CompanySecretModal
+                isOpen={isSecretModalOpen}
+                onClose={() => setIsSecretModalOpen(false)}
+            />
         </div>
     );
 };

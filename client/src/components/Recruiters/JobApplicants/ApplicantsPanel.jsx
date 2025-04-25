@@ -21,7 +21,7 @@ import { MdOutlineFileDownload } from 'react-icons/md';
 import { VscEye } from "react-icons/vsc";
 
 const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
-                           applicantsListCurrentPage, setApplicantsListCurrentPage, applicantsListTotalPages, handleViewApplicants, selectedStatus }) => {
+                           applicantsListCurrentPage, setApplicantsListCurrentPage, handleViewApplicants, selectedStatus }) => {
   const [expandedApplicant, setExpandedApplicant] = useState(null);
   const [applicantDetails, setApplicantDetails] = useState({});
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -125,10 +125,8 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
   const fetchApplicationStatuses = async() => {
     try {
       const response = await jobApplicantsStatus(job.job_id)
-      console.log("response ",response)
       if(response.error === false){
         setApplicantsStats(response.data)
-        console.log("in method applicantsStats ",applicantsStats)
       }
 
     }
@@ -140,7 +138,6 @@ const ApplicantsPanel = ({ job, onClose, applications, onStatusChange,
 
   useEffect(() => {
     fetchApplicationStatuses()
-    console.log("in use effect applicantsStats ",applicantsStats)
   },[])
 
   // Reset all expanded applicants when panel is closed
