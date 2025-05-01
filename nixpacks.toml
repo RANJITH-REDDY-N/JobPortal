@@ -11,4 +11,7 @@ build.command = "npm install && npm run build"
 start.command = "npm run preview -- --port $PORT"
 
 [phases]
-setup = ["python311", "nodejs-18_x"]
+setup = [
+    { nixPkgs = ["python311"] },
+    { nixPkgs = ["nodejs-18_x"] }
+]
