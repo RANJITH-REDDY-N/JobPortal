@@ -3,9 +3,18 @@ backend = { path = "server" }
 frontend = { path = "client" }
 
 [backend]
-build.command = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
-start.command = "python manage.py migrate && gunicorn your_project_name.wsgi --bind 0.0.0.0:$PORT"
+build.command = [
+  "pip install -r requirements.txt",
+  "python manage.py collectstatic --noinput"
+]
+start.command = [
+  "python manage.py migrate",
+  "gunicorn config.wsgi --bind 0.0.0.0:$PORT"
+]
 
 [frontend]
-build.command = "npm install && npm run build"
+build.command = [
+  "npm install",
+  "npm run build"
+]
 start.command = "npm run preview -- --port $PORT"
