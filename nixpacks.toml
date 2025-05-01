@@ -1,0 +1,20 @@
+[phases]
+setup = [
+    { nixPkgs = ["python311", "nodejs-18_x"] }
+]
+
+[build]
+backend = { path = "server" }
+frontend = { path = "client" }
+
+[backend.build]
+command = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+
+[backend.start]
+command = "python manage.py migrate && gunicorn your_project_name.wsgi --bind 0.0.0.0:$PORT"
+
+[frontend.build]
+command = "npm install && npm run build"
+
+[frontend.start]
+command = "npm run preview -- --port $PORT"
