@@ -1,3 +1,6 @@
+gunicorn==21.2.0
+whitenoise==6.6.0
+mysqlclient==2.2.0
 asgiref==3.8.1
 Django==5.1.7
 django-cors-headers==4.3.1
@@ -13,6 +16,3 @@ python-dotenv~=1.1.0
 django-filter~=25.1
 sendgrid~=6.11.0
 urllib3~=2.4.0
-gunicorn==21.2.0
-whitenoise==6.6.0
-mysqlclient

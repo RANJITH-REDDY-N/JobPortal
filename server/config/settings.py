@@ -11,7 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=True, cast=bool)
-# ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
     # "django.contrib.auth",
@@ -62,12 +61,10 @@ DATABASES = {
 
 # settings.py
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '../client/dist')  # Point to Vite's output
+    os.path.join(BASE_DIR, '../static/dist')  # Point to Vite's output
 ]
 
-ALLOWED_HOSTS = ["localhost",
-    "127.0.0.1",
-    ".up.railway.app"]
+ALLOWED_HOSTS = ["*"]
 
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -84,8 +81,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production collectstatic
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')  # For Vite build output
+]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 

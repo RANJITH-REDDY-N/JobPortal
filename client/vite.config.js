@@ -1,21 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// export default defineConfig({
-//   plugins: [react()],
-//   server: {
-//     port: process.env.PORT || 3000,
-//   },
-//   preview: {
-//     port: process.env.PORT || 3000,
-//   },
-//   build: {
-//     outDir: 'dist',
-//     emptyOutDir: true,
-//   }
-// })
-
-
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -29,5 +14,10 @@ export default defineConfig({
   build: {
     outDir: '../server/static',  // Builds to Django's static folder
     emptyOutDir: true,
+    rollupOptions: {
+    output: {
+      assetFileNames: 'assets/[name][extname]'
+    }
+  }
   }
 })

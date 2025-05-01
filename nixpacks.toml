@@ -15,6 +15,6 @@ start.command = [
 [frontend]
 build.command = [
   "npm install",
-  "npm run build"
+  "npm run build",
+  "cp -r ../client/dist/* ../server/static/"  # Explicit copy
 ]
-start.command = "npm run preview -- --port $PORT"

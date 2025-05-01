@@ -1,5 +1,8 @@
 # Ignore media files
 server/media/
+# Static files
+static/
+staticfiles/
 
 # Python/Django
 *.pyc
