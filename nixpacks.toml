@@ -9,9 +9,3 @@ start.command = "python manage.py migrate && gunicorn your_project_name.wsgi --b
 [frontend]
 build.command = "npm install && npm run build"
 start.command = "npm run preview -- --port $PORT"
-
-[phases]
-setup = [
-    { nixPkgs = ["python311"] },
-    { nixPkgs = ["nodejs-18_x"] }
-]
