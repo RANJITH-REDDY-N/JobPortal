@@ -1,6 +1,10 @@
 {
   "build": {
-    "server": "cd server && pip install -r requirements.txt && python manage.py collectstatic --noinput",
-    "client": "cd client && npm install && npm run build"
+    "backend": "cd server && pip install -r requirements.txt && python manage.py collectstatic --noinput",
+    "frontend": "cd client && npm install && npm run build"
+  },
+  "run": {
+    "backend": "cd server && python manage.py migrate && gunicorn your_project_name.wsgi --bind 0.0.0.0:$PORT",
+    "frontend": "cd client && npm run preview -- --port $PORT"
   }
 }

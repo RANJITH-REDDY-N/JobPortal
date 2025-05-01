@@ -36,18 +36,6 @@ ROOT_URLCONF = "config.urls"
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.mysql",
-#         "NAME": config("DB_NAME"),
-#         "USER": config("DB_USER"),
-#         "PASSWORD": config("DB_PASSWORD"),
-#         "HOST": config("DB_HOST"),
-#         "PORT": config("DB_PORT", default="3306"),
-#         "OPTIONS": {"sql_mode": "STRICT_TRANS_TABLES"},
-#     }
-# }
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -59,14 +47,18 @@ DATABASES = {
         "OPTIONS": {"sql_mode": "STRICT_TRANS_TABLES"},
     }
 }
+# settings.py
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, '../client/dist')  # Point to Vite's output
+]
 
 ALLOWED_HOSTS = ["*"]
 
 
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    "https://your-react-app.up.railway.app",
-    "http://localhost:3000",
+    "https://your-frontend-url.railway.app",
+    "http://localhost:3000"
     "http://127.0.0.1:3000"
 ]
 
