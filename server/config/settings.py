@@ -36,23 +36,38 @@ ROOT_URLCONF = "config.urls"
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": config("DB_NAME"),
+#         "USER": config("DB_USER"),
+#         "PASSWORD": config("DB_PASSWORD"),
+#         "HOST": config("DB_HOST"),
+#         "PORT": config("DB_PORT", default="3306"),
+#         "OPTIONS": {"sql_mode": "STRICT_TRANS_TABLES"},
+#     }
+# }
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT", default="3306"),
+        "NAME": os.getenv('DB_NAME'),  # Changed from config() to os.getenv()
+        "USER": os.getenv('DB_USER'),
+        "PASSWORD": os.getenv('DB_PASSWORD'),
+        "HOST": os.getenv('DB_HOST'),
+        "PORT": os.getenv('DB_PORT', '3306'),  # Default port as fallback
         "OPTIONS": {"sql_mode": "STRICT_TRANS_TABLES"},
     }
 }
+
 # settings.py
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, '../client/dist')  # Point to Vite's output
 ]
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["localhost",
+    "127.0.0.1",
+    ".up.railway.app"]
 
 
 CORS_ALLOW_ALL_ORIGINS = False
